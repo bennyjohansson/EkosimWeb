@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+
+<html>
+    <head> 
+        <link rel = "stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" >
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"> </script>
+        <title> Ekosim </title>
+    </head>
+
+    <body>
+        <h1 id = "myTest" style="text-align:center"> Ekosim Test </h1>
+        <br> <br>
+        <div class = "container">  
+            <canvas id = "myMoneyChart"> </canvas> 
+        </div>
+
+        <div class = "container">  
+            <canvas id = "myGDPChart"> </canvas> 
+        </div>
+
+        <div class = "container">  
+            <canvas id = "myDIVChart"> </canvas> 
+        </div>        
+
+        <br><br>
+        <button onclick="putParameter('InterestRateMethod', 1)">Use market IR</button>
+        <br><br>
+        <p1 id="irMethod"> Target Interest Rate </p1>
+        <br> <br>
+        <button onclick="putParameter('InterestRateMethod', 1)">Use market IR</button>
+
+        <br> <br>
+        <button onclick="changeInterestRate()">Use target rate </button>    
+        <input type="number" name="name" id="interestRateInput" value="5" />
+        %
+        
+        <br>
+        <br> <br>
+
+        <div class = "container">  
+            <canvas id = "myTestChart"> </canvas> 
+        </div>     
+          
+      
+
+        <script src = "myChart.js">
+            
+            //document.getElementById("myTest").innerHTML = "Hello JavaScript!";
+                    
+            // console.log('testing');
+
+        </script>
+
+       
+
+
+    
+
+    </body>
+
+</html>
