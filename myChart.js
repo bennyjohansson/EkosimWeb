@@ -259,72 +259,7 @@ function updateGDPData(GDPChart, DIVChart, newData) {
    
 }
 
-function updateDIVData(chart, newData) {
 
-    //Parsing API-data
-    //Price interest growth
-    var JSONData = JSON.parse(newData).data;
-    //console.log(JSONData);
-
-    var timeData = chart.data.labels;
-    //var nominal_gdp = chart.data.datasets[0].data;
-    //var real_gdp = chart.data.datasets[1].data;
-    //var items = chart.data.datasets[2].data;
-    //var demand = chart.data.datasets[1].data;
-    var price_out = chart.data.datasets[0].data;
-    var interest_rate = chart.data.datasets[1].data;
-
-    var employed = chart.data.datasets[2].data;
-    var wages = chart.data.datasets[3].data;
-    //var investments = chart.data.datasets[3].data;
-    //var growth = chart.data.datasets[4].data;
-
-
-
-
-
-    for(var i in JSONData) {
-        timeData.push(JSONData[i].TIME);
-        price_out.push(JSONData[i].PRICE);
-        employed.push(JSONData[i].NO_EMPLOYED);
-        wages.push(JSONData[i].WAGES);
-        interest_rate.push((JSONData[i].INTEREST_RATE));
-        nominal_gdp.push(JSONData[i].GDP_NOMINAL);
-
-
-    };
-
-    let Growthx10 = new Array(timeData.length);
-    Growthx10MA = new Array(timeData.length);
-    Growthx10[0] = 0;
-
-    const reducer = (accumulator, currentValue) => accumulator + currentValue;
-
-    for(i=0; i<timeData.length; i++) {
-        //GDPreal[i]=nominal_gdp[i]*price_out[0]/price_out[i];
-        //Growthx10[i] = ((nominal_gdp[i+1]*price_out[0]/price_out[i+1])/GDPreal[i]-1)*100;
-        //Growthx10MA[i] =  Growthx10.slice(Math.max(0,i-9), i+1).reduce(reducer)/10;
-
-    }
-   
-    
-    chart.data.labels = timeData;
-    chart.data.datasets[0].data = price_out;
-    chart.data.datasets[1].data = interest_rate;
-    //chart.data.datasets[2].data = Growthx10MA;
-    //chart.data.datasets[3].data = investments;
-    //chart.data.datasets[4].data = bankCapital;
-    //chart.data.datasets[5].data = bankLoans;
-    //chart.data.datasets[6].data = bankDeposits;
-    //chart.data.datasets[7].data = bankLiquiditys;
-    //chart.data.datasets[8].data = companyCapital;
-    //chart.data.datasets[9].data = companyDebts;
-    //chart.data.datasets[10].data = marketCapital;
-    //chart.data.datasets[11].data = cityCapital;
-
-    chart.update();
-   
-}
 
 
 
@@ -1049,3 +984,69 @@ function updateChartData(table, chart, mycallback) {
 }
 
 
+function updateDIVData(chart, newData) {
+
+    //Parsing API-data
+    //Price interest growth
+    var JSONData = JSON.parse(newData).data;
+    //console.log(JSONData);
+
+    var timeData = chart.data.labels;
+    //var nominal_gdp = chart.data.datasets[0].data;
+    //var real_gdp = chart.data.datasets[1].data;
+    //var items = chart.data.datasets[2].data;
+    //var demand = chart.data.datasets[1].data;
+    var price_out = chart.data.datasets[0].data;
+    var interest_rate = chart.data.datasets[1].data;
+
+    var employed = chart.data.datasets[2].data;
+    var wages = chart.data.datasets[3].data;
+    //var investments = chart.data.datasets[3].data;
+    //var growth = chart.data.datasets[4].data;
+
+
+
+
+
+    for(var i in JSONData) {
+        timeData.push(JSONData[i].TIME);
+        price_out.push(JSONData[i].PRICE);
+        employed.push(JSONData[i].NO_EMPLOYED);
+        wages.push(JSONData[i].WAGES);
+        interest_rate.push((JSONData[i].INTEREST_RATE));
+        nominal_gdp.push(JSONData[i].GDP_NOMINAL);
+
+
+    };
+
+    let Growthx10 = new Array(timeData.length);
+    Growthx10MA = new Array(timeData.length);
+    Growthx10[0] = 0;
+
+    const reducer = (accumulator, currentValue) => accumulator + currentValue;
+
+    for(i=0; i<timeData.length; i++) {
+        //GDPreal[i]=nominal_gdp[i]*price_out[0]/price_out[i];
+        //Growthx10[i] = ((nominal_gdp[i+1]*price_out[0]/price_out[i+1])/GDPreal[i]-1)*100;
+        //Growthx10MA[i] =  Growthx10.slice(Math.max(0,i-9), i+1).reduce(reducer)/10;
+
+    }
+   
+    
+    chart.data.labels = timeData;
+    chart.data.datasets[0].data = price_out;
+    chart.data.datasets[1].data = interest_rate;
+    //chart.data.datasets[2].data = Growthx10MA;
+    //chart.data.datasets[3].data = investments;
+    //chart.data.datasets[4].data = bankCapital;
+    //chart.data.datasets[5].data = bankLoans;
+    //chart.data.datasets[6].data = bankDeposits;
+    //chart.data.datasets[7].data = bankLiquiditys;
+    //chart.data.datasets[8].data = companyCapital;
+    //chart.data.datasets[9].data = companyDebts;
+    //chart.data.datasets[10].data = marketCapital;
+    //chart.data.datasets[11].data = cityCapital;
+
+    chart.update();
+   
+}
