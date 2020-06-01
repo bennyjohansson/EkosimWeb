@@ -1,0 +1,26 @@
+{
+  "name": "ekoweb",
+  "version": "1.0.0",
+  "description": "HTML and .js for Ekosim",
+  "main": "DBConnection.js",
+  "dependencies": {
+    "chart.js": "^2.9.3",
+    "express": "^4.17.1",
+    "sqlite3": "^4.2.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "author": "Benny Johansson",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bennyjohansson/EkosimWeb.git"
+  },
+  "bugs": {
+    "url": "https://github.com/bennyjohansson/EkosimWeb/issues"
+  },
+  "homepage": "https://github.com/bennyjohansson/EkosimWeb#readme"
+}
