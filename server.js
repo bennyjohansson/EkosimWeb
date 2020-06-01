@@ -168,8 +168,8 @@ app.put('/ekosim/:parameterID', function (req, res) {
     res.send('Parameter ' + ParameterID + ' probably updated to value ' + value);
 
 });
-
-app.listen(3000, function () {
+const port = process.port.env.port || 3000;
+app.listen(port, function () {
 
 
     console.log('Forst API running on port 3000');
