@@ -38,6 +38,19 @@ function changeInterestRate() {
 
 }
 
+function changeCapitalReserveRatio() {
+    var reserveRatio = document.getElementById("reserveRatioInput").value;
+    putParameter('CapitalReserveRatio', reserveRatio);
+
+    getParameter('CapitalReserveRatio', function(result) {
+        var JSONData = JSON.parse(result).data;
+        console.log(JSONData.VALUE);
+        document.getElementById("reserveRatioInput").value = JSONData.VALUE;
+        }
+    );
+
+}
+
 
 
 
@@ -223,6 +236,8 @@ function updateGDPData(GDPChart, DIVChart, newData) {
         DIVChart.data.labels.push(JSONData[i].TIME);
         DIVChart.data.datasets[0].data.push(JSONData[i].PRICE);
         DIVChart.data.datasets[1].data.push(JSONData[i].INTEREST_RATE*100);
+        DIVChart.data.datasets[3].data.push(JSONData[i].CAP_RES_RATIO*10);
+
         //employed.push(JSONData[i].NO_EMPLOYED);
         //wages.push(JSONData[i].WAGES);
     };
@@ -242,6 +257,7 @@ function updateGDPData(GDPChart, DIVChart, newData) {
 
     }
 
+    //console.log(DIVChart.data.datasets[3].data);
 
     //Replacing old GDP data with new data & Updating
     DIVChart.data.datasets[2].data = Growthx10MA;
@@ -424,8 +440,8 @@ initiateDIVTable = function(myChart) {
             
         },
         {
-            label: "Growth",
-            borderColor: "green",
+            label: "Cap reserve ratio x10",
+            borderColor: "red",
             pointRadius: 0,
             data: [0]
             
@@ -461,6 +477,13 @@ getParameter('TargetInterestRate', function(result) {
     var JSONData = JSON.parse(result).data;
     console.log(JSONData.VALUE);
     document.getElementById("interestRateInput").value = JSONData.VALUE*100;
+    }
+);
+
+getParameter('CapitalReserveRatio', function(result) {
+    var JSONData = JSON.parse(result).data;
+    console.log(JSONData.VALUE);
+    document.getElementById("reserveRatioInput").value = JSONData.VALUE;
     }
 );
 

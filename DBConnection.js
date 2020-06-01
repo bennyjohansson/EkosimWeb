@@ -99,7 +99,7 @@ getMoneyTableUpdate = function(lastTime, table) { //database, table
             console.log('Connected to the ekosim database.');
         });
         const queries = [];
-        console.log(`SELECT rowid as key, * FROM ${table} WHERE TIME > ${lastTime}`);
+        //console.log(`SELECT rowid as key, * FROM ${table} WHERE TIME > ${lastTime}`);
         db.each(`SELECT rowid as key, * FROM ${table} WHERE TIME > ${lastTime}`, (err, row) => {
         //db.each(`SELECT rowid as key, * FROM MONEY_DATA`, (err, row) => {
             if (err) {
@@ -120,7 +120,7 @@ getMoneyTableUpdate = function(lastTime, table) { //database, table
 var returnTable = function () {
     return new Promise((resolve, reject) => {
 
-        const db = new sqlite3.Database('/Users/bennyjohansson/Projects/ekosim/myDB/testDB.db');
+        const db = new sqlite3.Database('/Users/bennyjohansson/Projects/ekosim/myDB/ekosimDB.db');
         const queries = [];
         db.each(`SELECT  * FROM PARAMETERS`, (err, row) => {
             if (err) {
@@ -139,9 +139,10 @@ var returnTable = function () {
         });
     });
 }
+
 var insertFunction = function (parameter, value) {
 
-    let db = new sqlite3.Database('/Users/bennyjohansson/Projects/ekosim/myDB/testDB.db', sqlite3.OPEN_READWRITE, (err) => {
+    let db = new sqlite3.Database('/Users/bennyjohansson/Projects/ekosim/myDB/ekosimDB.db', sqlite3.OPEN_READWRITE, (err) => {
         if (err) {
             console.error(err.message);
         }

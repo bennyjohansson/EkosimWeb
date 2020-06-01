@@ -1,6 +1,6 @@
 var express = require('express');
 var app = express();
-let testFunctions = require('./DBConnection')
+let DBFunctions = require('./DBConnection')
 const sqlite3 = require('sqlite3').verbose();
 
 
@@ -31,7 +31,7 @@ app.use(function (req, res, next) {
 
 app.get('/ekosim/read/:param', (req, res, next) => {
 
-    let db = new sqlite3.Database('/Users/bennyjohansson/Projects/ekosim/myDB/testDB.db', sqlite3.OPEN_READONLY, (err) => {
+    let db = new sqlite3.Database('/Users/bennyjohansson/Projects/ekosim/myDB/ekosimDB.db', sqlite3.OPEN_READONLY, (err) => {
         if (err) {
             console.error(err.message);
         }
@@ -40,8 +40,8 @@ app.get('/ekosim/read/:param', (req, res, next) => {
     var params = [req.params.param];
     var sql = "select * from PARAMETERS WHERE PARAMETER = ?"// InterestRateMethod TargetInterestRate
     //params = [];
-    console.log(sql);
-    console.log(params);
+    //console.log(sql);
+    //console.log(params);
     db.get(sql, params, (err, row) => {
         if (err) {
             res.status(400).json({ "error": err.message });
@@ -68,8 +68,8 @@ app.get('/ekosim/readmoney/', (req, res, next) => {
     var params = [];
     var sql = "select * from MONEY_DATA"// InterestRateMethod TargetInterestRate
     //params = [];
-    console.log(sql);
-    console.log(params);
+    //console.log(sql);
+    //console.log(params);
     db.get(sql, params, (err, row) => {
         if (err) {
             res.status(400).json({ "error": err.message });
@@ -79,7 +79,7 @@ app.get('/ekosim/readmoney/', (req, res, next) => {
             "message": "success",
             "data": row
         })
-        console.log(row)
+        //console.log(row)
     });
 });
 
@@ -106,7 +106,7 @@ app.get('/ekosim/readmoneytable/:table', (req, res, next) => {
 app.get('/ekosim/moneytable/update/:lastTimestamp', (req, res, next) => {
 
     var lastTime = [req.params.lastTimestamp];
-    console.log(lastTime)
+    //console.log(lastTime)
 
     myTable = getMoneyTableUpdate(lastTime, 'MONEY_DATA');
 
@@ -127,7 +127,7 @@ app.get('/ekosim/moneytable/update/:lastTimestamp', (req, res, next) => {
 app.get('/ekosim/timetable/update/:lastTimestamp', (req, res, next) => {
 
     var lastTime = [req.params.lastTimestamp];
-    console.log(lastTime)
+    //console.log(lastTime)
 
     myTable = getMoneyTableUpdate(lastTime, 'TIME_DATA');
 
@@ -152,8 +152,8 @@ app.put('/ekosim/:parameterID', function (req, res) {
 
     var ParameterID = req.params.parameterID;
     var value = req.body.VALUE;
-    console.log(value);
-    console.log(ParameterID);
+    //console.log(value);
+    //console.log(ParameterID);
 
 
     if (!value || value === "") {
@@ -164,7 +164,7 @@ app.put('/ekosim/:parameterID', function (req, res) {
 
     }
 
-    testFunctions.insertFunction(ParameterID, value)
+    DBFunctions.insertFunction(ParameterID, value)
     res.send('Parameter ' + ParameterID + ' probably updated to value ' + value);
 
 });
