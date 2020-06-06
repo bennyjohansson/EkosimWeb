@@ -187,5 +187,5 @@ app.listen(8080, function () {
 
 
     console.log('Forst API running on port 3000');
-    console.log(port);
+    //console.log(port);
 });
