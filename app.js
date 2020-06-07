@@ -457,6 +457,41 @@ initiateDIVTable = function(myChart) {
 * PUPULATING BUTTONS AND FIELDS WITH INITIAL VALUES
 */
 
+var getTest = function (mycallback) {
+    var url = 'http://localhost:3000/ekosim/test/';
+    //url = url.concat(parameter);
+
+    //console.log(url);
+
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', url, true);
+    xhr.onreadystatechange = function () {
+        //console.log(xhr.readyState);
+        if (xhr.readyState == 4) { //XMLHttpRequest.DONE
+            var response = xhr.responseText;
+            console.log("response: " + response); //Correctly prints JSON content to console
+
+            // call it here
+            mycallback(response);
+        }
+    }
+    xhr.send(null);
+
+
+
+};
+
+getTest(function(result) {
+    var JSONData = JSON.parse(result).data;
+    var myResponse;
+    myResponse = JSONData //.data;
+    //element.innerHTML = "New Heading";
+    console.log(myResponse);
+
+    document.getElementById("TestText").innerHTML = myResponse;
+    }
+);
+
 
 getParameter('InterestRateMethod', function(result) {
     var JSONData = JSON.parse(result).data;

@@ -29,6 +29,37 @@ app.use(function (req, res, next) {
 });
 
 
+app.get('/ekosim/test', (req, res, next) => {
+
+    // let db = new sqlite3.Database('/Users/bennyjohansson/Projects/ekosim/myDB/ekosimDB.db', sqlite3.OPEN_READONLY, (err) => {
+    //     if (err) {
+    //         console.error(err.message);
+    //     }
+    //     console.log('Connected to the ekosim database.');
+    // });
+    // var params = [req.params.param];
+    // var sql = "select * from PARAMETERS WHERE PARAMETER = ?"// InterestRateMethod TargetInterestRate
+    //params = [];
+    //console.log(sql);
+    //console.log(params);
+    // db.get(sql, params, (err, row) => {
+    //     if (err) {
+    //         res.status(400).json({ "error": err.message });
+    //         return;
+    //     }
+    //     res.json({
+    //         "message": "success",
+    //         "data": row
+    //     })
+    // });
+
+    res.json({
+                "message": "success",
+                 "data": "Test succeeded"});
+
+});
+
+
 app.get('/ekosim/read/:param', (req, res, next) => {
 
     let db = new sqlite3.Database('/Users/bennyjohansson/Projects/ekosim/myDB/ekosimDB.db', sqlite3.OPEN_READONLY, (err) => {
@@ -88,7 +119,7 @@ app.get('/ekosim/readmoneytable/:table', (req, res, next) => {
     var myGetTable = [req.params.table];
     myTable = resolveReturnTable(myGetTable);
 
-   var mytableJSON = myTable.then((result) => {
+    var mytableJSON = myTable.then((result) => {
         //console.log(result[31]) // "Some User token"
         //return result[31];
         return res.json({
@@ -97,7 +128,7 @@ app.get('/ekosim/readmoneytable/:table', (req, res, next) => {
         })
     });
 
-    
+
     //console.log(mytableJSON)
 
 });
@@ -110,7 +141,7 @@ app.get('/ekosim/moneytable/update/:lastTimestamp', (req, res, next) => {
 
     myTable = getMoneyTableUpdate(lastTime, 'MONEY_DATA');
 
-   var mytableJSON = myTable.then((result) => {
+    var mytableJSON = myTable.then((result) => {
         //console.log(result[31]) // "Some User token"
         //return result[31];
         return res.json({
@@ -119,7 +150,7 @@ app.get('/ekosim/moneytable/update/:lastTimestamp', (req, res, next) => {
         })
     });
 
-    
+
     //console.log(mytableJSON)
 
 });
@@ -131,7 +162,7 @@ app.get('/ekosim/timetable/update/:lastTimestamp', (req, res, next) => {
 
     myTable = getMoneyTableUpdate(lastTime, 'TIME_DATA');
 
-   var mytableJSON = myTable.then((result) => {
+    var mytableJSON = myTable.then((result) => {
         //console.log(result[31]) // "Some User token"
         //return result[31];
         return res.json({
@@ -140,7 +171,7 @@ app.get('/ekosim/timetable/update/:lastTimestamp', (req, res, next) => {
         })
     });
 
-    
+
     //console.log(mytableJSON)
 
 });
@@ -177,12 +208,13 @@ app.listen(3000, function () {
 */
 
 app.get("/", (req, res, next) => {
-    console.log(__dirname+'/index.html');
-    res.sendFile(__dirname+'/index.html');
+    console.log(__dirname + '/index.html');
+    res.sendFile(__dirname + '/index.html');
     //res.json(["Tony","Lisa","Michael","Ginger","Food"]);
-    
+
 });
 
+//8080
 app.listen(8080, function () {
 
 
