@@ -56,7 +56,7 @@ function changeCapitalReserveRatio() {
 
 var getParameter = function (parameter, mycallback) {
 
-    var url = 'http://localhost:3000/ekosim/read/';
+    var url = '/home/ec2-user/ekosimProject/myDB/ekosimDB.db';
     url = url.concat(parameter);
 
     //console.log(url);
