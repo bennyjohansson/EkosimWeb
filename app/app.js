@@ -56,7 +56,7 @@ function changeCapitalReserveRatio() {
 
 var getParameter = function (parameter, mycallback) {
 
-    var url = 'http://localhost:3000/ekosim/read/';
+    var url = 'http://ekosimweb-env.eba-66jamvpz.us-east-2.elasticbeanstalk.com/ekosim/read/';
     url = url.concat(parameter);
 
     //console.log(url);
