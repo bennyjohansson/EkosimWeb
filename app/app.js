@@ -458,7 +458,7 @@ initiateDIVTable = function(myChart) {
 */
 
 var getTest = function (mycallback) {
-    var url = 'http://ekosimweb-env.eba-66jamvpz.us-east-2.elasticbeanstalk.com/';
+    var url = 'http://ekosimweb-env.eba-66jamvpz.us-east-2.elasticbeanstalk.com/ekosim/test';
     //url = url.concat(parameter);
 
     //console.log(url);
