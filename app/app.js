@@ -489,7 +489,7 @@ getTest(function(result) {
     //element.innerHTML = "New Heading";
     console.log(myResponse);
 
-    document.getElementById("TestText").innerHTML = "Shit man"; //myResponse;
+    document.getElementById("TestText").innerHTML = myResponse;
     }
 );
 
