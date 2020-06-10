@@ -4,7 +4,7 @@
 
 function putParameter(parameter, value) { //parameter
 
-    var url = 'http://ekosimweb-env.eba-66jamvpz.us-east-2.elasticbeanstalk.com//ekosim/'; //TargetInterestRate';
+    var url = 'http://ekosimweb-env.eba-66jamvpz.us-east-2.elasticbeanstalk.com/ekosim/'; //TargetInterestRate';
     url = url.concat(parameter);
 
     //console.log(url);
@@ -89,7 +89,7 @@ function getMoneyData(table, chart, mycallback) {
 
 
     
-    var url = 'http://ekosimweb-env.eba-66jamvpz.us-east-2.elasticbeanstalk.com//ekosim/moneytable/update/';
+    var url = 'http://ekosimweb-env.eba-66jamvpz.us-east-2.elasticbeanstalk.com/ekosim/moneytable/update/';
     url = url.concat(lastTimestamp);
 
     //console.log(url);
@@ -120,7 +120,7 @@ function getGDPData(table,  myGDPChart, myDIVChart, mycallback) {
 
 
     
-    var url = 'http://ekosimweb-env.eba-66jamvpz.us-east-2.elasticbeanstalk.com//ekosim/timetable/update/';
+    var url = 'http://ekosimweb-env.eba-66jamvpz.us-east-2.elasticbeanstalk.com/ekosim/timetable/update/';
     url = url.concat(lastTimestamp);
 
     //console.log(url);
@@ -950,7 +950,7 @@ generateMoneyTable = function(result) {
 
 function getTableData(table, mycallback) {
 
-    var url = 'http://ekosimweb-env.eba-66jamvpz.us-east-2.elasticbeanstalk.com//ekosim/readmoneytable/';
+    var url = 'http://ekosimweb-env.eba-66jamvpz.us-east-2.elasticbeanstalk.com/ekosim/readmoneytable/';
     url = url.concat(table);
     var myReturnChart;
 
@@ -1024,7 +1024,7 @@ function updateMoneyData(chart, newData) {
 
 function updateChartData(table, chart, mycallback) {
 
-    var url = 'http://ekosimweb-env.eba-66jamvpz.us-east-2.elasticbeanstalk.com//ekosim/readmoneytable/';
+    var url = 'http://ekosimweb-env.eba-66jamvpz.us-east-2.elasticbeanstalk.ekosim/readmoneytable/';
     url = url.concat(table);
 
     var xhr = new XMLHttpRequest();
