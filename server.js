@@ -62,7 +62,7 @@ app.get('/ekosim/test', (req, res, next) => {
 
 app.get('/ekosim/read/:param', (req, res, next) => {
 
-    let db = new sqlite3.Database('/home/ec2-user/ekosimProject/myDB/ekosimDB.db, sqlite3.OPEN_READONLY, (err) => {
+    let db = new sqlite3.Database('/home/ec2-user/ekosimProject/myDB/ekosimDB.db', sqlite3.OPEN_READONLY, (err) => {
         if (err) {
             console.error(err.message);
         }
