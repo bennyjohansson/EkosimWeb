@@ -4,7 +4,7 @@
 
 function putParameter(parameter, value) { //parameter
 
-    var url = '/home/ec2-user/ekosimProject/myDB/ekosimDB.db'; //TargetInterestRate';
+    var url = 'http://localhost:3000/ekosim/'; //TargetInterestRate';
     url = url.concat(parameter);
 
     //console.log(url);
@@ -56,7 +56,7 @@ function changeCapitalReserveRatio() {
 
 var getParameter = function (parameter, mycallback) {
 
-    var url = '/home/ec2-user/ekosimProject/myDB/ekosimDB.db';
+    var url = 'http://localhost:3000/ekosim/read/';
     url = url.concat(parameter);
 
     //console.log(url);
@@ -89,7 +89,7 @@ function getMoneyData(table, chart, mycallback) {
 
 
     
-    var url = '/home/ec2-user/ekosimProject/myDB/ekosimDB.db';
+    var url = 'http://localhost:3000/ekosim/moneytable/update/';
     url = url.concat(lastTimestamp);
 
     //console.log(url);
@@ -458,7 +458,7 @@ initiateDIVTable = function(myChart) {
 */
 
 var getTest = function (mycallback) {
-    var url = 'http://ekosimweb-env.eba-66jamvpz.us-east-2.elasticbeanstalk.com/ekosim/test';
+    var url = 'http://ekosimweb-env.eba-66jamvpz.us-east-2.elasticbeanstalk.com/';
     //url = url.concat(parameter);
 
     //console.log(url);
@@ -489,7 +489,7 @@ getTest(function(result) {
     //element.innerHTML = "New Heading";
     console.log(myResponse);
 
-    document.getElementById("TestText").innerHTML = myResponse;
+    document.getElementById("TestText").innerHTML = "Shit man" //myResponse;
     }
 );
 
