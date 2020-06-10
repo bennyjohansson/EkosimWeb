@@ -89,7 +89,7 @@ function getMoneyData(table, chart, mycallback) {
 
 
     
-    var url = 'http://localhost:3000/ekosim/moneytable/update/';
+    var url = '/home/ec2-user/ekosimProject/myDB/ekosimDB.db';
     url = url.concat(lastTimestamp);
 
     //console.log(url);
