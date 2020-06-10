@@ -482,6 +482,7 @@ var getTest = function (mycallback) {
 };
 
 getTest(function(result) {
+    console.log(result);
     var JSONData = JSON.parse(result).data;
     var myResponse;
     myResponse = JSONData //.data;
