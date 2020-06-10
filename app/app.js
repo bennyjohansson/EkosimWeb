@@ -4,7 +4,7 @@
 
 function putParameter(parameter, value) { //parameter
 
-    var url = 'http://localhost:3000/ekosim/'; //TargetInterestRate';
+    var url = '/home/ec2-user/ekosimProject/myDB/ekosimDB.db'; //TargetInterestRate';
     url = url.concat(parameter);
 
     //console.log(url);
