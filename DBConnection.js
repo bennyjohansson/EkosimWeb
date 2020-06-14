@@ -148,6 +148,7 @@ var insertFunction = function (parameter, value) {
             console.error(err.message);
         }
         console.log('Connected to the ekosim database for insert functions.');
+        
     });
 
     var data = [value, parameter];
