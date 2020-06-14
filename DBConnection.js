@@ -4,7 +4,7 @@ const sqlite3 = require('sqlite3').verbose();
 var myTestSQL = function () {
 
     var retDBObject = {}
-    let db = new sqlite3.Database('/home/ec2-user/ekosimProject/myDB/ekosimDB.db', sqlite3.OPEN_READONLY, (err) => {
+    let db = new sqlite3.Database('./myDB/ekosimDB.db', sqlite3.OPEN_READONLY, (err) => {
         if (err) {
             console.error(err.message);
         }
@@ -147,7 +147,7 @@ var insertFunction = function (parameter, value) {
         if (err) {
             console.error(err.message);
         }
-        console.log('Connected to the ekosim database.');
+        console.log('Connected to the ekosim database for insert functions.');
     });
 
     var data = [value, parameter];
