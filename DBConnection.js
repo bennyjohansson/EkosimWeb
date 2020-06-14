@@ -37,7 +37,7 @@ var myTestSQL = function () {
 var getTable = function () {
 
     var retDBObject = {}
-    let db = new sqlite3.Database('/home/ec2-user/ekosimProject/myDB/ekosimDB.db', sqlite3.OPEN_READONLY, (err) => {
+    let db = new sqlite3.Database('./myDB/ekosimDB.db', sqlite3.OPEN_READONLY, (err) => {
         if (err) {
             console.error(err.message);
         }
@@ -66,7 +66,7 @@ var getTable = function () {
 
 resolveReturnTable = function(table) { //database, table
     return new Promise((resolve, reject) => {
-        let db = new sqlite3.Database('/home/ec2-user/ekosimProject/myDB/ekosimDB.db', sqlite3.OPEN_READONLY, (err) => {
+        let db = new sqlite3.Database('./myDB/ekosimDB.db', sqlite3.OPEN_READONLY, (err) => {
             if (err) {
                 console.error(err.message);
             }
@@ -93,7 +93,7 @@ resolveReturnTable = function(table) { //database, table
 getMoneyTableUpdate = function(lastTime, table) { //database, table
     return new Promise((resolve, reject) => {
         //let db = new sqlite3.Database('/home/ec2-user/ekosimProject/myDB/ekosimDB.db', sqlite3.OPEN_READONLY, (err) => {
-        let db = new sqlite3.Database('/home/ec2-user/ekosimProject/myDB/ekosimDB.db', sqlite3.OPEN_READONLY, (err) => {
+        let db = new sqlite3.Database('./myDB/ekosimDB.db', sqlite3.OPEN_READONLY, (err) => {
             if (err) {
                 console.error(err.message);
             }
@@ -121,7 +121,7 @@ getMoneyTableUpdate = function(lastTime, table) { //database, table
 var returnTable = function () {
     return new Promise((resolve, reject) => {
 
-        const db = new sqlite3.Database('/home/ec2-user/ekosimProject/myDB/ekosimDB.db');
+        const db = new sqlite3.Database('./myDB/ekosimDB.db');
         const queries = [];
         db.each(`SELECT  * FROM PARAMETERS`, (err, row) => {
             if (err) {
@@ -143,7 +143,7 @@ var returnTable = function () {
 
 var insertFunction = function (parameter, value) {
 
-    let db = new sqlite3.Database('/home/ec2-user/ekosimProject/myDB/ekosimDB.db', sqlite3.OPEN_READWRITE, (err) => {
+    let db = new sqlite3.Database('./myDB/ekosimDB.db', sqlite3.OPEN_READWRITE, (err) => {
         if (err) {
             console.error(err.message);
         }
