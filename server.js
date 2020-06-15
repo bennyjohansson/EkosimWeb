@@ -156,6 +156,7 @@ app.get('/ekosim/timetable/update/:lastTimestamp', (req, res, next) => {
 
 app.put('/ekosim/put/:parameterID', function (req, res) {
 
+    
     var ParameterID = req.params.parameterID;
     var value = req.body.VALUE;
     //console.log(value);
