@@ -1,10 +1,10 @@
 //var dbFunctions = require('./DBConnection');
 //var XMLHttpRequest = require("xhr-browserify").XMLHttpRequest;
 
-
+//Called by change function
 function putParameter(parameter, value) { //parameter
 
-    var url = 'http://ekosimweb-env.eba-66jamvpz.us-east-2.elasticbeanstalk.com/ekosim/'; //TargetInterestRate';
+    var url = 'http://ekosimweb-env.eba-66jamvpz.us-east-2.elasticbeanstalk.com/ekosim/put/'; //TargetInteputrestRate';
     url = url.concat(parameter);
 
     //console.log(url);
@@ -79,6 +79,11 @@ var getParameter = function (parameter, mycallback) {
 
 };
 
+// /ekosim/moneytable/update/'
+// /ekosim/timetable/update/'
+// /ekosim/read/
+// /ekosim/:parameter
+
 
 function getMoneyData(table, chart, mycallback) {
 
@@ -143,7 +148,7 @@ function getGDPData(table,  myGDPChart, myDIVChart, mycallback) {
 }
 
 
-function updateMoneyData2(chart, newData) {
+function updateMoneyData(chart, newData) {
 
     //Parsing API-data
     var JSONData = JSON.parse(newData).data;
@@ -457,41 +462,31 @@ initiateDIVTable = function(myChart) {
 * PUPULATING BUTTONS AND FIELDS WITH INITIAL VALUES
 */
 
-var getTest = function (mycallback) {
-    var url = 'http://ekosimweb-env.eba-66jamvpz.us-east-2.elasticbeanstalk.com/ekosim/test';
-    //url = url.concat(parameter);
+// var getTest = function (mycallback) {
+//     var url = 'http://ekosimweb-env.eba-66jamvpz.us-east-2.elasticbeanstalk.com/ekosim/test';
+//     //url = url.concat(parameter);
 
-    //console.log(url);
+//     //console.log(url);
 
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET', url, true);
-    xhr.onreadystatechange = function () {
-        //console.log(xhr.readyState);
-        if (xhr.readyState == 4) { //XMLHttpRequest.DONE
-            var response = xhr.responseText;
-            console.log("response: " + response); //Correctly prints JSON content to console
+//     var xhr = new XMLHttpRequest();
+//     xhr.open('GET', url, true);
+//     xhr.onreadystatechange = function () {
+//         //console.log(xhr.readyState);
+//         if (xhr.readyState == 4) { //XMLHttpRequest.DONE
+//             var response = xhr.responseText;
+//             console.log("response: " + response); //Correctly prints JSON content to console
 
-            // call it here
-            mycallback(response);
-        }
-    }
-    xhr.send(null);
+//             // call it here
+//             mycallback(response);
+//         }
+//     }
+//     xhr.send(null);
 
 
 
-};
+// };
 
-getTest(function(result) {
-    console.log(result);    
-    var JSONData = JSON.parse(result).data;
-    var myResponse;
-    myResponse = JSONData //.data;
-    //element.innerHTML = "New Heading";
-    console.log(myResponse);
 
-    document.getElementById("TestText").innerHTML = myResponse;
-    }
-);
 
 
 getParameter('InterestRateMethod', function(result) {
@@ -611,19 +606,10 @@ initiateDIVTable(myDIVChart);
 
 
 
-//getTableData('TIME_DATA', updateMoneyData);
-
-//updateChartData('MONEY_DATA', myChart, updateMoneyData);
-
-
-
 
 setInterval(function() {
-    //updateChartData('MONEY_DATA', myChart, updateMoneyData);
-    //console.log(myChart.data.labels);
-    getMoneyData('MONEY_DATA', myMoneyChart, updateMoneyData2);
+    getMoneyData('MONEY_DATA', myMoneyChart, updateMoneyData);
     getGDPData('TIME_DATA', myGDPChart, myDIVChart, updateGDPData);
-    //getGDPData('TIME_DATA', myDIVChart, updateDIVData);
 
     }, 1000);
 
@@ -642,6 +628,20 @@ setInterval(function() {
 *----------------------------------------------------------------------------------------
 *----------------------------------------------------------------------------------------
 */
+
+/*
+
+getTest(function(result) {
+    console.log(result);    
+    var JSONData = JSON.parse(result).data;
+    var myResponse;
+    myResponse = JSONData //.data;
+    //element.innerHTML = "New Heading";
+    console.log(myResponse);
+
+    document.getElementById("TestText").innerHTML = myResponse;
+    }
+);
 
 generateTimeChart = function(result) {
 
@@ -1109,3 +1109,5 @@ function updateDIVData(chart, newData) {
     chart.update();
    
 }
+
+*/

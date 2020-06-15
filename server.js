@@ -29,35 +29,7 @@ app.use(function (req, res, next) {
 });
 
 
-app.get('/ekosim/test', (req, res, next) => {
 
-    // let db = new sqlite3.Database('/Users/bennyjohansson/Projects/ekosim/myDB/ekosimDB.db', sqlite3.OPEN_READONLY, (err) => {
-    //     if (err) {
-    //         console.error(err.message);
-    //     }
-    //     console.log('Connected to the ekosim database.');
-    // });
-    // var params = [req.params.param];
-    // var sql = "select * from PARAMETERS WHERE PARAMETER = ?"// InterestRateMethod TargetInterestRate
-    //params = [];
-    //console.log(sql);
-    //console.log(params);
-    // db.get(sql, params, (err, row) => {
-    //     if (err) {
-    //         res.status(400).json({ "error": err.message });
-    //         return;
-    //     }
-    //     res.json({
-    //         "message": "success",
-    //         "data": row
-    //     })
-    // });
-
-    res.json({
-                "message": "success",
-                 "data": "Test succeeded"});
-
-});
 
 
 app.get('/ekosim/read/:param', (req, res, next) => {
@@ -182,7 +154,7 @@ app.get('/ekosim/timetable/update/:lastTimestamp', (req, res, next) => {
 
 
 
-app.put('/ekosim/:parameterID', function (req, res) {
+app.put('/ekosim/put/:parameterID', function (req, res) {
 
     var ParameterID = req.params.parameterID;
     var value = req.body.VALUE;
@@ -224,3 +196,17 @@ app.listen(8080, function () {
     console.log('Forst API running on port 3000');
     //console.log(port);
 });
+
+/*
+* --------------------------
+*/
+
+// app.get('/ekosim/test', (req, res, next) => {
+
+   
+
+//     res.json({
+//                 "message": "success",
+//                  "data": "Test succeeded"});
+
+// });
