@@ -611,7 +611,7 @@ setInterval(function() {
     getMoneyData('MONEY_DATA', myMoneyChart, updateMoneyData);
     getGDPData('TIME_DATA', myGDPChart, myDIVChart, updateGDPData);
 
-    }, 1000);
+    }, 2000);
 
 
 
