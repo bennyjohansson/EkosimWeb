@@ -115,6 +115,13 @@ getMoneyTableUpdate = function(lastTime, table) { //database, table
                 resolve(queries); // resolve the promise
             }
         });
+        // close the database connection
+        db.close((err) => {
+            if (err) {
+                console.error(err.message);
+            }
+            console.log('Close the database connection.');
+        });
     });
 }
 
@@ -138,6 +145,13 @@ var returnTable = function () {
                 //return queries.then(token => {return token})
             }
         });
+        // close the database connection
+        db.close((err) => {
+            if (err) {
+                console.error(err.message);
+            }
+            console.log('Close the database connection.');
+        });
     });
 }
 
@@ -148,7 +162,7 @@ var insertFunction = function (parameter, value) {
             console.error(err.message);
         }
         console.log('Connected to the ekosim database for insert functions.');
-        
+
     });
 
     var data = [value, parameter];
@@ -190,19 +204,19 @@ var insertFunction = function (parameter, value) {
 //console.log(myTable);
 
 
-var testJSONobj = function () {
-    var testObj = {};
+// var testJSONobj = function () {
+//     var testObj = {};
 
-    testObj.key1 = 'value1';
-    testObj.key2 = 'value2';
-    var jsonStr = JSON.stringify(testObj);
-    //console.log(jsonStr);
-    return jsonStr //jQuery.parseJSON(testObj);
+//     testObj.key1 = 'value1';
+//     testObj.key2 = 'value2';
+//     var jsonStr = JSON.stringify(testObj);
+//     //console.log(jsonStr);
+//     return jsonStr //jQuery.parseJSON(testObj);
 
-};
+// };
 
 module.exports = {
-    testJSONobj: testJSONobj,
+    //testJSONobj: testJSONobj,
     myTestSQL: myTestSQL,
     insertFunction: insertFunction
 };

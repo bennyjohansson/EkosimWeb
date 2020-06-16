@@ -58,6 +58,15 @@ app.get('/ekosim/read/:param', (req, res, next) => {
             "data": row
         })
     });
+
+    //Closing the database
+    db.close((err) => {
+        if (err) {
+            console.error(err.message);
+        }
+        console.log('Close the database connection.');
+    });
+
 });
 
 
@@ -87,26 +96,17 @@ app.get('/ekosim/readmoney/', (req, res, next) => {
         })
         //console.log(row)
     });
-});
 
-app.get('/ekosim/readmoneytable/:table', (req, res, next) => {
-
-    var myGetTable = [req.params.table];
-    myTable = resolveReturnTable(myGetTable);
-
-    var mytableJSON = myTable.then((result) => {
-        //console.log(result[31]) // "Some User token"
-        //return result[31];
-        return res.json({
-            "message": "success",
-            "data": result
-        })
+    //Closing the database
+    db.close((err) => {
+        if (err) {
+            console.error(err.message);
+        }
+        console.log('Close the database connection.');
     });
-
-
-    //console.log(mytableJSON)
-
 });
+
+
 
 
 app.get('/ekosim/moneytable/update/:lastTimestamp', (req, res, next) => {
@@ -208,5 +208,26 @@ app.listen(8080, function () {
 //     res.json({
 //                 "message": "success",
 //                  "data": "Test succeeded"});
+
+// });
+
+
+
+// app.get('/ekosim/readmoneytable/:table', (req, res, next) => {
+
+//     var myGetTable = [req.params.table];
+//     myTable = resolveReturnTable(myGetTable);
+
+//     var mytableJSON = myTable.then((result) => {
+//         //console.log(result[31]) // "Some User token"
+//         //return result[31];
+//         return res.json({
+//             "message": "success",
+//             "data": result
+//         })
+//     });
+
+
+//     //console.log(mytableJSON)
 
 // });
