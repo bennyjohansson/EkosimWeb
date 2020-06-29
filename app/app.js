@@ -549,7 +549,7 @@ getParameter('CapitalReserveRatio', function(result) {
 getParameter('AverageSpendwill', function(result) {
     var JSONData = JSON.parse(result).data;
     console.log(JSONData.VALUE);
-    document.getElementById("spendwillnput").value = JSONData.VALUE;
+    document.getElementById("spendwillinput").value = JSONData.VALUE;
     }
 );
 
