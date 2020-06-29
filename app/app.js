@@ -556,7 +556,7 @@ getParameter('AverageSpendwill', function(result) {
 getParameter('AverageBorrowwill', function(result) {
     var JSONData = JSON.parse(result).data;
     console.log(JSONData.VALUE);
-    document.getElementById("borrowwillInput").value = JSONData.VALUE*1++;
+    document.getElementById("borrowwillInput").value = JSONData.VALUE*100;
     }
 );
 
