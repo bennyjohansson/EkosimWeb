@@ -512,7 +512,9 @@ initiateDIVTable = function(myChart) {
 
 // };
 
-
+/*
+* Reading initial parameters
+*/
 
 
 getParameter('InterestRateMethod', function(result) {
@@ -541,6 +543,20 @@ getParameter('CapitalReserveRatio', function(result) {
     var JSONData = JSON.parse(result).data;
     console.log(JSONData.VALUE);
     document.getElementById("reserveRatioInput").value = JSONData.VALUE;
+    }
+);
+
+getParameter('AverageSpendwill', function(result) {
+    var JSONData = JSON.parse(result).data;
+    console.log(JSONData.VALUE);
+    document.getElementById("spendwillnput").value = JSONData.VALUE;
+    }
+);
+
+getParameter('AverageBorrowwill', function(result) {
+    var JSONData = JSON.parse(result).data;
+    console.log(JSONData.VALUE);
+    document.getElementById("borrowwillInput").value = JSONData.VALUE;
     }
 );
 
