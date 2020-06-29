@@ -51,6 +51,32 @@ function changeCapitalReserveRatio() {
 
 }
 
+function changeSpendwill() {
+    var set_spendwill = document.getElementById("spendwillInput").value/100;
+    putParameter('AverageSpendwill', set_spendwill);
+
+    getParameter('AverageSpendwill', function(result) {
+        var JSONData = JSON.parse(result).data;
+        console.log(JSONData.VALUE);
+        document.getElementById("spendwillInput").value = JSONData.VALUE*100;
+        }
+    );
+
+}
+
+function changeBorrowwill() {
+    var set_borrowwill = document.getElementById("borrowwillInput").value/100;
+    putParameter('AverageBorrowwill', set_borrowwill);
+
+    getParameter('AverageBorrowwill', function(result) {
+        var JSONData = JSON.parse(result).data;
+        console.log(JSONData.VALUE);
+        document.getElementById("borrowwillInput").value = JSONData.VALUE*100;
+        }
+    );
+
+}
+
 
 
 
