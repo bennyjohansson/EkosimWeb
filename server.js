@@ -35,7 +35,7 @@ app.use(function (req, res, next) {
 app.get('/ekosim/read/:param', (req, res, next) => {
 
     //let db = new sqlite3.Database('/home/ec2-user/ekosimProject/myDB/ekosimDB.db', sqlite3.OPEN_READONLY, (err) => {
-    let db = new sqlite3.Database('./myDB/ekosimDB.db', sqlite3.OPEN_READONLY, (err) => {
+    let db = new sqlite3.Database('./myDB/Bennyland.db', sqlite3.OPEN_READONLY, (err) => {
 
         //./app/app.js
         if (err) {
@@ -73,7 +73,7 @@ app.get('/ekosim/read/:param', (req, res, next) => {
 
 app.get('/ekosim/readmoney/', (req, res, next) => {
 
-    let db = new sqlite3.Database('./myDB/ekosimDB.db', sqlite3.OPEN_READONLY, (err) => {
+    let db = new sqlite3.Database('./myDB/Bennyland.db', sqlite3.OPEN_READONLY, (err) => {
         if (err) {
             console.error(err.message);
         }
