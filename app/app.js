@@ -1,4 +1,3 @@
-//var dbFunctions = require('./DBConnection');
 //var XMLHttpRequest = require("xhr-browserify").XMLHttpRequest;
 
 //Called by change function
@@ -29,12 +28,12 @@ function changeInterestRate() {
     putParameter('InterestRateMethod', 2)
     putParameter('TargetInterestRate', targetInterestRate);
 
-    getParameter('TargetInterestRate', function(result) {
-        var JSONData = JSON.parse(result).data;
-        console.log(JSONData.VALUE);
-        document.getElementById("interestRateInput").value = JSONData.VALUE*100;
-        }
-    );
+    // getParameter('TargetInterestRate', function(result) {
+    //     var JSONData = JSON.parse(result).data;
+    //     console.log(JSONData.VALUE);
+    //     document.getElementById("interestRateInput").value = JSONData.VALUE*100;
+    //     }
+    // );
 
 }
 
@@ -42,12 +41,12 @@ function changeCapitalReserveRatio() {
     var reserveRatio = document.getElementById("reserveRatioInput").value;
     putParameter('CapitalReserveRatio', reserveRatio);
 
-    getParameter('CapitalReserveRatio', function(result) {
-        var JSONData = JSON.parse(result).data;
-        console.log(JSONData.VALUE);
-        document.getElementById("reserveRatioInput").value = JSONData.VALUE;
-        }
-    );
+    // getParameter('CapitalReserveRatio', function(result) {
+    //     var JSONData = JSON.parse(result).data;
+    //     console.log(JSONData.VALUE);
+    //     document.getElementById("reserveRatioInput").value = JSONData.VALUE;
+    //     }
+    // );
 
 }
 
@@ -55,12 +54,12 @@ function changeSpendwill() {
     var set_spendwill = document.getElementById("spendwillInput").value/100;
     putParameter('AverageSpendwill', set_spendwill);
 
-    getParameter('AverageSpendwill', function(result) {
-        var JSONData = JSON.parse(result).data;
-        console.log(JSONData.VALUE);
-        document.getElementById("spendwillInput").value = JSONData.VALUE*100;
-        }
-    );
+    // getParameter('AverageSpendwill', function(result) {
+    //     var JSONData = JSON.parse(result).data;
+    //     console.log(JSONData.VALUE);
+    //     document.getElementById("spendwillInput").value = JSONData.VALUE*100;
+    //     }
+    // );
 
 }
 
@@ -68,12 +67,12 @@ function changeBorrowwill() {
     var set_borrowwill = document.getElementById("borrowwillInput").value/100;
     putParameter('AverageBorrowwill', set_borrowwill);
 
-    getParameter('AverageBorrowwill', function(result) {
-        var JSONData = JSON.parse(result).data;
-        console.log(JSONData.VALUE);
-        document.getElementById("borrowwillInput").value = JSONData.VALUE*100;
-        }
-    );
+    // getParameter('AverageBorrowwill', function(result) {
+    //     var JSONData = JSON.parse(result).data;
+    //     console.log(JSONData.VALUE);
+    //     document.getElementById("borrowwillInput").value = JSONData.VALUE*100;
+    //     }
+    // );
 
 }
 
@@ -101,9 +100,21 @@ var getParameter = function (parameter, mycallback) {
     }
     xhr.send(null);
 
-
-
 };
+
+var getDatabaseLink = function () {
+
+    myCountry =  document.getElementById("CountryCombo").value;
+    if(myCountry == '--Select Country--' || myCountry == "") {
+
+        myCountry = 'Bennyland'
+    }
+
+    var myLink = './myDB/' + myCountry + '.db';
+    return myLink;
+
+
+} ;
 
 // /ekosim/moneytable/update/'
 // /ekosim/timetable/update/'
@@ -559,6 +570,41 @@ getParameter('AverageBorrowwill', function(result) {
     document.getElementById("borrowwillInput").value = JSONData.VALUE*100;
     }
 );
+
+/*
+* POPULATING DROPDOWN
+*/
+
+function add_option (select_id, text) {
+
+    var select = document.getElementById(select_id);
+    select.options[select.options.length] = new Option(text);
+}
+
+function clear_combo (select_id) {
+   
+    var select = document.getElementById(select_id);
+    select.options.length = 0;
+}
+
+function load_combo (select_id, option_array) {
+
+    for (var i = 0; i < option_array.length; i++) {
+        add_option (select_id, option_array[i]);
+    }
+}
+function print_combo () {
+
+    //var myCountry = document.getElementById("CountryCombo").value;
+    var myLink = getDatabaseLink();
+    document.getElementById("dbLink").innerHTML = myLink;
+
+}
+
+testarray = ['Bennyland', 'Saraland'];
+add_option ('CountryCombo', '--Select Country--');
+load_combo('CountryCombo', testarray);
+//document.getElementById('CountryCombo').onclick = print_combo();
 
 /*
 * GENERATING CHARTS
