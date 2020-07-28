@@ -151,6 +151,27 @@ app.get('/ekosim/timetable/update/:lastTimestamp', (req, res, next) => {
 
 });
 
+app.get('/ekosim/worldtable/', (req, res, next) => {
+
+    //var lastTime = [req.params.lastTimestamp];
+    //console.log(lastTime)
+
+    myTable = getWorldTable('WORLD_TABLE');
+
+    var mytableJSON = myTable.then((result) => {
+        //console.log(result[31]) // "Some User token"
+        //return result[31];
+        return res.json({
+            "message": "success",
+            "data": result
+        })
+    });
+
+
+    //console.log(mytableJSON)
+
+});
+
 
 
 

@@ -125,6 +125,41 @@ getMoneyTableUpdate = function(lastTime, table) { //database, table
     });
 }
 
+getWorldTable = function(table) { //database, table
+    return new Promise((resolve, reject) => {
+
+        let db = new sqlite3.Database('./myDB/Bennyworld.db', sqlite3.OPEN_READONLY, (err) => {
+            if (err) {
+                console.error(err.message);
+            }
+            console.log('Connected to the Bennyworld database.');
+        });
+        const queries = [];
+        //console.log(`SELECT rowid as key, * FROM ${table} WHERE TIME > ${lastTime}`);
+        db.each(`SELECT rowid as key, * FROM ${table} `, (err, row) => {
+        //db.each(`SELECT rowid as key, * FROM MONEY_DATA`, (err, row) => {
+            if (err) {
+                reject(err); // optional: you might choose to swallow errors.
+            } else {
+                queries.push(row); // accumulate the data
+            }
+        }, (err, n) => {
+            if (err) {
+                reject(err); // optional: again, you might choose to swallow this error.
+            } else {
+                resolve(queries); // resolve the promise
+            }
+        });
+        // close the database connection
+        db.close((err) => {
+            if (err) {
+                console.error(err.message);
+            }
+            console.log('Close the database connection.');
+        });
+    });
+}
+
 var returnTable = function () {
     return new Promise((resolve, reject) => {
 
@@ -185,6 +220,13 @@ var insertFunction = function (parameter, value) {
     });
 
 }
+
+var getDatabaseLink = function (myCountry) {
+
+
+
+
+} ;
 
 //module.exports = myTestSQL;
 
