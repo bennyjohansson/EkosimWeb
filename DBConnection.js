@@ -221,19 +221,7 @@ var insertFunction = function (parameter, value) {
 
 }
 
-var getDatabaseLink = function () {
 
-    myCountry = document.getElementById("testCombo").innerHTML = document.getElementById("CountryCombo").value;
-    if(myCountry == '--Select Country--' || myCountry = "") {
-
-        myCountry = 'Bennyland'
-    }
-
-    var myLink = './myDB/' + myCountry + '.db';
-    return myLink;
-
-
-} ;
 
 //module.exports = myTestSQL;
 
