@@ -2,38 +2,6 @@ const sqlite3 = require('sqlite3').verbose();
 
 
 
-var getTable = function () {
-
-    var retDBObject = {}
-    let db = new sqlite3.Database('./myDB/Bennyland.db', sqlite3.OPEN_READONLY, (err) => {
-        if (err) {
-            console.error(err.message);
-        }
-        console.log('Connected to the ekosim database.');
-    });
-
-    db.all(`SELECT * FROM MONEY_DATA`, (err, rows) => {
-        if (err) {
-            console.error(err.message);
-        }
-        console.log(rows);
-        //retDBObject[row.parameter] = row.value;
-        //console.log(retDBObject);
-        return rows;
-    });
-
-
-    db.close((err) => {
-        if (err) {
-            console.error(err.message);
-        }
-        console.log('Close the database connection.');
-    });
-
-};
-
-
-
 getMoneyTableUpdate = function(lastTime, table) { //database, table
     return new Promise((resolve, reject) => {
         //let db = new sqlite3.Database('/home/ec2-user/ekosimProject/myDB/Bennyland.db', sqlite3.OPEN_READONLY, (err) => {
@@ -135,6 +103,36 @@ var insertFunction = function (parameter, value) {
     });
 
 }
+
+// var getTable = function () {
+
+//     var retDBObject = {}
+//     let db = new sqlite3.Database('./myDB/Bennyland.db', sqlite3.OPEN_READONLY, (err) => {
+//         if (err) {
+//             console.error(err.message);
+//         }
+//         console.log('Connected to the ekosim database.');
+//     });
+
+//     db.all(`SELECT * FROM MONEY_DATA`, (err, rows) => {
+//         if (err) {
+//             console.error(err.message);
+//         }
+//         console.log(rows);
+//         //retDBObject[row.parameter] = row.value;
+//         //console.log(retDBObject);
+//         return rows;
+//     });
+
+
+//     db.close((err) => {
+//         if (err) {
+//             console.error(err.message);
+//         }
+//         console.log('Close the database connection.');
+//     });
+
+// };
 
 //open the database
 // var myTestSQL = function () {
