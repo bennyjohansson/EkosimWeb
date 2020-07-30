@@ -125,6 +125,7 @@ var getDatabaseLink = function () {
 function getMoneyData(table, chart, mycallback) {
 
     //var lastTimestamp = 0;
+    var myDatabase = getDatabaseLink();
     lastTimestamp = chart.data.labels[chart.data.labels.length - 1];
     //console.log(chart.data.datasets);
     //console.log(lastTimestamp);
@@ -132,7 +133,8 @@ function getMoneyData(table, chart, mycallback) {
 
     
     var url = 'http://ekosimweb-env.eba-66jamvpz.us-east-2.elasticbeanstalk.com/ekosim/moneytable/update/';
-    url = url.concat(lastTimestamp);
+    url = url.concat(myDatabase);
+    url = url.concat('?timestamp=' + lastTimestamp);
 
     //console.log(url);
 
@@ -156,6 +158,7 @@ function getMoneyData(table, chart, mycallback) {
 function getGDPData(table,  myGDPChart, myDIVChart, mycallback) {
 
     //var lastTimestamp = 0;
+    var myDatabase = getDatabaseLink();
     lastTimestamp = myGDPChart.data.labels[myGDPChart.data.labels.length - 1];
     //console.log(chart.data.datasets);
     //console.log(lastTimestamp);
@@ -163,8 +166,9 @@ function getGDPData(table,  myGDPChart, myDIVChart, mycallback) {
 
     
     var url = 'http://ekosimweb-env.eba-66jamvpz.us-east-2.elasticbeanstalk.com/ekosim/timetable/update/';
-    url = url.concat(lastTimestamp);
+    url = url.concat(myDatabase);
 
+    url = url.concat('?timestamp=' + lastTimestamp);
     //console.log(url);
 
     var xhr = new XMLHttpRequest();

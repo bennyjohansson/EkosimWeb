@@ -91,12 +91,13 @@ app.get('/ekosim/read/:parameterID', (req, res, next) => {
 
 
 
-app.get('/ekosim/moneytable/update/:lastTimestamp', (req, res, next) => {
+app.get('/ekosim/moneytable/update/:myDatabase', (req, res, next) => {
 
-    var lastTime = [req.params.lastTimestamp];
-    //console.log(lastTime)
-
-    myTable = getMoneyTableUpdate(lastTime, 'MONEY_DATA');
+    var myDatabase = req.params.myDatabase; //'./myDB/Bennyland.db' //
+    var lastTime = req.query.timestamp;
+    console.log(lastTime)
+    console.log(myDatabase);
+    myTable = getMoneyTableUpdate(lastTime, myDatabase, 'MONEY_DATA');
 
     var mytableJSON = myTable.then((result) => {
         //console.log(result[31]) // "Some User token"
@@ -112,12 +113,13 @@ app.get('/ekosim/moneytable/update/:lastTimestamp', (req, res, next) => {
 
 });
 
-app.get('/ekosim/timetable/update/:lastTimestamp', (req, res, next) => {
+app.get('/ekosim/timetable/update/:myDatabase', (req, res, next) => {
 
-    var lastTime = [req.params.lastTimestamp];
+    var myDatabase = req.params.myDatabase;
+    var lastTime = req.query.timestamp;
     //console.log(lastTime)
 
-    myTable = getMoneyTableUpdate(lastTime, 'TIME_DATA');
+    myTable = getMoneyTableUpdate(lastTime, myDatabase, 'TIME_DATA');
 
     var mytableJSON = myTable.then((result) => {
         //console.log(result[31]) // "Some User token"
@@ -135,7 +137,7 @@ app.get('/ekosim/timetable/update/:lastTimestamp', (req, res, next) => {
 
 app.get('/ekosim/worldtable/', (req, res, next) => {
 
-    //var lastTime = [req.params.lastTimestamp];
+    //var lastTime = [req.datab.lastTimestamp];
     //console.log(lastTime)
 
     myTable = getWorldTable('WORLD_TABLE');

@@ -2,10 +2,13 @@ const sqlite3 = require('sqlite3').verbose();
 
 
 
-getMoneyTableUpdate = function(lastTime, table) { //database, table
+getMoneyTableUpdate = function(lastTime, myDatabase, table) { //database, table
+    console.log(myDatabase);
     return new Promise((resolve, reject) => {
         //let db = new sqlite3.Database('/home/ec2-user/ekosimProject/myDB/Bennyland.db', sqlite3.OPEN_READONLY, (err) => {
-        let db = new sqlite3.Database('./myDB/Bennyland.db', sqlite3.OPEN_READONLY, (err) => {
+            //'./myDB/Bennyland.db'
+            
+        let db = new sqlite3.Database(myDatabase, sqlite3.OPEN_READONLY, (err) => {
             if (err) {
                 console.error(err.message);
             }
