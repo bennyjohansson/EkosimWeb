@@ -1,38 +1,38 @@
 const sqlite3 = require('sqlite3').verbose();
 
 // open the database
-var myTestSQL = function () {
+// var myTestSQL = function () {
 
-    var retDBObject = {}
-    let db = new sqlite3.Database('./myDB/Bennyland.db', sqlite3.OPEN_READONLY, (err) => {
-        if (err) {
-            console.error(err.message);
-        }
-        console.log('Connected to the ekosim database.');
-    });
+//     var retDBObject = {}
+//     let db = new sqlite3.Database('./myDB/Bennyland.db', sqlite3.OPEN_READONLY, (err) => {
+//         if (err) {
+//             console.error(err.message);
+//         }
+//         console.log('Connected to the ekosim database.');
+//     });
 
-    db.serialize(() => {
-        //db.each(`SELECT PARAMETER as parameter, VALUE as value FROM PARAMETERS`, (err, row) => {
-        db.each(`SELECT * FROM MONEY_DATA`, (err, row) => {
-            if (err) {
-                console.error(err.message);
-            }
-            console.log(row);
-            //retDBObject[row.parameter] = row.value;
-            //console.log(retDBObject);
-            return retDBObject;
-        });
+//     db.serialize(() => {
+//         //db.each(`SELECT PARAMETER as parameter, VALUE as value FROM PARAMETERS`, (err, row) => {
+//         db.each(`SELECT * FROM MONEY_DATA`, (err, row) => {
+//             if (err) {
+//                 console.error(err.message);
+//             }
+//             console.log(row);
+//             //retDBObject[row.parameter] = row.value;
+//             //console.log(retDBObject);
+//             return retDBObject;
+//         });
 
-    });
+//     });
 
-    db.close((err) => {
-        if (err) {
-            console.error(err.message);
-        }
-        console.log('Close the database connection.');
-    });
+//     db.close((err) => {
+//         if (err) {
+//             console.error(err.message);
+//         }
+//         console.log('Close the database connection.');
+//     });
 
-};
+// };
 
 var getTable = function () {
 
@@ -64,31 +64,7 @@ var getTable = function () {
 
 };
 
-resolveReturnTable = function(table) { //database, table
-    return new Promise((resolve, reject) => {
-        let db = new sqlite3.Database('./myDB/Bennyland.db', sqlite3.OPEN_READONLY, (err) => {
-            if (err) {
-                console.error(err.message);
-            }
-            console.log('Connected to the ekosim database.');
-        });
-        const queries = [];
-        db.each(`SELECT rowid as key, * FROM ${table}`, (err, row) => {
-        //db.each(`SELECT rowid as key, * FROM MONEY_DATA`, (err, row) => {
-            if (err) {
-                reject(err); // optional: you might choose to swallow errors.
-            } else {
-                queries.push(row); // accumulate the data
-            }
-        }, (err, n) => {
-            if (err) {
-                reject(err); // optional: again, you might choose to swallow this error.
-            } else {
-                resolve(queries); // resolve the promise
-            }
-        });
-    });
-}
+
 
 getMoneyTableUpdate = function(lastTime, table) { //database, table
     return new Promise((resolve, reject) => {
@@ -160,35 +136,6 @@ getWorldTable = function(table) { //database, table
     });
 }
 
-var returnTable = function () {
-    return new Promise((resolve, reject) => {
-
-        const db = new sqlite3.Database('./myDB/Bennyland.db');
-        const queries = [];
-        db.each(`SELECT  * FROM PARAMETERS`, (err, row) => {
-            if (err) {
-                reject(err); // optional: you might choose to swallow errors.
-            } else {
-                queries.push(row); // accumulate the data
-            }
-        }, (err, n) => {
-            if (err) {
-                reject(err); // optional: again, you might choose to swallow this error.
-            } else {
-                console.log(queries);
-                return resolve(queries);// resolve the promise
-                //return queries.then(token => {return token})
-            }
-        });
-        // close the database connection
-        db.close((err) => {
-            if (err) {
-                console.error(err.message);
-            }
-            console.log('Close the database connection.');
-        });
-    });
-}
 
 var insertFunction = function (parameter, value) {
 
@@ -220,6 +167,63 @@ var insertFunction = function (parameter, value) {
     });
 
 }
+
+// var returnTable = function () {
+//     return new Promise((resolve, reject) => {
+
+//         const db = new sqlite3.Database('./myDB/Bennyland.db');
+//         const queries = [];
+//         db.each(`SELECT  * FROM PARAMETERS`, (err, row) => {
+//             if (err) {
+//                 reject(err); // optional: you might choose to swallow errors.
+//             } else {
+//                 queries.push(row); // accumulate the data
+//             }
+//         }, (err, n) => {
+//             if (err) {
+//                 reject(err); // optional: again, you might choose to swallow this error.
+//             } else {
+//                 console.log(queries);
+//                 return resolve(queries);// resolve the promise
+//                 //return queries.then(token => {return token})
+//             }
+//         });
+//         // close the database connection
+//         db.close((err) => {
+//             if (err) {
+//                 console.error(err.message);
+//             }
+//             console.log('Close the database connection.');
+//         });
+//     });
+// }
+
+
+// resolveReturnTable = function(table) { //database, table
+//     return new Promise((resolve, reject) => {
+//         let db = new sqlite3.Database('./myDB/Bennyland.db', sqlite3.OPEN_READONLY, (err) => {
+//             if (err) {
+//                 console.error(err.message);
+//             }
+//             console.log('Connected to the ekosim database.');
+//         });
+//         const queries = [];
+//         db.each(`SELECT rowid as key, * FROM ${table}`, (err, row) => {
+//         //db.each(`SELECT rowid as key, * FROM MONEY_DATA`, (err, row) => {
+//             if (err) {
+//                 reject(err); // optional: you might choose to swallow errors.
+//             } else {
+//                 queries.push(row); // accumulate the data
+//             }
+//         }, (err, n) => {
+//             if (err) {
+//                 reject(err); // optional: again, you might choose to swallow this error.
+//             } else {
+//                 resolve(queries); // resolve the promise
+//             }
+//         });
+//     });
+// }
 
 
 
