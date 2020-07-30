@@ -71,43 +71,6 @@ app.get('/ekosim/read/:param', (req, res, next) => {
 
 
 
-app.get('/ekosim/readmoney/', (req, res, next) => {
-
-    let db = new sqlite3.Database('./myDB/Bennyland.db', sqlite3.OPEN_READONLY, (err) => {
-        if (err) {
-            console.error(err.message);
-        }
-        console.log('Connected to the ekosim database.');
-    });
-
-    var params = [];
-    var sql = "select * from MONEY_DATA"// InterestRateMethod TargetInterestRate
-    //params = [];
-    //console.log(sql);
-    //console.log(params);
-    db.get(sql, params, (err, row) => {
-        if (err) {
-            res.status(400).json({ "error": err.message });
-            return;
-        }
-        res.json({
-            "message": "success",
-            "data": row
-        })
-        //console.log(row)
-    });
-
-    //Closing the database
-    db.close((err) => {
-        if (err) {
-            console.error(err.message);
-        }
-        console.log('Close the database connection.');
-    });
-});
-
-
-
 
 app.get('/ekosim/moneytable/update/:lastTimestamp', (req, res, next) => {
 
@@ -221,6 +184,41 @@ app.listen(8080, function () {
 /*
 * --------------------------
 */
+
+// app.get('/ekosim/readmoney/', (req, res, next) => {
+
+//     let db = new sqlite3.Database('./myDB/Bennyland.db', sqlite3.OPEN_READONLY, (err) => {
+//         if (err) {
+//             console.error(err.message);
+//         }
+//         console.log('Connected to the ekosim database.');
+//     });
+
+//     var params = [];
+//     var sql = "select * from MONEY_DATA"// InterestRateMethod TargetInterestRate
+//     //params = [];
+//     //console.log(sql);
+//     //console.log(params);
+//     db.get(sql, params, (err, row) => {
+//         if (err) {
+//             res.status(400).json({ "error": err.message });
+//             return;
+//         }
+//         res.json({
+//             "message": "success",
+//             "data": row
+//         })
+//         //console.log(row)
+//     });
+
+//     //Closing the database
+//     db.close((err) => {
+//         if (err) {
+//             console.error(err.message);
+//         }
+//         console.log('Close the database connection.');
+//     });
+// });
 
 // app.get('/ekosim/test', (req, res, next) => {
 
