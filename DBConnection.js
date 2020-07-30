@@ -137,38 +137,38 @@ var insertFunction = function (parameter, value) {
 }
 
 //open the database
-var myTestSQL = function () {
+// var myTestSQL = function () {
 
-    var retDBObject = {}
-    let db = new sqlite3.Database('./myDB/Bennyland.db', sqlite3.OPEN_READONLY, (err) => {
-        if (err) {
-            console.error(err.message);
-        }
-        console.log('Connected to the ekosim database.');
-    });
+//     var retDBObject = {}
+//     let db = new sqlite3.Database('./myDB/Bennyland.db', sqlite3.OPEN_READONLY, (err) => {
+//         if (err) {
+//             console.error(err.message);
+//         }
+//         console.log('Connected to the ekosim database.');
+//     });
 
-    db.serialize(() => {
-        //db.each(`SELECT PARAMETER as parameter, VALUE as value FROM PARAMETERS`, (err, row) => {
-        db.each(`SELECT * FROM MONEY_DATA`, (err, row) => {
-            if (err) {
-                console.error(err.message);
-            }
-            console.log(row);
-            //retDBObject[row.parameter] = row.value;
-            //console.log(retDBObject);
-            return retDBObject;
-        });
+//     db.serialize(() => {
+//         //db.each(`SELECT PARAMETER as parameter, VALUE as value FROM PARAMETERS`, (err, row) => {
+//         db.each(`SELECT * FROM MONEY_DATA`, (err, row) => {
+//             if (err) {
+//                 console.error(err.message);
+//             }
+//             console.log(row);
+//             //retDBObject[row.parameter] = row.value;
+//             //console.log(retDBObject);
+//             return retDBObject;
+//         });
 
-    });
+//     });
 
-    db.close((err) => {
-        if (err) {
-            console.error(err.message);
-        }
-        console.log('Close the database connection.');
-    });
+//     db.close((err) => {
+//         if (err) {
+//             console.error(err.message);
+//         }
+//         console.log('Close the database connection.');
+//     });
 
-};
+// };
 
 var returnTable = function () {
     return new Promise((resolve, reject) => {
@@ -201,31 +201,31 @@ var returnTable = function () {
 }
 
 
-resolveReturnTable = function(table) { //database, table
-    return new Promise((resolve, reject) => {
-        let db = new sqlite3.Database('./myDB/Bennyland.db', sqlite3.OPEN_READONLY, (err) => {
-            if (err) {
-                console.error(err.message);
-            }
-            console.log('Connected to the ekosim database.');
-        });
-        const queries = [];
-        db.each(`SELECT rowid as key, * FROM ${table}`, (err, row) => {
-        //db.each(`SELECT rowid as key, * FROM MONEY_DATA`, (err, row) => {
-            if (err) {
-                reject(err); // optional: you might choose to swallow errors.
-            } else {
-                queries.push(row); // accumulate the data
-            }
-        }, (err, n) => {
-            if (err) {
-                reject(err); // optional: again, you might choose to swallow this error.
-            } else {
-                resolve(queries); // resolve the promise
-            }
-        });
-    });
-}
+// resolveReturnTable = function(table) { //database, table
+//     return new Promise((resolve, reject) => {
+//         let db = new sqlite3.Database('./myDB/Bennyland.db', sqlite3.OPEN_READONLY, (err) => {
+//             if (err) {
+//                 console.error(err.message);
+//             }
+//             console.log('Connected to the ekosim database.');
+//         });
+//         const queries = [];
+//         db.each(`SELECT rowid as key, * FROM ${table}`, (err, row) => {
+//         //db.each(`SELECT rowid as key, * FROM MONEY_DATA`, (err, row) => {
+//             if (err) {
+//                 reject(err); // optional: you might choose to swallow errors.
+//             } else {
+//                 queries.push(row); // accumulate the data
+//             }
+//         }, (err, n) => {
+//             if (err) {
+//                 reject(err); // optional: again, you might choose to swallow this error.
+//             } else {
+//                 resolve(queries); // resolve the promise
+//             }
+//         });
+//     });
+// }
 
 
 
@@ -260,7 +260,7 @@ resolveReturnTable = function(table) { //database, table
 
 module.exports = {
     //testJSONobj: testJSONobj,
-    myTestSQL: myTestSQL,
+    //myTestSQL: myTestSQL,
     insertFunction: insertFunction
 };
 
