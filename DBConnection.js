@@ -170,35 +170,35 @@ var insertFunction = function (parameter, value) {
 
 // };
 
-var returnTable = function () {
-    return new Promise((resolve, reject) => {
+// var returnTable = function () {
+//     return new Promise((resolve, reject) => {
 
-        const db = new sqlite3.Database('./myDB/Bennyland.db');
-        const queries = [];
-        db.each(`SELECT  * FROM PARAMETERS`, (err, row) => {
-            if (err) {
-                reject(err); // optional: you might choose to swallow errors.
-            } else {
-                queries.push(row); // accumulate the data
-            }
-        }, (err, n) => {
-            if (err) {
-                reject(err); // optional: again, you might choose to swallow this error.
-            } else {
-                console.log(queries);
-                return resolve(queries);// resolve the promise
-                //return queries.then(token => {return token})
-            }
-        });
-        // close the database connection
-        db.close((err) => {
-            if (err) {
-                console.error(err.message);
-            }
-            console.log('Close the database connection.');
-        });
-    });
-}
+//         const db = new sqlite3.Database('./myDB/Bennyland.db');
+//         const queries = [];
+//         db.each(`SELECT  * FROM PARAMETERS`, (err, row) => {
+//             if (err) {
+//                 reject(err); // optional: you might choose to swallow errors.
+//             } else {
+//                 queries.push(row); // accumulate the data
+//             }
+//         }, (err, n) => {
+//             if (err) {
+//                 reject(err); // optional: again, you might choose to swallow this error.
+//             } else {
+//                 console.log(queries);
+//                 return resolve(queries);// resolve the promise
+//                 //return queries.then(token => {return token})
+//             }
+//         });
+//         // close the database connection
+//         db.close((err) => {
+//             if (err) {
+//                 console.error(err.message);
+//             }
+//             console.log('Close the database connection.');
+//         });
+//     });
+// }
 
 
 // resolveReturnTable = function(table) { //database, table
