@@ -136,7 +136,7 @@ function getMoneyData(table, chart, mycallback) {
     url = url.concat(myDatabase);
     url = url.concat('?timestamp=' + lastTimestamp);
 
-    //console.log(url);
+    console.log(url);
 
     var xhr = new XMLHttpRequest();
     xhr.open('GET', url, true);
