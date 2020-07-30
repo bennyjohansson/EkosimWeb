@@ -28,11 +28,30 @@ app.use(function (req, res, next) {
     next();
 });
 
+app.put('/ekosim/put/:parameterID', function (req, res) {
+
+    var ParameterID = req.params.parameterID;
+    var value = req.body.VALUE;
+    //console.log(value);
+    //console.log(ParameterID);
+
+
+    if (!value || value === "") {
+        res.status(500).send({ error: "Provide value" });
+    }
+    else {
+        var idFound = false;
+
+    }
+
+    DBFunctions.insertFunction(ParameterID, value)
+    res.send('Parameter ' + ParameterID + ' probably updated to value ' + value);
+
+});
 
 
 
-
-app.get('/ekosim/read/:param', (req, res, next) => {
+app.get('/ekosim/read/:parameterID', (req, res, next) => {
 
     //let db = new sqlite3.Database('/home/ec2-user/ekosimProject/myDB/ekosimDB.db', sqlite3.OPEN_READONLY, (err) => {
     let db = new sqlite3.Database('./myDB/Bennyland.db', sqlite3.OPEN_READONLY, (err) => {
@@ -43,7 +62,7 @@ app.get('/ekosim/read/:param', (req, res, next) => {
         }
         console.log('Connected to the ekosim database.');
     });
-    var params = [req.params.param];
+    var params = [req.params.parameterID];
     var sql = "select * from PARAMETERS WHERE PARAMETER = ?"// InterestRateMethod TargetInterestRate
     //params = [];
     //console.log(sql);
@@ -135,29 +154,30 @@ app.get('/ekosim/worldtable/', (req, res, next) => {
 
 });
 
+app.get('/ekosim/paramtest/', (req, res) => {
+    console.log(req.query.paramA);
 
-
-
-app.put('/ekosim/put/:parameterID', function (req, res) {
-
-    var ParameterID = req.params.parameterID;
-    var value = req.body.VALUE;
-    //console.log(value);
-    //console.log(ParameterID);
-
-
-    if (!value || value === "") {
-        res.status(500).send({ error: "Provide value" });
+    if(typeof req.query.paramA !== 'undefined' && typeof req.query.paramB !== 'undefined') {
+        let paramA = req.query.paramA;
+        let paramB = req.query.paramB;
+        //do something with paramA and paramB
+        console.log(paramA);
+        console.log(paramB);
+        res.send('Parameters identified: ' + paramA + ' and ' + paramB);
     }
     else {
-        var idFound = false;
+        console.log("Cant get parmeters");
+        res.status(500).send({ error: "Cant get parmeters" });
 
     }
-
-    DBFunctions.insertFunction(ParameterID, value)
-    res.send('Parameter ' + ParameterID + ' probably updated to value ' + value);
+    
 
 });
+
+
+
+
+
 /*const port = process.env.port || 3000;
 app.listen(3000, function () {
 
@@ -177,7 +197,7 @@ app.get("/", (req, res, next) => {
 app.listen(8080, function () {
 
 
-    console.log('Forst API running on port 3000');
+    console.log('Forst API running on port 8080');
     //console.log(port);
 });
 
