@@ -124,6 +124,7 @@ app.get('/ekosim/timetable/update/:myCountry', (req, res, next) => {
     var myDatabase = myPath.concat(myCountry);
     myDatabase = myDatabase.concat('.db');
 
+    var lastTime = req.query.timestamp;
     myTable = getMoneyTableUpdate(lastTime, myDatabase, 'TIME_DATA');
 
     var mytableJSON = myTable.then((result) => {
