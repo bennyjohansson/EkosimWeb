@@ -93,15 +93,21 @@ app.get('/ekosim/read/:parameterID', (req, res, next) => {
 
 app.get('/ekosim/moneytable/update/:myCountry', (req, res, next) => {
 
+    var hyphen = "'";
     var myPath = '.myDB/';
     var myCountry = req.params.myCountry; //'./myDB/Bennyland.db' //
     var myDatabase = myPath.concat(myCountry);
     myDatabase = myDatabase.concat('.db');
+    myDatabase = hyphen.concat(myDatabase);
+    myDatabase = myDatabase.concat(hyphen);
+
 
     var lastTime = req.query.timestamp;
+
     console.log(lastTime)
     console.log(myDatabase);
     myTable = getMoneyTableUpdate(lastTime, myDatabase, 'MONEY_DATA');
+     
 
     var mytableJSON = myTable.then((result) => {
         //console.log(result[31]) // "Some User token"
