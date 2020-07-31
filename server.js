@@ -94,14 +94,14 @@ app.get('/ekosim/read/:parameterID', (req, res, next) => {
 app.get('/ekosim/moneytable/update/:myCountry', (req, res, next) => {
 
     var hyphen = "'";
-    var myPath = '.myDB/';
+    var myPath = './myDB/';
     var myCountry = req.params.myCountry; // //
     var myDatabase = myPath.concat(myCountry);
     myDatabase = myDatabase.concat('.db');
     myDatabase = hyphen.concat(myDatabase);
     myDatabase = myDatabase.concat(hyphen);
 
-    myDatabase = './myDB/Bennyland.db';
+    //myDatabase = './myDB/Bennyland.db';
 
     var lastTime = req.query.timestamp;
 
@@ -126,7 +126,7 @@ app.get('/ekosim/moneytable/update/:myCountry', (req, res, next) => {
 
 app.get('/ekosim/timetable/update/:myCountry', (req, res, next) => {
 
-    var myPath = '.myDB/';
+    var myPath = './myDB/';
     var myCountry = req.params.myCountry; //'./myDB/Bennyland.db' //
     var myDatabase = myPath.concat(myCountry);
     myDatabase = myDatabase.concat('.db');
