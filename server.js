@@ -91,9 +91,13 @@ app.get('/ekosim/read/:parameterID', (req, res, next) => {
 
 
 
-app.get('/ekosim/moneytable/update/:myDatabase', (req, res, next) => {
+app.get('/ekosim/moneytable/update/:myCountry', (req, res, next) => {
 
-    var myDatabase = req.params.myDatabase; //'./myDB/Bennyland.db' //
+    var myPath = '.myDB/';
+    var myCountry = req.params.myCountry; //'./myDB/Bennyland.db' //
+    var myDatabase = myPath.concat(myCountry);
+    myDatabase = myDatabase.concat('.db');
+
     var lastTime = req.query.timestamp;
     console.log(lastTime)
     console.log(myDatabase);
@@ -113,11 +117,12 @@ app.get('/ekosim/moneytable/update/:myDatabase', (req, res, next) => {
 
 });
 
-app.get('/ekosim/timetable/update/:myDatabase', (req, res, next) => {
+app.get('/ekosim/timetable/update/:myCountry', (req, res, next) => {
 
-    var myDatabase = req.params.myDatabase;
-    var lastTime = req.query.timestamp;
-    //console.log(lastTime)
+    var myPath = '.myDB/';
+    var myCountry = req.params.myCountry; //'./myDB/Bennyland.db' //
+    var myDatabase = myPath.concat(myCountry);
+    myDatabase = myDatabase.concat('.db');
 
     myTable = getMoneyTableUpdate(lastTime, myDatabase, 'TIME_DATA');
 
