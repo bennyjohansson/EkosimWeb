@@ -675,7 +675,7 @@ function load_combo (select_id, option_array) {
         add_option (select_id, option_array[i]);
     }
 }
-function countryChange () {
+function countryChange() {
 
     //var myCountry = document.getElementById("CountryCombo").value;
     //Testing
