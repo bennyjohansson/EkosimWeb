@@ -9,6 +9,13 @@
 
     <body>
         <h1 id = "myTest" style="text-align:center"> Ekosim Test </h1>
+
+        <p id="countryText" style="text-align:center; font-size:20px"> Bennyland </p>
+        <div align="center">
+            <select id="CountryCombo" style="text-align:center" onchange="countryChange();">
+        </div>
+
+        </select>
         <br> <br>
         <div class = "container">  
             <canvas id = "myMoneyChart"> </canvas> 
@@ -50,14 +57,7 @@
         <input type="number" name="name" id="borrowwillInput" value="5" />  %
         
         <br>
-        <br>   <br>
-        <select id="CountryCombo" onchange="print_combo();">
-
-        </select>
-        <br>
-        <br>   <br>
-       Database link: <span id="dbLink" >  </span>      
-
+        <br> 
         <script src = "./app/app.js">
             //document.getElementById("myTest").innerHTML = "Hello JavaScript!";
                     

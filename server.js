@@ -28,10 +28,16 @@ app.use(function (req, res, next) {
     next();
 });
 
-app.put('/ekosim/put/:parameterID', function (req, res) {
+app.put('/ekosim/put/:myCountry', function (req, res) {
 
-    var ParameterID = req.params.parameterID;
+    var ParameterID = req.body.PARAMETER;
     var value = req.body.VALUE;
+
+    var myPath = './myDB/';
+    var myCountry = req.params.myCountry; // //
+    var myDatabase = myPath.concat(myCountry);
+    myDatabase = myDatabase.concat('.db');
+
     //console.log(value);
     //console.log(ParameterID);
 
@@ -44,7 +50,7 @@ app.put('/ekosim/put/:parameterID', function (req, res) {
 
     }
 
-    DBFunctions.insertFunction(ParameterID, value)
+    DBFunctions.insertFunction(myDatabase, ParameterID, value)
     res.send('Parameter ' + ParameterID + ' probably updated to value ' + value);
 
 });

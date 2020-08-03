@@ -3,10 +3,13 @@
 //Called by change function
 function putParameter(parameter, value) { //parameter
 
-    var url = 'http://ekosimweb-env.eba-66jamvpz.us-east-2.elasticbeanstalk.com/ekosim/put/'; //TargetInteputrestRate';
-    url = url.concat(parameter);
+    var myCountry = getCountry();
 
-    //console.log(url);
+
+    var url = 'http://ekosimweb-env.eba-66jamvpz.us-east-2.elasticbeanstalk.com/ekosim/put/'; //TargetInteputrestRate';
+    url = url.concat(myCountry);
+
+    console.log(url);
     let myBody = {
         "PARAMETER": "TargetInterestRate",
         "VALUE": "0.05"
@@ -134,12 +137,46 @@ var getDatabaseLink = function () {
 // /ekosim/read/
 // /ekosim/:parameter
 
+function addMoreMoneyData(table, chart, mycallback) {
 
-function getMoneyData(table, chart, mycallback) {
+    timeStamp = myGDPChart.data.labels[myGDPChart.data.labels.length - 1];
+
+    getMoneyData(table, chart, timeStamp, mycallback, 0) ;
+
+}
+
+function addMoreGDPData(table, myGDPChart, myDIVChart, mycallback) {
+
+    timeStamp = myGDPChart.data.labels[myGDPChart.data.labels.length - 1];
+
+    getGDPData(table, myGDPChart, myDIVChart, timeStamp, mycallback, 0) ;
+
+}
+
+function refreshMoneyData(table, chart, mycallback) {
+
+    timeStamp = 0; //myGDPChart.data.labels[myGDPChart.data.labels.length - 1];
+
+    getMoneyData(table, chart, timeStamp, mycallback, 1) ;
+
+}
+
+function refreshGDPData(table, myGDPChart, myDIVChart, mycallback) {
+
+    timeStamp = 0; //myGDPChart.data.labels[myGDPChart.data.labels.length - 1];
+
+    getGDPData(table, myGDPChart, myDIVChart, timeStamp, mycallback, 1) ;
+
+}
+
+
+
+
+
+function getMoneyData(table, chart, timeStamp, mycallback, resetChart) {
 
     //var lastTimestamp = 0;
     var myCountry = getCountry();
-    lastTimestamp = chart.data.labels[chart.data.labels.length - 1];
     //console.log(chart.data.datasets);
     //console.log(lastTimestamp);
 
@@ -148,7 +185,7 @@ function getMoneyData(table, chart, mycallback) {
     var url = 'http://ekosimweb-env.eba-66jamvpz.us-east-2.elasticbeanstalk.com/ekosim/moneytable/update/';
     url = url.concat(myCountry);
     url = url.concat('?timestamp=');
-    url = url.concat(lastTimestamp);
+    url = url.concat(timeStamp);
 
     console.log(url);
 
@@ -161,7 +198,7 @@ function getMoneyData(table, chart, mycallback) {
             //console.log("response: " + response); //Correctly prints JSON content to console
 
             // call it here
-            mycallback(chart, response);
+            mycallback(chart, response, resetChart);
         }
     }
     xhr.send(null);
@@ -169,7 +206,9 @@ function getMoneyData(table, chart, mycallback) {
     
 }
 
-function getGDPData(table,  myGDPChart, myDIVChart, mycallback) {
+
+
+function getGDPData(table,  myGDPChart, myDIVChart, timeStamp, mycallback, resetChart) {
 
     //var lastTimestamp = 0;
     var myCountry = getCountry();
@@ -182,7 +221,7 @@ function getGDPData(table,  myGDPChart, myDIVChart, mycallback) {
     var url = 'http://ekosimweb-env.eba-66jamvpz.us-east-2.elasticbeanstalk.com/ekosim/timetable/update/';
     url = url.concat(myCountry);
     url = url.concat('?timestamp=');
-    url = url.concat(lastTimestamp);
+    url = url.concat(timeStamp);
 
     //console.log(url);
 
@@ -195,7 +234,7 @@ function getGDPData(table,  myGDPChart, myDIVChart, mycallback) {
             //console.log("response: " + response); //Correctly prints JSON content to console
 
             // call it here
-            mycallback(myGDPChart, myDIVChart, response);
+            mycallback(myGDPChart, myDIVChart, response, resetChart);
         }
     }
     xhr.send(null);
@@ -204,25 +243,46 @@ function getGDPData(table,  myGDPChart, myDIVChart, mycallback) {
 }
 
 
-function updateMoneyData(chart, newData) {
+function updateMoneyData(chart, newData, resetChart) {
 
     //Parsing API-data
     var JSONData = JSON.parse(newData).data;
     //console.log(JSONData);
     
-    var timeData = chart.data.labels;
-    var totalMoney = chart.data.datasets[0].data;
-    var consumerCapital = chart.data.datasets[1].data;
-    var consumerDebts = chart.data.datasets[2].data;
-    var consumerDeposits = chart.data.datasets[3].data;
-    var bankCapital = chart.data.datasets[4].data;
-    var bankLoans = chart.data.datasets[5].data;
-    var bankDeposits = chart.data.datasets[6].data;
-    var bankLiquiditys = chart.data.datasets[7].data;
-    var companyCapital = chart.data.datasets[8].data;
-    var companyDebts = chart.data.datasets[9].data;
-    var marketCapital = chart.data.datasets[10].data;
-    var cityCapital = chart.data.datasets[11].data;
+    if(resetChart == 0) {
+        var timeData = chart.data.labels;
+        var totalMoney = chart.data.datasets[0].data;
+        var consumerCapital = chart.data.datasets[1].data;
+        var consumerDebts = chart.data.datasets[2].data;
+        var consumerDeposits = chart.data.datasets[3].data;
+        var bankCapital = chart.data.datasets[4].data;
+        var bankLoans = chart.data.datasets[5].data;
+        var bankDeposits = chart.data.datasets[6].data;
+        var bankLiquiditys = chart.data.datasets[7].data;
+        var companyCapital = chart.data.datasets[8].data;
+        var companyDebts = chart.data.datasets[9].data;
+        var marketCapital = chart.data.datasets[10].data;
+        var cityCapital = chart.data.datasets[11].data;
+    }
+    else {
+
+        var timeData = [];
+        var totalMoney = [];
+        var consumerCapital = [];
+        var consumerDebts = [];
+        var consumerDeposits = [];
+        var bankCapital = [];
+        var bankLoans = [];
+        var bankDeposits = [];
+        var bankLiquiditys = [];
+        var companyCapital = [];
+        var companyDebts = [];
+        var marketCapital = [];
+        var cityCapital = [];
+
+
+
+    }
 
     //console.log(consumerCapital.length);
     //console.log(companyCapital.length);
@@ -263,41 +323,57 @@ function updateMoneyData(chart, newData) {
    
 }
 
-function updateGDPData(GDPChart, DIVChart, newData) {
+function updateGDPData(GDPChart, DIVChart, newData, resetChart) {
 
     //Parsing API-data
     var JSONData = JSON.parse(newData).data;
 
-    //Preparing GDP-data
-    var timeData = GDPChart.data.labels;
-    var nominal_gdp = GDPChart.data.datasets[0].data;
-    //var real_gdp = GDPChart.data.datasets[1].data;
-    //var items = GDPChart.data.datasets[2].data;
-    //var investments = GDPChart.data.datasets[3].data;
-    //var demand = GDPChart.data.datasets[1].data;
+    //Preparing GDP-data & DIV-data
 
-    //Preparing DIV-data
-    var price_out = DIVChart.data.datasets[0].data;
-    //var interest_rate = DIVChart.data.datasets[1].data;
-    //var employed = DIVChart.data.datasets[3].data;
-    //var wages = DIVChart.data.datasets[4].data;
-    //var growth = DIVChart.data.datasets[4].data;
+    if(resetChart == 0) {
+
+        var timeData = GDPChart.data.labels;
+        var nominal_gdp = GDPChart.data.datasets[0].data;
+        var real_gdp = GDPChart.data.datasets[1].data;
+        var items = GDPChart.data.datasets[2].data;
+        var investments = GDPChart.data.datasets[3].data;
+        //var demand = GDPChart.data.datasets[1].data;
+
+        //Preparing DIV-data
+        var price_out = DIVChart.data.datasets[0].data;
+        var interest_rate = DIVChart.data.datasets[1].data;
+        //var employed = DIVChart.data.datasets[3].data;
+        //var wages = DIVChart.data.datasets[4].data;
+        var cap_reserv_ratio = DIVChart.data.datasets[3].data;
+        var growth = DIVChart.data.datasets[2].data;
+    }
+    else {
+        var timeData = [];
+        var nominal_gdp = [];
+        var price_out = [];
+        var interest_rate = [];
+        var real_gdp = [];
+        var items = [];
+        var investments = [];
+        var cap_reserv_ratio = [];
+
+    }
 
   
 
 
     for(var i in JSONData) {
-        GDPChart.data.labels.push(JSONData[i].TIME);
-        GDPChart.data.datasets[0].data.push(JSONData[i].GDP_NOMINAL);
-        GDPChart.data.datasets[1].data.push(JSONData[i].GDP_NOMINAL*price_out[1]/JSONData[i].PRICE); //Should be price[0] perhaps...
-        GDPChart.data.datasets[2].data.push(JSONData[i].GDP_ITEMS);
+        timeData.push(JSONData[i].TIME);
+        nominal_gdp.push(JSONData[i].GDP_NOMINAL);
+        real_gdp.push(JSONData[i].GDP_NOMINAL*price_out[1]/JSONData[i].PRICE); //Should be price[0] perhaps...
+        items.push(JSONData[i].GDP_ITEMS);
         //demand.push(JSONData[i].DEMAND);
-        GDPChart.data.datasets[3].data.push(JSONData[i].INVESTMENTS);
+        investments.push(JSONData[i].INVESTMENTS);
 
-        DIVChart.data.labels.push(JSONData[i].TIME);
-        DIVChart.data.datasets[0].data.push(JSONData[i].PRICE);
-        DIVChart.data.datasets[1].data.push(JSONData[i].INTEREST_RATE*100);
-        DIVChart.data.datasets[3].data.push(JSONData[i].CAP_RES_RATIO*10);
+        //DIVChart.data.labels.push(JSONData[i].TIME);
+        price_out.push(JSONData[i].PRICE);
+        interest_rate.push(JSONData[i].INTEREST_RATE*100);
+        cap_reserv_ratio.push(JSONData[i].CAP_RES_RATIO*10);
 
         //employed.push(JSONData[i].NO_EMPLOYED);
         //wages.push(JSONData[i].WAGES);
@@ -317,6 +393,18 @@ function updateGDPData(GDPChart, DIVChart, newData) {
         Growthx10MA[i] =  Growthx10.slice(Math.max(0,i-9), i+1).reduce(reducer)/10;
 
     }
+
+    GDPChart.data.labels = timeData;
+    GDPChart.data.datasets[0].data = nominal_gdp;
+    GDPChart.data.datasets[1].data = real_gdp;
+    GDPChart.data.datasets[2].data = items;
+    //demand.push(JSONData[i].DEMAND);
+    GDPChart.data.datasets[3].data = investments;
+
+    DIVChart.data.labels = timeData;
+    DIVChart.data.datasets[0].data = price_out;
+    DIVChart.data.datasets[1].data = interest_rate;
+    DIVChart.data.datasets[3].data = cap_reserv_ratio;
 
     //console.log(DIVChart.data.datasets[3].data);
 
@@ -514,33 +602,7 @@ initiateDIVTable = function(myChart) {
 
 };
 
-/*
-* PUPULATING BUTTONS AND FIELDS WITH INITIAL VALUES
-*/
 
-// var getTest = function (mycallback) {
-//     var url = 'http://ekosimweb-env.eba-66jamvpz.us-east-2.elasticbeanstalk.com/ekosim/test';
-//     //url = url.concat(parameter);
-
-//     //console.log(url);
-
-//     var xhr = new XMLHttpRequest();
-//     xhr.open('GET', url, true);
-//     xhr.onreadystatechange = function () {
-//         //console.log(xhr.readyState);
-//         if (xhr.readyState == 4) { //XMLHttpRequest.DONE
-//             var response = xhr.responseText;
-//             console.log("response: " + response); //Correctly prints JSON content to console
-
-//             // call it here
-//             mycallback(response);
-//         }
-//     }
-//     xhr.send(null);
-
-
-
-// };
 
 /*
 * Reading initial parameters
@@ -612,11 +674,16 @@ function load_combo (select_id, option_array) {
         add_option (select_id, option_array[i]);
     }
 }
-function print_combo () {
+function countryChange () {
 
     //var myCountry = document.getElementById("CountryCombo").value;
-    var myLink = getDatabaseLink();
-    document.getElementById("dbLink").innerHTML = myLink;
+    var myCountry = getCountry();
+    document.getElementById("countryText").innerHTML = myCountry;
+
+    refreshMoneyData('MONEY_DATA', myMoneyChart, updateMoneyData);
+    refreshGDPData('TIME_DATA', myGDPChart, myDIVChart, updateGDPData);
+
+
 
 }
 
@@ -715,8 +782,8 @@ initiateDIVTable(myDIVChart);
 
 
 setInterval(function() {
-    getMoneyData('MONEY_DATA', myMoneyChart, updateMoneyData);
-    getGDPData('TIME_DATA', myGDPChart, myDIVChart, updateGDPData);
+    addMoreMoneyData('MONEY_DATA', myMoneyChart, updateMoneyData);
+    addMoreGDPData('TIME_DATA', myGDPChart, myDIVChart, updateGDPData);
 
     }, 2000);
 
@@ -1218,3 +1285,31 @@ function updateDIVData(chart, newData) {
 }
 
 */
+
+/*
+* PUPULATING BUTTONS AND FIELDS WITH INITIAL VALUES
+*/
+
+// var getTest = function (mycallback) {
+//     var url = 'http://ekosimweb-env.eba-66jamvpz.us-east-2.elasticbeanstalk.com/ekosim/test';
+//     //url = url.concat(parameter);
+
+//     //console.log(url);
+
+//     var xhr = new XMLHttpRequest();
+//     xhr.open('GET', url, true);
+//     xhr.onreadystatechange = function () {
+//         //console.log(xhr.readyState);
+//         if (xhr.readyState == 4) { //XMLHttpRequest.DONE
+//             var response = xhr.responseText;
+//             console.log("response: " + response); //Correctly prints JSON content to console
+
+//             // call it here
+//             mycallback(response);
+//         }
+//     }
+//     xhr.send(null);
+
+
+
+// };
