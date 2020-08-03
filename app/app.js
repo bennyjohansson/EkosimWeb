@@ -678,6 +678,7 @@ function load_combo (select_id, option_array) {
 function countryChange () {
 
     //var myCountry = document.getElementById("CountryCombo").value;
+    //Testing
     var myCountry = getCountry();
     document.getElementById("countryText").innerHTML = myCountry;
 
