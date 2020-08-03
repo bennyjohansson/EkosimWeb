@@ -78,6 +78,7 @@ getWorldTable = function(table) { //database, table
 
 var insertFunction = function (myDatabase, parameter, value) {
     //'./myDB/Bennyland.db'
+    console.log(myDatabase);
     let db = new sqlite3.Database(myDatabase, sqlite3.OPEN_READWRITE, (err) => {
         if (err) {
             console.error(err.message);

@@ -9,15 +9,16 @@ function putParameter(parameter, value) { //parameter
     var url = 'http://ekosimweb-env.eba-66jamvpz.us-east-2.elasticbeanstalk.com/ekosim/put/'; //TargetInteputrestRate';
     url = url.concat(myCountry);
 
-    console.log(url);
+    
     let myBody = {
         "PARAMETER": "TargetInterestRate",
-        "VALUE": "0.05"
+        "VALUE": "0.04"
     };
 
     myBody.PARAMETER = parameter; 
     myBody.VALUE = value;
 
+    console.log(url);
     console.log(myBody);
     var xhr = new XMLHttpRequest();
     xhr.open('PUT', url, true);
@@ -187,7 +188,7 @@ function getMoneyData(table, chart, timeStamp, mycallback, resetChart) {
     url = url.concat('?timestamp=');
     url = url.concat(timeStamp);
 
-    console.log(url);
+    //console.log(url);
 
     var xhr = new XMLHttpRequest();
     xhr.open('GET', url, true);
