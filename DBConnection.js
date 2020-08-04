@@ -88,7 +88,7 @@ var insertFunction = function (myDatabase, parameter, value) {
         if (err) {
             console.error(err.message);
         }
-        console.log('Connected to the ekosim database for insert functions');
+        console.log('Connected to the ekosim database for insert functions.');
     });
 
     var data = [value, parameter];
