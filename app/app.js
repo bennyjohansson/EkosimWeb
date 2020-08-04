@@ -784,7 +784,15 @@ var myDIVChart = new Chart(ctxDIV, {
 initiateDIVTable(myDIVChart);
 
 
+/*
+* POPULATING CHARTS
+*/
+refreshMoneyData('MONEY_DATA', myMoneyChart, updateMoneyData);
+refreshGDPData('TIME_DATA', myGDPChart, myDIVChart, updateGDPData);
 
+/*
+* REGULAR UPDATE OF CHARTS
+*/
 
 setInterval(function() {
     addMoreMoneyData('MONEY_DATA', myMoneyChart, updateMoneyData);
