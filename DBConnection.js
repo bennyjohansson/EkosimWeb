@@ -83,12 +83,12 @@ var insertFunction = function (myDatabase, parameter, value) {
 
     //     console.log('Eureka - the string is the same');
     //}
+
     let db = new sqlite3.Database(myDatabase, sqlite3.OPEN_READWRITE, (err) => {
         if (err) {
             console.error(err.message);
         }
-        console.log('Connected to the ekosim database for insert functions.');
-
+        console.log('Connected to the ekosim database for insert functions');
     });
 
     var data = [value, parameter];
