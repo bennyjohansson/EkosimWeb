@@ -82,7 +82,7 @@ var insertFunction = function (myDatabase, parameter, value) {
     // if(myDatabase == './myDB/Bennyland.db') {
 
     //     console.log('Eureka - the string is the same');
-    }
+    //}
     let db = new sqlite3.Database(myDatabase, sqlite3.OPEN_READWRITE, (err) => {
         if (err) {
             console.error(err.message);
