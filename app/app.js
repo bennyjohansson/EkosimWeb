@@ -675,6 +675,8 @@ function load_combo (select_id, option_array) {
         add_option (select_id, option_array[i]);
     }
 }
+
+
 function countryChange() {
 
     //var myCountry = document.getElementById("CountryCombo").value;
@@ -692,6 +694,7 @@ function countryChange() {
 testarray = ['Bennyland', 'Saraland'];
 add_option ('CountryCombo', '--Select Country--');
 load_combo('CountryCombo', testarray);
+document.getElementById("CountryCombo").addEventListener("change", countryChange); 
 //document.getElementById('CountryCombo').onclick = print_combo();
 
 /*
