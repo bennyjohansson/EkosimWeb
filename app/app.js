@@ -86,9 +86,10 @@ function changeBorrowwill() {
 var getParameter = function (parameter, mycallback) {
 
     var url = 'http://ekosimweb-env.eba-66jamvpz.us-east-2.elasticbeanstalk.com/ekosim/read/';
+    url = url.concat('?parameterID=')
     url = url.concat(parameter);
 
-    //console.log(url);
+    console.log(url);
 
     var xhr = new XMLHttpRequest();
     xhr.open('GET', url, true);

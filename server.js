@@ -57,10 +57,17 @@ app.put('/ekosim/put/:myCountry', function (req, res) {
 
 
 
-app.get('/ekosim/read/:parameterID', (req, res, next) => {
+app.get('/ekosim/read/:myCountry', (req, res, next) => {
+
+    var myPath = './myDB/';
+    var myCountry = req.params.myCountry; // //
+    var myDatabase = myPath.concat(myCountry);
+    myDatabase = myDatabase.concat('.db');
+
+    var params = [req.query.parameterID];
 
     //let db = new sqlite3.Database('/home/ec2-user/ekosimProject/myDB/ekosimDB.db', sqlite3.OPEN_READONLY, (err) => {
-    let db = new sqlite3.Database('./myDB/Bennyland.db', sqlite3.OPEN_READONLY, (err) => {
+    let db = new sqlite3.Database(myDatabase, sqlite3.OPEN_READONLY, (err) => {
 
         //./app/app.js
         if (err) {
@@ -68,7 +75,7 @@ app.get('/ekosim/read/:parameterID', (req, res, next) => {
         }
         console.log('Connected to the ekosim database.');
     });
-    var params = [req.params.parameterID];
+
     var sql = "select * from PARAMETERS WHERE PARAMETER = ?"// InterestRateMethod TargetInterestRate
     //params = [];
     //console.log(sql);
