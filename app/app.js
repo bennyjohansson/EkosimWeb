@@ -85,8 +85,11 @@ function changeBorrowwill() {
 
 var getParameter = function (parameter, mycallback) {
 
+    var myCountry = getCountry();
+
     var url = 'http://ekosimweb-env.eba-66jamvpz.us-east-2.elasticbeanstalk.com/ekosim/read/';
-    url = url.concat('?parameterID=')
+    url = url.concat(myCountry);
+    url = url.concat('?parameterID=');
     url = url.concat(parameter);
 
     console.log(url);
@@ -167,7 +170,7 @@ function refreshGDPData(table, myGDPChart, myDIVChart, mycallback) {
 
     timeStamp = 0; //myGDPChart.data.labels[myGDPChart.data.labels.length - 1];
 
-    getGDPData(table, myGDPChart, myDIVChart, timeStamp, mycallback, 1) ;
+        (table, myGDPChart, myDIVChart, timeStamp, mycallback, 1) ;
 
 }
 
