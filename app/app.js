@@ -110,6 +110,33 @@ var getParameter = function (parameter, mycallback) {
 
 };
 
+var getCompany = function (companyName, mycallback) {
+
+    var myCountry = getCountry();
+
+    var url = 'http://ekosimweb-env.eba-66jamvpz.us-east-2.elasticbeanstalk.com/ekosim/getCompany/';
+    url = url.concat(myCountry);
+    url = url.concat('?companyName=');
+    url = url.concat(companyName);
+
+    console.log(url);
+
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', url, true);
+    xhr.onreadystatechange = function () {
+        //console.log(xhr.readyState);
+        if (xhr.readyState == 4) { //XMLHttpRequest.DONE
+            var response = xhr.responseText;
+            console.log("response: " + response); //Correctly prints JSON content to console
+
+            // call it here
+            mycallback(response);
+        }
+    }
+    xhr.send(null);
+
+};
+
 var getCountry = function () {
 
     myCountry =  document.getElementById("CountryCombo").value;
