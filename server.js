@@ -109,7 +109,7 @@ app.get('/ekosim/getCompany/:myCountry', (req, res, next) => {
     var myDatabase = myPath.concat(myCountry);
     myDatabase = myDatabase.concat('.db');
 
-    var myCompany = [req.query.parameterID];
+    var myCompany = [req.query.myCompany];
 
     //let db = new sqlite3.Database('/home/ec2-user/ekosimProject/myDB/ekosimDB.db', sqlite3.OPEN_READONLY, (err) => {
     let db = new sqlite3.Database(myDatabase, sqlite3.OPEN_READONLY, (err) => {
@@ -123,7 +123,7 @@ app.get('/ekosim/getCompany/:myCountry', (req, res, next) => {
 
     var sql = "select * from COMPANY_TABLE WHERE NAME = ?"// InterestRateMethod TargetInterestRate
     //params = [];
-    //console.log(sql);
+    console.log(sql);
     //console.log(params);
     db.get(sql, myCompany, (err, row) => {
         if (err) {
