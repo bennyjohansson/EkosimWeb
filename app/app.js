@@ -201,6 +201,9 @@ function refreshGDPData(table, myGDPChart, myDIVChart, mycallback) {
 
 }
 
+//refreshGDPData('TIME_DATA', myGDPChart, myDIVChart, updateGDPData);
+
+
 
 
 
@@ -363,7 +366,7 @@ function updateGDPData(GDPChart, DIVChart, newData, resetChart) {
     //Preparing GDP-data & DIV-data
 
     if(resetChart == 0) {
-
+        console.log("Not resetting data for GDP-data")
         var timeData = GDPChart.data.labels;
         var nominal_gdp = GDPChart.data.datasets[0].data;
         var real_gdp = GDPChart.data.datasets[1].data;
@@ -380,6 +383,7 @@ function updateGDPData(GDPChart, DIVChart, newData, resetChart) {
         var growth = DIVChart.data.datasets[2].data;
     }
     else {
+        console.log("Resetting data for GDP-data")
         var timeData = [];
         var nominal_gdp = [];
         var price_out = [];
