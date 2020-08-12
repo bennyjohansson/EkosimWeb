@@ -381,6 +381,7 @@ function updateGDPData(GDPChart, DIVChart, newData, resetChart) {
         //var wages = DIVChart.data.datasets[4].data;
         var cap_reserv_ratio = DIVChart.data.datasets[3].data;
         var growth = DIVChart.data.datasets[2].data;
+        var inflation = DIVChart.data.datasets[4].data;
     }
     else {
         console.log("Resetting data for GDP-data")
@@ -392,6 +393,7 @@ function updateGDPData(GDPChart, DIVChart, newData, resetChart) {
         var items = [];
         var investments = [];
         var cap_reserv_ratio = [];
+        var inflation = [];
 
     }
 
@@ -421,12 +423,19 @@ function updateGDPData(GDPChart, DIVChart, newData, resetChart) {
     Growthx10MA = new Array(timeData.length);
     Growthx10[0] = 0;
 
+
+    let Inflation = new Array(timeData.length);
+    let Inflation10MA = new Array(timeData.length);
+
     const reducer = (accumulator, currentValue) => accumulator + currentValue;
 
     for(i=0; i<timeData.length; i++) {
         GDPreal[i]=nominal_gdp[i]*price_out[1]/price_out[i];
         Growthx10[i] = ((nominal_gdp[i+1]*price_out[1]/price_out[i+1])/GDPreal[i]-1)*100;
         Growthx10MA[i] =  Growthx10.slice(Math.max(0,i-9), i+1).reduce(reducer)/10;
+
+        Inflation[i] = price_out[i+1]/price_out[i];
+        Inflation10MA = Inflation.slice(Math.max(0,i-9), i+1).reduce(reducer)/10;
 
     }
 
@@ -446,6 +455,7 @@ function updateGDPData(GDPChart, DIVChart, newData, resetChart) {
 
     //Replacing old GDP data with new data & Updating
     DIVChart.data.datasets[2].data = Growthx10MA;
+    DIVChart.data.datasets[4].data = Inflation10MA;
 
 
 
@@ -627,6 +637,13 @@ initiateDIVTable = function(myChart) {
         {
             label: "Cap reserve ratio x10",
             borderColor: "red",
+            pointRadius: 0,
+            data: [0]
+            
+        },
+        {
+            label: "Inflation",
+            borderColor: "yellow",
             pointRadius: 0,
             data: [0]
             
