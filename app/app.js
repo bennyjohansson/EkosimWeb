@@ -435,7 +435,7 @@ function updateGDPData(GDPChart, DIVChart, newData, resetChart) {
         Growthx10MA[i] =  Growthx10.slice(Math.max(0,i-9), i+1).reduce(reducer)/10;
 
         Inflation[i] = price_out[i+1]/price_out[i];
-        Inflation10MA = Inflation.slice(Math.max(0,i-9), i+1).reduce(reducer)/10;
+        Inflation10MA[i] = Inflation.slice(Math.max(0,i-9), i+1).reduce(reducer)/10;
 
     }
 
