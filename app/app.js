@@ -197,7 +197,7 @@ function refreshGDPData(table, myGDPChart, myDIVChart, mycallback) {
 
     timeStamp = 0; //myGDPChart.data.labels[myGDPChart.data.labels.length - 1];
 
-        (table, myGDPChart, myDIVChart, timeStamp, mycallback, 1) ;
+    getGDPData(table, myGDPChart, myDIVChart, timeStamp, mycallback, 1) ;
 
 }
 
@@ -818,8 +818,8 @@ initiateDIVTable(myDIVChart);
 /*
 * POPULATING CHARTS
 */
-refreshMoneyData('MONEY_DATA', myMoneyChart, updateMoneyData);
-refreshGDPData('TIME_DATA', myGDPChart, myDIVChart, updateGDPData);
+//refreshMoneyData('MONEY_DATA', myMoneyChart, updateMoneyData);
+//refreshGDPData('TIME_DATA', myGDPChart, myDIVChart, updateGDPData);
 
 /*
 * REGULAR UPDATE OF CHARTS
