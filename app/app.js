@@ -364,6 +364,7 @@ function updateGDPData(GDPChart, DIVChart, newData, resetChart) {
     var JSONData = JSON.parse(newData).data;
 
     var no_consumers = 3000;
+    var employed = [];
 
     //Preparing GDP-data & DIV-data
 
@@ -382,6 +383,8 @@ function updateGDPData(GDPChart, DIVChart, newData, resetChart) {
         //var employed = DIVChart.data.datasets[3].data;
         //var wages = DIVChart.data.datasets[4].data;
         var cap_reserv_ratio = DIVChart.data.datasets[3].data;
+         //DIVChart.data.datasets[5].data;
+        var Unemployment = DIVChart.data.datasets[5].data;
 
     }
     else {
@@ -394,8 +397,8 @@ function updateGDPData(GDPChart, DIVChart, newData, resetChart) {
         var items = [];
         var investments = [];
         var cap_reserv_ratio = [];
-        var inflation = [];
-        var employed = [];
+        var Unemployment = new Array(timeData.length);
+
 
     }
 
@@ -429,7 +432,6 @@ function updateGDPData(GDPChart, DIVChart, newData, resetChart) {
     let Inflation = new Array(timeData.length);
     let Inflation10MA = new Array(timeData.length);
 
-    let Unemployment = new Array(timeData.length);
 
 
     const reducer = (accumulator, currentValue) => accumulator + currentValue;
@@ -442,7 +444,7 @@ function updateGDPData(GDPChart, DIVChart, newData, resetChart) {
         Inflation[i] = price_out[i+1]/price_out[i] - 1;
         Inflation10MA[i] = Inflation.slice(Math.max(0,i-9), i+1).reduce(reducer)/10;
 
-        Unemployment[i] = employed[i]/no_consumers;
+        Unemployment.push(employed[i]/no_consumers);
 
     }
 
