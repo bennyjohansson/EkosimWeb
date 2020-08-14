@@ -417,7 +417,7 @@ function updateGDPData(GDPChart, DIVChart, newData, resetChart) {
         interest_rate.push(JSONData[i].INTEREST_RATE*100);
         cap_reserv_ratio.push(JSONData[i].CAP_RES_RATIO*10);
 
-        unemployment.push(JSONData[i].UNEMPLOYMENT);
+        unemployment.push(JSONData[i].UNEMPLOYMENT*10);
         //wages.push(JSONData[i].WAGES);
     };
    
@@ -464,7 +464,7 @@ function updateGDPData(GDPChart, DIVChart, newData, resetChart) {
     //Replacing old GDP data with new data & Updating
     DIVChart.data.datasets[2].data = Growthx10MA;
     DIVChart.data.datasets[4].data = Inflation10MA;
-    DIVChart.data.datasets[5].data = unemployment*10;
+    DIVChart.data.datasets[5].data = unemployment;
 
 
 
