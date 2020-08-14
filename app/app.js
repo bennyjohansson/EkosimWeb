@@ -384,7 +384,7 @@ function updateGDPData(GDPChart, DIVChart, newData, resetChart) {
         //var wages = DIVChart.data.datasets[4].data;
         var cap_reserv_ratio = DIVChart.data.datasets[3].data;
          //DIVChart.data.datasets[5].data;
-        var Unemployment = DIVChart.data.datasets[5].data;
+        var unemployment = DIVChart.data.datasets[5].data;
 
     }
     else {
@@ -397,8 +397,7 @@ function updateGDPData(GDPChart, DIVChart, newData, resetChart) {
         var items = [];
         var investments = [];
         var cap_reserv_ratio = [];
-        var Unemployment = new Array(timeData.length);
-
+        var unemployment = []; //new Array(timeData.length);
 
     }
 
@@ -418,7 +417,7 @@ function updateGDPData(GDPChart, DIVChart, newData, resetChart) {
         interest_rate.push(JSONData[i].INTEREST_RATE*100);
         cap_reserv_ratio.push(JSONData[i].CAP_RES_RATIO*10);
 
-        employed.push(JSONData[i].NO_EMPLOYED);
+        unemployment.push(JSONData[i].UNEMPLOYMENT);
         //wages.push(JSONData[i].WAGES);
     };
    
@@ -444,7 +443,7 @@ function updateGDPData(GDPChart, DIVChart, newData, resetChart) {
         Inflation[i] = price_out[i+1]/price_out[i] - 1;
         Inflation10MA[i] = Inflation.slice(Math.max(0,i-9), i+1).reduce(reducer)/10;
 
-        Unemployment.push(employed[i]/no_consumers);
+        //Unemployment.push((no_consumers - employed[i])/no_consumers);
 
     }
 
@@ -465,7 +464,7 @@ function updateGDPData(GDPChart, DIVChart, newData, resetChart) {
     //Replacing old GDP data with new data & Updating
     DIVChart.data.datasets[2].data = Growthx10MA;
     DIVChart.data.datasets[4].data = Inflation10MA;
-    DIVChart.data.datasets[5].data = Unemployment;
+    DIVChart.data.datasets[5].data = unemployment;
 
 
 
