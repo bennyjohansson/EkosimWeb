@@ -464,7 +464,7 @@ function updateGDPData(GDPChart, DIVChart, newData, resetChart) {
     //Replacing old GDP data with new data & Updating
     DIVChart.data.datasets[2].data = Growthx10MA;
     DIVChart.data.datasets[4].data = Inflation10MA;
-    DIVChart.data.datasets[5].data = unemployment;
+    DIVChart.data.datasets[5].data = unemployment*10;
 
 
 
@@ -659,7 +659,7 @@ initiateDIVTable = function(myChart) {
             
         },
         {
-            label: "Unemployment",
+            label: "Unemployment x10",
             borderColor: "cyan",
             pointRadius: 0,
             data: [0]
