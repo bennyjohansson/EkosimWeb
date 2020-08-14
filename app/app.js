@@ -363,6 +363,8 @@ function updateGDPData(GDPChart, DIVChart, newData, resetChart) {
     //Parsing API-data
     var JSONData = JSON.parse(newData).data;
 
+    var no_consumers = 3000;
+
     //Preparing GDP-data & DIV-data
 
     if(resetChart == 0) {
@@ -380,8 +382,7 @@ function updateGDPData(GDPChart, DIVChart, newData, resetChart) {
         //var employed = DIVChart.data.datasets[3].data;
         //var wages = DIVChart.data.datasets[4].data;
         var cap_reserv_ratio = DIVChart.data.datasets[3].data;
-        var growth = DIVChart.data.datasets[2].data;
-        var inflation = DIVChart.data.datasets[4].data;
+
     }
     else {
         console.log("Resetting data for GDP-data")
@@ -394,6 +395,7 @@ function updateGDPData(GDPChart, DIVChart, newData, resetChart) {
         var investments = [];
         var cap_reserv_ratio = [];
         var inflation = [];
+        var employed = [];
 
     }
 
@@ -413,7 +415,7 @@ function updateGDPData(GDPChart, DIVChart, newData, resetChart) {
         interest_rate.push(JSONData[i].INTEREST_RATE*100);
         cap_reserv_ratio.push(JSONData[i].CAP_RES_RATIO*10);
 
-        //employed.push(JSONData[i].NO_EMPLOYED);
+        employed.push(JSONData[i].NO_EMPLOYED);
         //wages.push(JSONData[i].WAGES);
     };
    
@@ -427,6 +429,9 @@ function updateGDPData(GDPChart, DIVChart, newData, resetChart) {
     let Inflation = new Array(timeData.length);
     let Inflation10MA = new Array(timeData.length);
 
+    let Unemployment = new Array(timeData.length);
+
+
     const reducer = (accumulator, currentValue) => accumulator + currentValue;
 
     for(i=0; i<timeData.length; i++) {
@@ -436,6 +441,8 @@ function updateGDPData(GDPChart, DIVChart, newData, resetChart) {
 
         Inflation[i] = price_out[i+1]/price_out[i] - 1;
         Inflation10MA[i] = Inflation.slice(Math.max(0,i-9), i+1).reduce(reducer)/10;
+
+        Unemployment[i] = employed[i]/no_consumers;
 
     }
 
@@ -456,6 +463,8 @@ function updateGDPData(GDPChart, DIVChart, newData, resetChart) {
     //Replacing old GDP data with new data & Updating
     DIVChart.data.datasets[2].data = Growthx10MA;
     DIVChart.data.datasets[4].data = Inflation10MA;
+    DIVChart.data.datasets[5].data = Unemployment;
+
 
 
 
@@ -644,6 +653,13 @@ initiateDIVTable = function(myChart) {
         {
             label: "Inflation",
             borderColor: "yellow",
+            pointRadius: 0,
+            data: [0]
+            
+        },
+        {
+            label: "Unemployment",
+            borderColor: "cyan",
             pointRadius: 0,
             data: [0]
             
