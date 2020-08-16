@@ -1,13 +1,35 @@
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
     <head> 
-        <!--<link rel = "stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" > -->
+        <!-- required tags -->
+        <meta charset="utf-8">
+        <meta name = "viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        <link rel = "stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" >
+        <link rel = "stylesheet" href="./css/style.css" >
+
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"> </script>
         <title> Ekosim </title>
     </head>
 
     <body>
+
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <a class="navbar-brand" href="#">ECOSIM</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+              <div class="navbar-nav">
+                <a class="nav-link active" href="#">Home <span class="sr-only">(current)</span></a>
+                <a class="nav-link" href="#">Features</a>
+                <a class="nav-link" href="#">Pricing</a>
+                <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
+              </div>
+            </div>
+          </nav>
+
         <h1 id = "myTest" style="text-align:center"> Ecosim </h1>
 
         <p id="countryText" style="text-align:center; font-size:20px"> Bennyland </p>
@@ -32,47 +54,44 @@
         <br><br>
         <p1 id="irMethod"> Target Interest Rate </p1>
         <br> <br>
-        <button onclick="putParameter('InterestRateMethod', 1)">Use market IR</button>
+        <button onclick="putParameter('InterestRateMethod', 1)" class="btn btn-primary">Use market IR</button>
 
         <br> <br>
-        <button onclick="changeInterestRate()">Use target rate </button>    
+        <button onclick="changeInterestRate()" class="btn btn-primary">Use target rate </button>    
         <input type="number" name="name" id="interestRateInput" value="5" />
+
+
         %
         
         <br>
         <br> <br>
 
-        <button onclick="changeCapitalReserveRatio()"> Set capital reserve ratio </button>    
+        <button onclick="changeCapitalReserveRatio()" class="btn btn-primary"> Set capital reserve ratio </button>    
         <input type="number" name="name" id="reserveRatioInput" value="1" />   
 
         <br>
         <br> <br>
 
-        <button onclick="changeSpendwill()"> Set average spendwill </button>    
+        <button onclick="changeSpendwill()" class="btn btn-primary"> Set average spendwill </button>    
         <input type="number" name="name" id="spendwillInput" value="80" /> %  
 
         <br>
         <br> <br>
 
-        <button onclick="changeBorrowwill()"> Set average borrowwill </button>    
+        <button onclick="changeBorrowwill()" class="btn btn-primary"> Set average borrowwill </button>    
         <input type="number" name="name" id="borrowwillInput" value="5" />  %
         
         <br>
         <br> 
-        <script src = "./app/app.js">
-            //document.getElementById("myTest").innerHTML = "Hello JavaScript!";
-                    
-            // console.log('testing');
-
-        </script>
-
-
         
 
-       
+        <script src = "./app/app.js"> </script>
+         <!-- Optional JavaScript -->
+         <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 
-
-    
 
     </body>
 
