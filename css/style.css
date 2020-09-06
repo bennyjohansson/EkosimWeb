@@ -32,3 +32,16 @@ canvas {
   .countrycombo {
     margin: auto;
   }
+
+  .viewselect {
+    text-align: center;
+    align-items: center;
+    align-content: center;
+    background-color: grey;
+
+  }
+
+  .col-md-4 {
+
+    text-align: center;
+  }
