@@ -41,7 +41,17 @@ canvas {
 
   }
 
-  .col-md-4 {
+  .col-md-3 {
 
     text-align: center;
   }
+
+  .input-group-text {
+    /* display: block; */
+    width: 150px;
+    }
+
+    /* .ok-button{
+        width: 150px;
+
+    } */
