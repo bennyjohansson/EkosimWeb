@@ -43,6 +43,7 @@ function changeInterestRate() {
 
 function changeInterestRate2() {
     var targetInterestRate = document.getElementById("FixedRate").value/100;
+    console.log("Testing change interest rate 2")
     putParameter('InterestRateMethod', 2)
     putParameter('TargetInterestRate', targetInterestRate);
     console.log("Testing change interest rate 2")
