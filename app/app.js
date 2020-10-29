@@ -778,7 +778,7 @@ testarray = ['Bennyland', 'Saraland', 'Otherland'];
 add_option ('CountryCombo', '--Select Country--');
 load_combo('CountryCombo', testarray);
 document.getElementById("CountryCombo").addEventListener("change", countryChange); 
-document.getElementById("SetFixedRateButton").addEventListener("click", changeInterestRate2);
+//document.getElementById("SetFixedRateButton").addEventListener("click", changeInterestRate2);
 //document.getElementById('CountryCombo').onclick = print_combo();
 
 /*
