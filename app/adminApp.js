@@ -57,19 +57,19 @@ function changeInterestRate2() {
 }
 
 function changeCapacityIncParam() {
-    var setParameter = document.getElementById("CapacityIncParam").value/100;
+    var setParameter = document.getElementById("CapacityIncParam").value;
     console.log(setParameter);
     putParameter('CapIncreaseParam_1', setParameter);
 }
 
 function changeCapacityIncRate() {
-    var setParameter = document.getElementById("CapacityIncRate").value/100;
+    var setParameter = document.getElementById("CapacityIncRate").value;
     console.log(setParameter);
     putParameter('CapIncreaseRate_1', setParameter);
 }
 
 function changeFactorRate() {
-    var setParameter = document.getElementById("FactorRate").value/100;
+    var setParameter = document.getElementById("FactorRate").value;
     console.log(setParameter);
     putParameter('FacIncreaseRate_1', setParameter);
 }
