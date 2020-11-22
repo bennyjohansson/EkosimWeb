@@ -41,6 +41,21 @@ function changeInterestRate() {
 
 }
 
+function changeInterestRate2() {
+    var targetInterestRate = document.getElementById("FixedRate").value/100;
+    console.log("Testing change interest rate 2")
+    putParameter('InterestRateMethod', 2)
+    putParameter('TargetInterestRate', targetInterestRate);
+    console.log("Testing change interest rate 2")
+    // getParameter('TargetInterestRate', function(result) {
+    //     var JSONData = JSON.parse(result).data;
+    //     console.log(JSONData.VALUE);
+    //     document.getElementById("interestRateInput").value = JSONData.VALUE*100;
+    //     }
+    // );
+
+}
+
 function changeCapitalReserveRatio() {
     var reserveRatio = document.getElementById("reserveRatioInput").value;
     putParameter('CapitalReserveRatio', reserveRatio);
@@ -500,6 +515,7 @@ testarray = ['Bennyland', 'Saraland', 'Otherland'];
 add_option ('CountryCombo', '--Select Country--');
 load_combo('CountryCombo', testarray);
 document.getElementById("CountryCombo").addEventListener("change", countryChange); 
+//document.getElementById("SetFixedRateButton").addEventListener("click", changeInterestRate2);
 //document.getElementById('CountryCombo').onclick = print_combo();
 
 /*
