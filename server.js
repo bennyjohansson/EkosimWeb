@@ -101,47 +101,31 @@ app.get('/ekosim/read/:myCountry', (req, res, next) => {
 
 });
 
-app.get('/ekosim/readallparameters/:myCountry', (req, res, next) => {
+app.get('/ekosim/getAllParameters/:myCountry', (req, res, next) => {
 
     var myPath = './myDB/';
     var myCountry = req.params.myCountry; // //
     var myDatabase = myPath.concat(myCountry);
     myDatabase = myDatabase.concat('.db');
 
-    //var params = [req.query.parameterID];
+    //myDatabase = './myDB/Bennyland.db';
 
-    //let db = new sqlite3.Database('/home/ec2-user/ekosimProject/myDB/ekosimDB.db', sqlite3.OPEN_READONLY, (err) => {
-    let db = new sqlite3.Database(myDatabase, sqlite3.OPEN_READONLY, (err) => {
 
-        //./app/app.js
-        if (err) {
-            console.error(err.message);
-        }
-        console.log('Connected to the ekosim database.');
-    });
+    console.log(myDatabase);
+    myTable = getTable(myDatabase, 'PARAMETERS');
+     
 
-    var sql = "select * from PARAMETERS"// InterestRateMethod TargetInterestRate
-    //params = [];
-    //console.log(sql);
-    //console.log(params);
-    db.get(sql, (err, row) => {
-        if (err) {
-            res.status(400).json({ "error": err.message });
-            return;
-        }
-        res.json({
+    var mytableJSON = myTable.then((result) => {
+        //console.log(result[31]) // "Some User token"
+        //return result[31];
+        return res.json({
             "message": "success",
-            "data": row
+            "data": result
         })
     });
 
-    //Closing the database
-    db.close((err) => {
-        if (err) {
-            console.error(err.message);
-        }
-        console.log('Close the database connection.');
-    });
+
+    //console.log(mytableJSON)
 
 });
 
