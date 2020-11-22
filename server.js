@@ -124,7 +124,7 @@ app.get('/ekosim/readallparameters/:myCountry', (req, res, next) => {
     //params = [];
     //console.log(sql);
     //console.log(params);
-    db.get(sql, params, (err, row) => {
+    db.get(sql, (err, row) => {
         if (err) {
             res.status(400).json({ "error": err.message });
             return;
