@@ -85,7 +85,7 @@
 
         <div class="row form-group">
 
-            <div class="col-md-6 my-input center-block">
+            <div class="col-md my-input center-block">
 
                 <!-- FIRST INPUT ROW -->
                 <div class="row first-input-row">
@@ -97,12 +97,16 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text" id="basic-addon1"> Cap. inc param </span>
                             </div>
-                                <input type="text" class="form-control" id = "CapacityIncParam" placeholder="8000" value="8000" aria-label="WageConst"
-                                    aria-describedby="basic-addon1">
+                            <input type="text" class="form-control" id="CapacityIncParam" placeholder="8000"
+                                value="8000" aria-label="WageConst" aria-describedby="basic-addon1">
                         </div>
                     </div>
                     <div class="col-md ok-group">
-                        <button type="button" id = "SetCapacityIncParam" class="btn btn-primary btn-small ok-button"> Use </button>
+                        <button type="button" id="SetCapacityIncParam" class="btn btn-primary btn-small ok-button"> Use
+                        </button>
+                    </div>
+                    <div class="col-md">
+                        prod = capacity*(2/3.1415)*atan((sk_sum*sk + mot_sum*mot)*ProdParam);
                     </div>
 
                 </div>
@@ -116,15 +120,19 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"> Cap. inc rate</span>
                             </div>
-                            <input type="text" class="form-control" id = "CapacityIncRate" placeholder="0.0003" value="0.0003" aria-label="Interest"
-                                aria-describedby="basic-addon1">
-                            
+                            <input type="text" class="form-control" id="CapacityIncRate" placeholder="0.0003"
+                                value="0.0003" aria-label="Interest" aria-describedby="basic-addon1">
+
                         </div>
                     </div>
                     <div class="col-md ok-group">
-                        <button type="button" id = "SetCapacityIncRate" class="btn btn-primary btn-small ok-button"> Set </button>
+                        <button type="button" id="SetCapacityIncRate" class="btn btn-primary btn-small ok-button"> Set
+                        </button>
                         <!-- <button type="button" id = "SetFixedRateButton" onclick="changeInterestRate2()" class="btn btn-primary btn-small ok-button"> Set </button> -->
 
+                    </div>
+                    <div class="col-md">
+                        CapIncr = CapIncrParam*log(CapIncrRate_1*items + 1);
                     </div>
 
                 </div>
@@ -137,21 +145,53 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"> Factor inc rate </span>
                             </div>
-                            <input type="text" class="form-control" id="FactorRate" placeholder="0.005" value="0.005" aria-label="WageCh"
-                                aria-describedby="basic-addon1">
-                            
+                            <input type="text" class="form-control" id="FactorRate" placeholder="0.005" value="0.005"
+                                aria-label="WageCh" aria-describedby="basic-addon1">
+
                         </div>
                     </div>
-
+                    <!-- Second col -->
                     <div class="col-md ok-group">
-                        <button type="button" id = "SetFactorRate" class="btn btn-primary btn-small ok-button"> Set </button>
+                        <button type="button" id="SetFactorRate" class="btn btn-primary btn-small ok-button"> Set
+                        </button>
                     </div>
-                    
+
+                    <!-- Third col -->
+                    <div class="col-md">
+                        f_incr. = fact_inc_rate*items/capacity;
+                    </div>
+
                 </div>
 
+                 <!-- FOURTH INPUT ROW -->
+                 <div class="row fourth-input-row">
+                    <!-- First col -->
+                    <div class="col">
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"> Prod. Param. </span>
+                            </div>
+                            <input type="text" class="form-control" id="ProdParam" placeholder="0.002" value="0.002"
+                                aria-label="WageCh" aria-describedby="basic-addon1">
+
+                        </div>
+                    </div>
+                    <!-- Second col -->
+                    <div class="col-md ok-group">
+                        <button type="button" id="SetProdParam" class="btn btn-primary btn-small ok-button"> Set
+                        </button>
+                    </div>
+
+                    <!-- Third col -->
+                    <div class="col-md">
+                        
+                    </div>
+
+                </div>
 
             </div>
         </div>
+        
     </div>
 
     <hr />

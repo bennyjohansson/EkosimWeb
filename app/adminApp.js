@@ -74,6 +74,14 @@ function changeFactorRate() {
     putParameter('FacIncreaseRate_1', setParameter);
 }
 
+function changeProdParam() {
+    var setParameter = document.getElementById("ProdParam").value;
+    console.log(setParameter);
+    putParameter('ProductionParameter', setParameter);
+}
+
+changeProdParam
+
 function changeSpendwill() {
     var set_spendwill = document.getElementById("spendwillInput").value/100;
     putParameter('AverageSpendwill', set_spendwill);
@@ -523,6 +531,7 @@ document.getElementById("CountryCombo").addEventListener("change", countryChange
 document.getElementById("SetCapacityIncRate").addEventListener("click", changeCapacityIncRate);
 document.getElementById("SetFactorRate").addEventListener("click", changeFactorRate);
 document.getElementById("SetCapacityIncParam").addEventListener("click", changeCapacityIncParam);
+document.getElementById("SetProdParam").addEventListener("click", changeProdParam);
 
 
 //document.getElementById('CountryCombo').onclick = print_combo();
