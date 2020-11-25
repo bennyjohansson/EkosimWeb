@@ -572,10 +572,38 @@ initiateMoneyTable(myMoneyChart);
 
 
 /*
-* POPULATING CHARTS
+* POPULATING parameter boxes
 */
 //refreshMoneyData('MONEY_DATA', myMoneyChart, updateMoneyData);
 //refreshGDPData('TIME_DATA', myGDPChart, myDIVChart, updateGDPData);
+
+getParameter('CapIncreaseParam_1', function(result) {
+    var JSONData = JSON.parse(result).data;
+    console.log(JSONData.VALUE);
+    document.getElementById("CapacityIncParam").value = JSONData.VALUE;
+    }
+);
+
+getParameter('FacIncreaseRate_1', function(result) {
+    var JSONData = JSON.parse(result).data;
+    console.log(JSONData.VALUE);
+    document.getElementById("FactorRate").value = JSONData.VALUE;
+    }
+);
+
+getParameter('CapIncreaseRate_1', function(result) {
+    var JSONData = JSON.parse(result).data;
+    console.log(JSONData.VALUE);
+    document.getElementById("CapacityIncRate").value = JSONData.VALUE;
+    }
+);
+
+getParameter('ProductionParameter', function(result) {
+    var JSONData = JSON.parse(result).data;
+    console.log(JSONData.VALUE);
+    document.getElementById("ProdParam").value = JSONData.VALUE;
+    }
+);
 
 /*
 * REGULAR UPDATE OF CHARTS

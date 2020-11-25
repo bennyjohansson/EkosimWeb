@@ -106,7 +106,7 @@
                         </button>
                     </div>
                     <div class="col-md">
-                        prod = capacity*(2/3.1415)*atan((sk_sum*sk + mot_sum*mot)*ProdParam);
+                        prod = capacity*(2/π)*atan((sk_sum*sk + mot_sum*mot)*ProdParam);
                     </div>
 
                 </div>
@@ -163,8 +163,8 @@
 
                 </div>
 
-                 <!-- FOURTH INPUT ROW -->
-                 <div class="row fourth-input-row">
+                <!-- FOURTH INPUT ROW -->
+                <div class="row fourth-input-row">
                     <!-- First col -->
                     <div class="col">
                         <div class="input-group mb-3">
@@ -184,14 +184,16 @@
 
                     <!-- Third col -->
                     <div class="col-md">
-                        
+                        capacity_ -= decay_*capacity_; <br>
+                        prod_const_skill_ -= decay_*prod_const_skill_;<br>
+                        prod_const_mot_ -= decay_*prod_const_mot_;
                     </div>
 
                 </div>
 
             </div>
         </div>
-        
+
     </div>
 
     <hr />
