@@ -82,19 +82,11 @@ function populateParameters() {
 function populateCallback(companyParameters) {
 
     var JSONData = JSON.parse(companyParameters).data;
-    console.log(JSONData);
-
-    var pbr = JSONData[0].PBR;
-    var wage_ch = JSONData.WAGE_CH;
-    var wage_const = JSONData.WAGE_CONST;
-    var capacity = JSONData.CAPACITY;
-    console.log('pbr')
-    console.log(pbr)
     
-    document.getElementById("WageConst").value = JSONData.WAGE_CONST;
-    document.getElementById("Reinvest").value = JSONData.PBR;
-    document.getElementById("Capacity").value = JSONData.CAPACITY;
-    document.getElementById("WageCh").value = JSONData.WAGE_CH;
+    document.getElementById("WageConst")[0].value = JSONData.WAGE_CONST;
+    document.getElementById("Reinvest")[0].value = JSONData.PBR;
+    document.getElementById("Capacity")[0].value = JSONData.CAPACITY;
+    document.getElementById("WageCh")[0].value = JSONData.WAGE_CH;
 
 }
 
