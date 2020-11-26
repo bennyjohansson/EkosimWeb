@@ -83,10 +83,10 @@ function populateCallback(companyParameters) {
 
     var JSONData = JSON.parse(companyParameters).data;
     
-    document.getElementById("WageConst")[0].value = JSONData.WAGE_CONST;
-    document.getElementById("Reinvest")[0].value = JSONData.PBR;
-    document.getElementById("Capacity")[0].value = JSONData.CAPACITY;
-    document.getElementById("WageCh")[0].value = JSONData.WAGE_CH;
+    document.getElementById("WageConst").value = JSONData[0].WAGE_CONST;
+    document.getElementById("Reinvest").value = JSONData[0].PBR;
+    document.getElementById("Capacity").value = JSONData[0].CAPACITY;
+    document.getElementById("WageCh").value = JSONData[0].WAGE_CH;
 
 }
 
