@@ -134,7 +134,7 @@ getCompanyTable = function(myDatabase, table, company) { //database, table
         sql = 'SELECT rowid as key, * FROM '
         sql = sql.concat(table);
         sql = sql.concat( ' WHERE NAME = ');
-        SQL = sql.concat(company);
+        sql = sql.concat(company);
         console.log(sql);
         //db.each(`SELECT rowid as key, * FROM ${table} WHERE NAME = ${company}`, (err, row) => {
         db.each(sql, (err, row) => {
