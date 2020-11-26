@@ -139,7 +139,7 @@ app.get('/ekosim/getCompany/:myCountry', (req, res, next) => {
 
     var myCompany = req.query.myCompany;
 
-    myTable = getCompanyTable(myDatabase, 'COMPANY_TABLE', 'bempa_CO');
+    myTable = getCompanyTable(myDatabase, 'COMPANY_TABLE', myCompany);
 
     //let db = new sqlite3.Database('/home/ec2-user/ekosimProject/myDB/ekosimDB.db', sqlite3.OPEN_READONLY, (err) => {
     var mytableJSON = myTable.then((result) => {
