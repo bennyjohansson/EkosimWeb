@@ -16,7 +16,10 @@ getMoneyTableUpdate = function(lastTime, myDatabase, table) { //database, table
         });
         const queries = [];
         //console.log(`SELECT rowid as key, * FROM ${table} WHERE TIME > ${lastTime}`);
+        //sql = 'SELECT rowid as key, * FROM ${table} WHERE TIME > ${lastTime}'
+        //db.each(sql, (err, row) => {
         db.each(`SELECT rowid as key, * FROM ${table} WHERE TIME > ${lastTime}`, (err, row) => {
+
         //db.each(`SELECT rowid as key, * FROM MONEY_DATA`, (err, row) => {
             if (err) {
                 reject(err); // optional: you might choose to swallow errors.
@@ -129,7 +132,7 @@ getCompanyTable = function(myDatabase, table, company) { //database, table
         //data = [table, company];
         sql = `SELECT rowid as key, * FROM ${table} WHERE NAME = ${company}`;
         console.log(sql);
-        db.each(sql, (err, row) => {
+        db.each(`SELECT rowid as key, * FROM ${table} WHERE NAME = ${company}`, (err, row) => {
 
         //db.each(`SELECT rowid as key, * FROM MONEY_DATA`, (err, row) => {
             if (err) {

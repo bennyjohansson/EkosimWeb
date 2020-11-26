@@ -137,7 +137,7 @@ app.get('/ekosim/getCompany/:myCountry', (req, res, next) => {
     var myDatabase = myPath.concat(myCountry);
     myDatabase = myDatabase.concat('.db');
 
-    var myCompany = [req.query.myCompany];
+    var myCompany = req.query.myCompany;
 
     myTable = getCompanyTable(myDatabase, 'COMPANY_TABLE', 'bempa_CO');
 
