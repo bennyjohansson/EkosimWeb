@@ -69,6 +69,22 @@ function changeCapitalReserveRatio() {
 
 }
 
+
+
+function companyChange() {
+
+
+    myCompany =  document.getElementById("companySelect").value;
+    if(myCompany == '--Select Company--' || myCountry == "") {
+
+        myCompany = 'bempa_CO'
+    }
+
+    document.getElementById("selectedCompany").innerHTML = myCompany;
+   
+
+}
+
 function changeSpendwill() {
     var set_spendwill = document.getElementById("spendwillInput").value/100;
     putParameter('AverageSpendwill', set_spendwill);
@@ -79,6 +95,12 @@ function changeSpendwill() {
     //     document.getElementById("spendwillInput").value = JSONData.VALUE*100;
     //     }
     // );
+
+}
+
+function changeWageConstant() {
+    var set_spendwill = document.getElementById("spendwillInput").value/100;
+    putParameter('AverageSpendwill', set_spendwill);
 
 }
 
@@ -511,10 +533,16 @@ function countryChange() {
 
 }
 
-testarray = ['Bennyland', 'Saraland', 'Otherland'];
+countryArray = ['Bennyland', 'Saraland', 'Otherland'];
 add_option ('CountryCombo', '--Select Country--');
-load_combo('CountryCombo', testarray);
+load_combo('CountryCombo', countryArray);
+
+companyArray = ['johansson_och_johansson', 'limpan_AB', 'bempa_AB', 'bempa_CO', 'benny_enterprises', 'benny_inc'];
+add_option ('companySelect', '--Select Country--');
+load_combo('companySelect', companyArray);
 document.getElementById("CountryCombo").addEventListener("change", countryChange); 
+document.getElementById("companySelect").addEventListener("change", companyChange); 
+
 //document.getElementById("SetFixedRateButton").addEventListener("click", changeInterestRate2);
 //document.getElementById('CountryCombo').onclick = print_combo();
 

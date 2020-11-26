@@ -113,7 +113,7 @@ app.get('/ekosim/getAllParameters/:myCountry', (req, res, next) => {
 
     console.log(myDatabase);
     myTable = getTable(myDatabase, 'PARAMETERS');
-     
+
 
     var mytableJSON = myTable.then((result) => {
         //console.log(result[31]) // "Some User token"
@@ -139,39 +139,17 @@ app.get('/ekosim/getCompany/:myCountry', (req, res, next) => {
 
     var myCompany = [req.query.myCompany];
 
+    myTable = getCompanyTable(myDatabase, 'COMPANY_TABLE', myCompany);
+
     //let db = new sqlite3.Database('/home/ec2-user/ekosimProject/myDB/ekosimDB.db', sqlite3.OPEN_READONLY, (err) => {
-    let db = new sqlite3.Database(myDatabase, sqlite3.OPEN_READONLY, (err) => {
-
-        //./app/app.js
-        if (err) {
-            console.error(err.message);
-        }
-        console.log('Connected to the ekosim database.');
-    });
-
-    var sql = "select * from COMPANY_TABLE WHERE NAME = ?"// InterestRateMethod TargetInterestRate
-    //params = [];
-    console.log(sql);
-    //console.log(params);
-    db.get(sql, myCompany, (err, row) => {
-        if (err) {
-            res.status(400).json({ "error": err.message });
-            return;
-        }
-        res.json({
+    var mytableJSON = myTable.then((result) => {
+        //console.log(result[31]) // "Some User token"
+        //return result[31];
+        return res.json({
             "message": "success",
-            "data": row
+            "data": result
         })
     });
-
-    //Closing the database
-    db.close((err) => {
-        if (err) {
-            console.error(err.message);
-        }
-        console.log('Close the database connection.');
-    });
-
 });
 
 
@@ -190,7 +168,7 @@ app.get('/ekosim/moneytable/update/:myCountry', (req, res, next) => {
     console.log(lastTime)
     console.log(myDatabase);
     myTable = getMoneyTableUpdate(lastTime, myDatabase, 'MONEY_DATA');
-     
+
 
     var mytableJSON = myTable.then((result) => {
         //console.log(result[31]) // "Some User token"
@@ -254,7 +232,7 @@ app.get('/ekosim/worldtable/', (req, res, next) => {
 app.get('/ekosim/paramtest/', (req, res) => {
     console.log(req.query.paramA);
 
-    if(typeof req.query.paramA !== 'undefined' && typeof req.query.paramB !== 'undefined') {
+    if (typeof req.query.paramA !== 'undefined' && typeof req.query.paramB !== 'undefined') {
         let paramA = req.query.paramA;
         let paramB = req.query.paramB;
         //do something with paramA and paramB
@@ -267,7 +245,7 @@ app.get('/ekosim/paramtest/', (req, res) => {
         res.status(500).send({ error: "Cant get parmeters" });
 
     }
-    
+
 
 });
 
@@ -339,7 +317,7 @@ app.listen(8080, function () {
 
 // app.get('/ekosim/test', (req, res, next) => {
 
-   
+
 
 //     res.json({
 //                 "message": "success",

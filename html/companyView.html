@@ -56,7 +56,7 @@
     <div class="card view-select">
         <div class="row">
             <div class="col-md-3"> <a href="../"> Conuntry view </a></div>
-            <div class="col-md-3"> <a href="./companyView.html"> Company view </a> </div>
+            <div class="col-md-3"> <a href="./companyView.html"> <b> Company view </b> </a> </div>
             <div class="col-md-3"> <a href="./bankView.html"> Bank view </a> </div>
             <div class="col-md-3"> <a href="./adminView.html"> Admin view </a> </div>
         </div>
@@ -85,17 +85,22 @@
         <div class="row form-group">
             <div class="col"></div>
             <div class="col-3 text-center my-companies">
-                <select class="custom-select mr-sm-2" id="inlineFormCustomSelect">
-                    <option selected>Choose company</option>
+                <select class="custom-select mr-sm-2" id="companySelect">
+                <!-- <select class="form-control form-control-sm" id="companySelect"> </select> -->
+
+                    <!-- <option selected>Choose company</option>
                     <option value="1">Bempa AB</option>
                     <option value="2">Benny Inc. </option>
                     <option value="3">johansson & johansson </option>
                     <option value="3">Limpan AB </option>
-                    <option value="3">Bempa Co </option>
+                    <option value="3">Bempa Co </option> -->
                 </select>
             </div>
             <div class="col-3">
-                <button type="button" class="btn btn-light">Add company </button>
+                <p class="mb-0 text-center" id="selectedCompany"> Bempa AB </p>
+            </div>
+            <div class="col-3">
+                <button type="button" class="btn btn-light">Add New company </button>
             </div>
             <div class="col"> </div>
         </div>
@@ -114,12 +119,12 @@
                                 <span class="input-group-text" id="basic-addon1"> Wage const % </span>
 
                             </div>
-                                <input type="text" class="form-control" placeholder="20" aria-label="WageConst"
+                                <input type="text" class="form-control" placeholder="20" id = "WageConst" aria-label="WageConst"
                                     aria-describedby="basic-addon1">
                         </div>
                     </div>
                     <div class="col-md ok-group">
-                        <button type="button" class="btn btn-primary btn-small ok-button"> Ok </button>
+                        <button type="button" class="btn btn-primary btn-small ok-button" id = "setWageConstButton" > Ok </button>
                     </div>
 
                     <!-- Second col -->
