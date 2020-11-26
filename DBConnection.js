@@ -126,7 +126,7 @@ getCompanyTable = function(myDatabase, table, company) { //database, table
             console.log('Connected to the ekosim database.');
         });
         const queries = [];
-        console.log(`SELECT rowid as key, * FROM ${table} WHERE COMPANY = ${company}`);
+        console.log(`SELECT rowid as key, * FROM ${table} WHERE NAME = ${company}`);
         db.each(`SELECT rowid as key, * FROM ${table} WHERE COMPANY = ${company}`, (err, row) => {
 
         //db.each(`SELECT rowid as key, * FROM MONEY_DATA`, (err, row) => {
