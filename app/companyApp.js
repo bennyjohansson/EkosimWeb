@@ -82,6 +82,8 @@ function populateParameters() {
 function populateCallback(companyParameters) {
 
     var JSONData = JSON.parse(companyParameters).data;
+
+    console.log(JSONData[0]);
     
     document.getElementById("WageConst").value = JSONData[0].WAGE_CONST;
     document.getElementById("Reinvest").value = JSONData[0].PBR;
