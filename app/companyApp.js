@@ -83,10 +83,10 @@ function populateCallback(companyParameters) {
 
     var JSONData = JSON.parse(companyParameters).data;
 
-    wage_const = JSONData[0].WAGE_CONST;
-    pbr = JSONData[0].PBR;
-    capacity = JSONData[0].CAPACITY;
-    wage_ch = JSONData[0].WAGE_CH;
+    var wage_const = JSONData[0].WAGE_CONST;
+    var pbr = JSONData[0].PBR;
+    var capacity = JSONData[0].CAPACITY;
+    var wage_ch = JSONData[0].WAGE_CH;
 
     console.log(JSONData[0]);
 
