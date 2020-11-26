@@ -130,11 +130,15 @@ getCompanyTable = function(myDatabase, table, company) { //database, table
         });
         const queries = [];
         //data = [table, company];
-        sql = `SELECT rowid as key, * FROM ${table} WHERE NAME = ${company}`;
+        myDatabase = myDatabase.concat('.db');
+        sql = 'SELECT rowid as key, * FROM '
+        sql = sql.concat(table);
+        sql = sql.concat( ' WHERE NAME = ');
+        SQL = sql.concat(company);
         console.log(sql);
-        db.each(`SELECT rowid as key, * FROM ${table} WHERE NAME = ${company}`, (err, row) => {
-
-        //db.each(`SELECT rowid as key, * FROM MONEY_DATA`, (err, row) => {
+        //db.each(`SELECT rowid as key, * FROM ${table} WHERE NAME = ${company}`, (err, row) => {
+        db.each(sql, (err, row) => {
+                //db.each(`SELECT rowid as key, * FROM MONEY_DATA`, (err, row) => {
             if (err) {
                 reject(err); // optional: you might choose to swallow errors.
             } else {
