@@ -90,11 +90,17 @@ function populateCallback(companyParameters) {
 
     console.log(JSONData[0]);
 
+    console.log(wage_const);
+    console.log(pbr);
+    console.log(capacity);
+    console.log(wage_ch);
 
-    document.getElementById("WageConst").value = wage_const;
+
     document.getElementById("Reinvest").value = pbr;
+    document.getElementById("WageConst").value = wage_const;
     document.getElementById("Capacity").value = capacity;
     document.getElementById("WageCh").value = wage_ch;
+
 
     // document.getElementById("WageConst").value = JSONData[0].WAGE_CONST;
     // document.getElementById("Reinvest").value = JSONData[0].PBR;
