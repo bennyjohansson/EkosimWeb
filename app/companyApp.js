@@ -193,7 +193,7 @@ var getCompanyParameters = function (companyName, mycallback) {
 
     var url = 'http://ekosimweb-env.eba-66jamvpz.us-east-2.elasticbeanstalk.com/ekosim/getCompany/';
     url = url.concat(myCountry);
-    url = url.concat('?companyName=');
+    url = url.concat('?myCompany=');
     url = url.concat(companyName);
 
     console.log(url);
