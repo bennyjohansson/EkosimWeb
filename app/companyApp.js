@@ -83,15 +83,15 @@ function populateCallback(companyParameters) {
 
     var JSONData = JSON.parse(companyParameters).data;
 
-    var pbr = JSONData.PBR;
-    var wage_ch = JSONData.WAGE_CH;
-    var wage_const = JSONData.WAGE_CONST;
-    var capacity = JSONData.CAPACITY;
+    var pbr = JSONData[0].PBR;
+    var wage_ch = JSONData[0].WAGE_CH;
+    var wage_const = JSONData[0].WAGE_CONST;
+    var capacity = JSONData[0].CAPACITY;
     
-    document.getElementById("WageConst").value = JSONData.WAGE_CONST;
-    document.getElementById("Reinvest").value = JSONData.PBR;
-    document.getElementById("Capacity").value = JSONData.CAPACITY;
-    document.getElementById("WageCh").value = JSONData.WAGE_CH;
+    document.getElementById("WageConst").value = JSONData[0].WAGE_CONST;
+    document.getElementById("Reinvest").value = JSONData[0].PBR;
+    document.getElementById("Capacity").value = JSONData[0].CAPACITY;
+    document.getElementById("WageCh").value = JSONData[0].WAGE_CH;
 
 }
 
@@ -570,6 +570,8 @@ add_option('companySelect', '--Select Country--');
 load_combo('companySelect', companyArray);
 document.getElementById("CountryCombo").addEventListener("change", countryChange);
 document.getElementById("companySelect").addEventListener("change", companyChange);
+document.getElementById("companySelect").addEventListener("change", populateParameters);
+
 
 //document.getElementById("SetFixedRateButton").addEventListener("click", changeInterestRate2);
 //document.getElementById('CountryCombo').onclick = print_combo();
