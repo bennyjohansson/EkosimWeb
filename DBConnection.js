@@ -127,7 +127,7 @@ getCompanyTable = function(myDatabase, table, company) { //database, table
         });
         const queries = [];
         console.log(`SELECT rowid as key, * FROM ${table} WHERE NAME = ${company}`);
-        db.each(`SELECT rowid as key, * FROM ${table} WHERE COMPANY = ${company}`, (err, row) => {
+        db.each(`SELECT rowid as key, * FROM ${table} WHERE NAME = ${company}`, (err, row) => {
 
         //db.each(`SELECT rowid as key, * FROM MONEY_DATA`, (err, row) => {
             if (err) {
