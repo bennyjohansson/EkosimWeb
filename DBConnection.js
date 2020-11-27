@@ -240,5 +240,6 @@ var insertCompanyParameter = function (myDatabase, company, parameter, value) {
 module.exports = {
     //testJSONobj: testJSONobj,
     //myTestSQL: myTestSQL,
-    insertFunction: insertFunction
+    insertFunction: insertFunction,
+    insertCompanyParameter: insertCompanyParameter
 };
