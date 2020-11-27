@@ -31,7 +31,7 @@ function putCompanyParameter(company, parameter, value) { //parameter
 
     var myCountry = getCountry();
 
-    var isChecked = document.getElementById("checkChangeAll").checked;
+    var isChecked = false; //document.getElementById("checkChangeAll").checked;
 
     console.log(isChecked);
 
