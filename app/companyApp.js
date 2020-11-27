@@ -99,15 +99,25 @@ function changeInterestRate2() {
 
 function setWageConst() {
 
-    var wage_change = document.getElementById("WageConst").value;
+    var myValue = document.getElementById("WageConst").value;
     
-    putCompanyParameter('WAGE_CONST', wage_change);
-    // getParameter('CapitalReserveRatio', function(result) {
-    //     var JSONData = JSON.parse(result).data;
-    //     console.log(JSONData.VALUE);
-    //     document.getElementById("reserveRatioInput").value = JSONData.VALUE;
-    //     }
-    // );
+    putCompanyParameter('WAGE_CONST', myValue);
+
+}
+
+function setWageChange() {
+
+    var myValue = document.getElementById("WageCh").value;
+    
+    putCompanyParameter('WAGE_CH', myValue);
+
+}
+
+function setReinvest() {
+
+    var myValue = document.getElementById("Reinvest").value;
+    
+    putCompanyParameter('PBR', myValue);
 
 }
 
@@ -628,7 +638,8 @@ document.getElementById("CountryCombo").addEventListener("change", countryChange
 document.getElementById("companySelect").addEventListener("change", companyChange);
 document.getElementById("companySelect").addEventListener("change", populateParameters);
 document.getElementById("setWageConstButton").addEventListener("click", setWageConst);
-
+document.getElementById("setWageConstButton").addEventListener("click", setWageChange);
+document.getElementById("setWageConstButton").addEventListener("click", setReinvest);
 
 //document.getElementById("SetFixedRateButton").addEventListener("click", changeInterestRate2);
 //document.getElementById('CountryCombo').onclick = print_combo();
