@@ -200,6 +200,42 @@ var insertFunction = function (myDatabase, parameter, value) {
 
 }
 
+var insertCompanyParameter = function (myDatabase, company, parameter, value) {
+    //'./myDB/Bennyland.db'
+    console.log(myDatabase);
+    // if(myDatabase == './myDB/Bennyland.db') {
+
+    //     console.log('Eureka - the string is the same');
+    //}
+
+    let db = new sqlite3.Database(myDatabase, sqlite3.OPEN_READWRITE, (err) => {
+        if (err) {
+            console.error(err.message);
+        }
+        console.log('Connected to the ekosim database for insert functions.');
+    });
+
+    var data = [value, parameter, company];
+    let sql = "UPDATE COMPANY_TABLE SET VALUE = ? WHERE PARAMETER = ? AND NAME = ?";
+
+    db.run(sql, data, function (err) {
+        if (err) {
+            return console.error(err.message);
+        }
+        console.log(`Row(s) updated: ${this.changes}`);
+
+    });
+
+    // close the database connection
+    db.close((err) => {
+        if (err) {
+            console.error(err.message);
+        }
+        console.log('Close the database connection.');
+    });
+
+}
+
 
 module.exports = {
     //testJSONobj: testJSONobj,

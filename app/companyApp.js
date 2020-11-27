@@ -27,6 +27,36 @@ function putParameter(parameter, value) { //parameter
 
 }
 
+function putCompanyParameter(company, parameter, value) { //parameter
+
+    var myCountry = getCountry();
+
+
+    var url = 'http://ekosimweb-env.eba-66jamvpz.us-east-2.elasticbeanstalk.com/ekosim/putCompanyParameter/'; //TargetInteputrestRate';
+    url = url.concat(myCountry);
+    url = url.concat('?myCompany=');
+    url = url.concat(company);
+    // url = url.concat('?parameter=');
+    // url = url.concat(value);
+
+
+    let myBody = {
+        "PARAMETER": "TargetInterestRate",
+        "VALUE": "0.04"
+    };
+
+    myBody.PARAMETER = parameter;
+    myBody.VALUE = value;
+
+    console.log(url);
+    console.log(myBody);
+    var xhr = new XMLHttpRequest();
+    xhr.open('PUT', url, true);
+    xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+    xhr.send(JSON.stringify(myBody));
+
+}
+
 function changeInterestRate() {
     var targetInterestRate = document.getElementById("interestRateInput").value / 100;
     putParameter('InterestRateMethod', 2)

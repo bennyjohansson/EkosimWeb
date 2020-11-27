@@ -55,6 +55,36 @@ app.put('/ekosim/put/:myCountry', function (req, res) {
 
 });
 
+app.put('/ekosim/putCompanyParameter/:myCountry', function (req, res) {
+
+    var ParameterID = req.body.PARAMETER;
+    var value = req.body.VALUE;
+
+    var myPath = './myDB/';
+    var myCountry = req.params.myCountry; // //
+    var myDatabase = myPath.concat(myCountry);
+    myDatabase = myDatabase.concat('.db');
+
+    var myCompany = [req.query.myCompany];
+
+
+    //console.log(value);
+    //console.log(ParameterID);
+
+
+    if (!value || value === "") {
+        res.status(500).send({ error: "Provide value" });
+    }
+    else {
+        var idFound = false;
+
+    }
+
+    DBFunctions.insertCompanyParameter(myDatabase, myCompany, ParameterID, value)
+    res.send('Parameter ' + ParameterID + ' probably updated to value ' + value);
+
+});
+
 
 
 app.get('/ekosim/read/:myCountry', (req, res, next) => {
