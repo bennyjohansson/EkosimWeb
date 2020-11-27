@@ -215,9 +215,9 @@ var insertCompanyParameter = function (myDatabase, company, parameter, value) {
         console.log('Connected to the ekosim database for insert functions.');
     });
 
-    var data = [value, parameter, company];
-    let sql = "UPDATE COMPANY_TABLE SET VALUE = ? WHERE PARAMETER = ? AND NAME = ?";
-
+    var data = [parameter, value, company];
+    let sql = "UPDATE COMPANY_TABLE SET ? = ? WHERE NAME = ?";
+    console.log(sql)
     db.run(sql, data, function (err) {
         if (err) {
             return console.error(err.message);
