@@ -33,8 +33,11 @@ function putCompanyParameter(company, parameter, value) { //parameter
 
     var isChecked = document.getElementById("checkChangeAll").checked;
 
+    console.log(isChecked);
+
     if(isChecked) {
         company = "*"
+        console.log('Checkbox is checked')
     }
 
 
@@ -42,6 +45,7 @@ function putCompanyParameter(company, parameter, value) { //parameter
     url = url.concat(myCountry);
     url = url.concat('?myCompany=');
     url = url.concat(company);
+    console.log(url);
     // url = url.concat('?parameter=');
     // url = url.concat(value);
 
