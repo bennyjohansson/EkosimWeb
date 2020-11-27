@@ -33,7 +33,7 @@ function putCompanyParameter(company, parameter, value) { //parameter
 
     var isChecked = document.getElementById("checkChangeAll").checked;
 
-    if(ischecked) {
+    if(isChecked) {
         myCompany = "*"
     }
 
