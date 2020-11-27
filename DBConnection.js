@@ -223,7 +223,10 @@ var insertCompanyParameter = function (myDatabase, company, parameter, value) {
     sql = sql.concat(' = ');
     sql = sql.concat(value);
     sql = sql.concat(' WHERE NAME = ');
+    sql = sql.concat("'");
     sql = sql.concat(company);
+    sql = sql.concat("'");
+
 
     console.log(sql)
     db.run(sql, data, function (err) {
