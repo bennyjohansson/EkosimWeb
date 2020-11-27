@@ -216,7 +216,15 @@ var insertCompanyParameter = function (myDatabase, company, parameter, value) {
     });
 
     var data = [parameter, value, company];
-    let sql = "UPDATE COMPANY_TABLE SET ? = ? WHERE NAME = ?";
+    console.log(data)
+    //let sql = "UPDATE COMPANY_TABLE SET ? = ? WHERE NAME = ?";
+    let sql = "UPDATE COMPANY_TABLE SET "
+    sql = sql.concat(parameter);
+    sql = sql.concat(' = ');
+    sql = sql.concat(value);
+    sql = sql.concat(' WHERE NAME = ');
+    sql = sql.concat(company);
+
     console.log(sql)
     db.run(sql, data, function (err) {
         if (err) {
