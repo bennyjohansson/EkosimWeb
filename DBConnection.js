@@ -231,7 +231,9 @@ var insertCompanyParameter = function (myDatabase, company, parameter, value) {
 
 
     console.log(sql)
-    db.run(sql, data, function (err) {
+    db.run(sql, function (err) {
+    //db.run(sql, data, function (err) {
+
         if (err) {
             return console.error(err.message);
         }
