@@ -221,7 +221,9 @@ var insertCompanyParameter = function (myDatabase, company, parameter, value) {
     let sql = "UPDATE COMPANY_TABLE SET "
     sql = sql.concat(parameter);
     sql = sql.concat(' = ');
+    sql = sql.concat("'");
     sql = sql.concat(value);
+    sql = sql.concat("'");
     sql = sql.concat(' WHERE NAME = ');
     sql = sql.concat("'");
     sql = sql.concat(company);
