@@ -31,6 +31,12 @@ function putCompanyParameter(company, parameter, value) { //parameter
 
     var myCountry = getCountry();
 
+    var isChecked = document.getElementById("checkChangeAll").checked;
+
+    if(ischecked) {
+        myCompany = "*"
+    }
+
 
     var url = 'http://ekosimweb-env.eba-66jamvpz.us-east-2.elasticbeanstalk.com/ekosim/putCompanyParameter/'; //TargetInteputrestRate';
     url = url.concat(myCountry);
@@ -610,7 +616,7 @@ add_option('CountryCombo', '--Select Country--');
 load_combo('CountryCombo', countryArray);
 
 companyArray = ['johansson_och_johansson', 'limpan_AB', 'bempa_AB', 'bempa_CO', 'benny_enterprises', 'benny_inc'];
-add_option('companySelect', '--Select Country--');
+add_option('companySelect', '--Select Company--');
 load_combo('companySelect', companyArray);
 document.getElementById("CountryCombo").addEventListener("change", countryChange);
 document.getElementById("companySelect").addEventListener("change", companyChange);

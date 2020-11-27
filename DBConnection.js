@@ -2,12 +2,12 @@ const sqlite3 = require('sqlite3').verbose();
 
 
 
-getMoneyTableUpdate = function(lastTime, myDatabase, table) { //database, table
+getMoneyTableUpdate = function (lastTime, myDatabase, table) { //database, table
     console.log(myDatabase);
     return new Promise((resolve, reject) => {
         //let db = new sqlite3.Database('/home/ec2-user/ekosimProject/myDB/Bennyland.db', sqlite3.OPEN_READONLY, (err) => {
-            //'./myDB/Bennyland.db'
-            
+        //'./myDB/Bennyland.db'
+
         let db = new sqlite3.Database(myDatabase, sqlite3.OPEN_READONLY, (err) => {
             if (err) {
                 console.error(err.message);
@@ -20,7 +20,7 @@ getMoneyTableUpdate = function(lastTime, myDatabase, table) { //database, table
         //db.each(sql, (err, row) => {
         db.each(`SELECT rowid as key, * FROM ${table} WHERE TIME > ${lastTime}`, (err, row) => {
 
-        //db.each(`SELECT rowid as key, * FROM MONEY_DATA`, (err, row) => {
+            //db.each(`SELECT rowid as key, * FROM MONEY_DATA`, (err, row) => {
             if (err) {
                 reject(err); // optional: you might choose to swallow errors.
             } else {
@@ -43,7 +43,7 @@ getMoneyTableUpdate = function(lastTime, myDatabase, table) { //database, table
     });
 }
 
-getWorldTable = function(table) { //database, table
+getWorldTable = function (table) { //database, table
     return new Promise((resolve, reject) => {
 
         let db = new sqlite3.Database('./myDB/Bennyworld.db', sqlite3.OPEN_READONLY, (err) => {
@@ -55,7 +55,7 @@ getWorldTable = function(table) { //database, table
         const queries = [];
         //console.log(`SELECT rowid as key, * FROM ${table} WHERE TIME > ${lastTime}`);
         db.each(`SELECT rowid as key, * FROM ${table} `, (err, row) => {
-        //db.each(`SELECT rowid as key, * FROM MONEY_DATA`, (err, row) => {
+            //db.each(`SELECT rowid as key, * FROM MONEY_DATA`, (err, row) => {
             if (err) {
                 reject(err); // optional: you might choose to swallow errors.
             } else {
@@ -78,12 +78,12 @@ getWorldTable = function(table) { //database, table
     });
 }
 
-getTable = function(myDatabase, table) { //database, table
+getTable = function (myDatabase, table) { //database, table
     console.log(myDatabase);
     return new Promise((resolve, reject) => {
         //let db = new sqlite3.Database('/home/ec2-user/ekosimProject/myDB/Bennyland.db', sqlite3.OPEN_READONLY, (err) => {
-            //'./myDB/Bennyland.db'
-            
+        //'./myDB/Bennyland.db'
+
         let db = new sqlite3.Database(myDatabase, sqlite3.OPEN_READONLY, (err) => {
             if (err) {
                 console.error(err.message);
@@ -93,7 +93,7 @@ getTable = function(myDatabase, table) { //database, table
         const queries = [];
         //console.log(`SELECT rowid as key, * FROM ${table} WHERE TIME > ${lastTime}`);
         db.each(`SELECT rowid as key, * FROM ${table}`, (err, row) => {
-        //db.each(`SELECT rowid as key, * FROM MONEY_DATA`, (err, row) => {
+            //db.each(`SELECT rowid as key, * FROM MONEY_DATA`, (err, row) => {
             if (err) {
                 reject(err); // optional: you might choose to swallow errors.
             } else {
@@ -116,12 +116,12 @@ getTable = function(myDatabase, table) { //database, table
     });
 }
 
-getCompanyTable = function(myDatabase, table, company) { //database, table
+getCompanyTable = function (myDatabase, table, company) { //database, table
     console.log(myDatabase);
     return new Promise((resolve, reject) => {
         //let db = new sqlite3.Database('/home/ec2-user/ekosimProject/myDB/Bennyland.db', sqlite3.OPEN_READONLY, (err) => {
-            //'./myDB/Bennyland.db'
-            
+        //'./myDB/Bennyland.db'
+
         let db = new sqlite3.Database(myDatabase, sqlite3.OPEN_READONLY, (err) => {
             if (err) {
                 console.error(err.message);
@@ -133,14 +133,14 @@ getCompanyTable = function(myDatabase, table, company) { //database, table
         myDatabase = myDatabase.concat('.db');
         sql = 'SELECT rowid as key, * FROM '
         sql = sql.concat(table);
-        sql = sql.concat( ' WHERE NAME = ');
+        sql = sql.concat(' WHERE NAME = ');
         sql = sql.concat("'");
         sql = sql.concat(company);
-        sql = sql.concat("'");        
+        sql = sql.concat("'");
         console.log(sql);
         //db.each(`SELECT rowid as key, * FROM ${table} WHERE NAME = ${company}`, (err, row) => {
         db.each(sql, (err, row) => {
-                //db.each(`SELECT rowid as key, * FROM MONEY_DATA`, (err, row) => {
+            //db.each(`SELECT rowid as key, * FROM MONEY_DATA`, (err, row) => {
             if (err) {
                 reject(err); // optional: you might choose to swallow errors.
             } else {
@@ -224,15 +224,19 @@ var insertCompanyParameter = function (myDatabase, company, parameter, value) {
     sql = sql.concat("'");
     sql = sql.concat(value);
     sql = sql.concat("'");
-    sql = sql.concat(' WHERE NAME = ');
-    sql = sql.concat("'");
-    sql = sql.concat(company);
-    sql = sql.concat("'");
+
+    //If all companies selected, don't specify any company
+    if (company != "*") {
+        sql = sql.concat(' WHERE NAME = ');
+        sql = sql.concat("'");
+        sql = sql.concat(company);
+        sql = sql.concat("'");
+    }
 
 
     console.log(sql)
     db.run(sql, function (err) {
-    //db.run(sql, data, function (err) {
+        //db.run(sql, data, function (err) {
 
         if (err) {
             return console.error(err.message);
