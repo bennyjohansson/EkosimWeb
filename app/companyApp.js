@@ -27,16 +27,17 @@ function putParameter(parameter, value) { //parameter
 
 }
 
-function putCompanyParameter(company, parameter, value) { //parameter
+function putCompanyParameter(parameter, value) { //parameter
 
     var myCountry = getCountry();
+    var myCompany = document.getElementById("selectedCompany").innerHTML;
 
-    var isChecked = false; //document.getElementById("checkChangeAll").checked;
+    var isChecked = document.getElementById("checkChangeAll").checked;
 
     console.log(isChecked);
 
     if(isChecked) {
-        company = "*"
+        myCompany = "*"
         console.log('Checkbox is checked')
     }
 
@@ -44,7 +45,7 @@ function putCompanyParameter(company, parameter, value) { //parameter
     var url = 'http://ekosimweb-env.eba-66jamvpz.us-east-2.elasticbeanstalk.com/ekosim/putCompanyParameter/'; //TargetInteputrestRate';
     url = url.concat(myCountry);
     url = url.concat('?myCompany=');
-    url = url.concat(company);
+    url = url.concat(myCompany);
     console.log(url);
     // url = url.concat('?parameter=');
     // url = url.concat(value);
@@ -96,10 +97,11 @@ function changeInterestRate2() {
 
 }
 
-function changeCapitalReserveRatio() {
-    var reserveRatio = document.getElementById("reserveRatioInput").value;
-    putParameter('CapitalReserveRatio', reserveRatio);
+function setWageConst() {
 
+    var wage_change = document.getElementById("WageConst").value;
+    
+    putCompanyParameter('WAGE_CONST', wage_change);
     // getParameter('CapitalReserveRatio', function(result) {
     //     var JSONData = JSON.parse(result).data;
     //     console.log(JSONData.VALUE);
@@ -625,6 +627,7 @@ load_combo('companySelect', companyArray);
 document.getElementById("CountryCombo").addEventListener("change", countryChange);
 document.getElementById("companySelect").addEventListener("change", companyChange);
 document.getElementById("companySelect").addEventListener("change", populateParameters);
+document.getElementById("setWageConstButton").addEventListener("click", setWageConst);
 
 
 //document.getElementById("SetFixedRateButton").addEventListener("click", changeInterestRate2);
