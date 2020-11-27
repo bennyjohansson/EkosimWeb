@@ -61,11 +61,11 @@ app.put('/ekosim/putCompanyParameter/:myCountry', function (req, res) {
     var value = req.body.VALUE;
 
     var myPath = './myDB/';
-    var myCountry = req.params.myCountry.value; // //
+    var myCountry = req.params.myCountry; // //
     var myDatabase = myPath.concat(myCountry);
     myDatabase = myDatabase.concat('.db');
 
-    var myCompany = [req.query.myCompany];
+    var myCompany = req.query.myCompany;
 
 
     //console.log(value);
