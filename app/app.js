@@ -434,7 +434,7 @@ function updateGDPData(GDPChart, DIVChart, newData, resetChart) {
         cap_reserv_ratio.push(JSONData[i].CAP_RES_RATIO*10);
 
         unemployment.push(JSONData[i].UNEMPLOYMENT*10);
-        wages.push(JSONData[i].WAGES)/10000;
+        wages.push(JSONData[i].WAGES/10000);
     };
    
     //Calculating growth
