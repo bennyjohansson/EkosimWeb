@@ -396,7 +396,7 @@ function updateGDPData(GDPChart, DIVChart, newData, resetChart) {
         var price_out = DIVChart.data.datasets[0].data;
         var interest_rate = DIVChart.data.datasets[1].data;
         //var employed = DIVChart.data.datasets[3].data;
-        var wages = DIVChart.data.datasets[4].data;
+        var wages = DIVChart.data.datasets[6].data;
         var cap_reserv_ratio = DIVChart.data.datasets[3].data;
          //DIVChart.data.datasets[5].data;
         var unemployment = DIVChart.data.datasets[5].data;
