@@ -396,7 +396,7 @@ function updateGDPData(GDPChart, DIVChart, newData, resetChart) {
         var price_out = DIVChart.data.datasets[0].data;
         var interest_rate = DIVChart.data.datasets[1].data;
         //var employed = DIVChart.data.datasets[3].data;
-        //var wages = DIVChart.data.datasets[4].data;
+        var wages = DIVChart.data.datasets[4].data;
         var cap_reserv_ratio = DIVChart.data.datasets[3].data;
          //DIVChart.data.datasets[5].data;
         var unemployment = DIVChart.data.datasets[5].data;
@@ -408,6 +408,7 @@ function updateGDPData(GDPChart, DIVChart, newData, resetChart) {
         var nominal_gdp = [];
         var price_out = [];
         var interest_rate = [];
+        var wages =[];
         var real_gdp = [];
         var items = [];
         var investments = [];
@@ -433,7 +434,7 @@ function updateGDPData(GDPChart, DIVChart, newData, resetChart) {
         cap_reserv_ratio.push(JSONData[i].CAP_RES_RATIO*10);
 
         unemployment.push(JSONData[i].UNEMPLOYMENT*10);
-        //wages.push(JSONData[i].WAGES);
+        wages.push(JSONData[i].WAGES);
     };
    
     //Calculating growth
@@ -480,6 +481,7 @@ function updateGDPData(GDPChart, DIVChart, newData, resetChart) {
     DIVChart.data.datasets[2].data = Growthx10MA;
     DIVChart.data.datasets[4].data = Inflation10MA;
     DIVChart.data.datasets[5].data = unemployment;
+    DIVChart.data.datasets[6].data = wages;
 
 
 
@@ -676,6 +678,13 @@ initiateDIVTable = function(myChart) {
         {
             label: "Unemployment x10",
             borderColor: "cyan",
+            pointRadius: 0,
+            data: [0]
+            
+        },
+        {
+            label: "Average wage Bempa CO",
+            borderColor: "purple",
             pointRadius: 0,
             data: [0]
             
