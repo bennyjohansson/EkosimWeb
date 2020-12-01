@@ -99,7 +99,7 @@ function changeInterestRate2() {
 
 function setWageConst() {
 
-    var myValue = document.getElementById("WageConst").value;
+    var myValue = document.getElementById("WageConst").value*100;
     
     putCompanyParameter('WAGE_CONST', myValue);
 
@@ -107,7 +107,7 @@ function setWageConst() {
 
 function setWageChange() {
 
-    var myValue = document.getElementById("WageCh").value;
+    var myValue = document.getElementById("WageCh").value*100;
     
     putCompanyParameter('WAGE_CH', myValue);
 
@@ -115,7 +115,7 @@ function setWageChange() {
 
 function setReinvest() {
 
-    var myValue = document.getElementById("Reinvest").value;
+    var myValue = document.getElementById("Reinvest").value*100;
     
     putCompanyParameter('PBR', myValue);
 
@@ -148,10 +148,10 @@ function populateCallback(companyParameters) {
     console.log(wage_ch);
 
 
-    document.getElementById("Reinvest").value = pbr;
-    document.getElementById("WageConst").value = wage_const;
+    document.getElementById("Reinvest").value = pbr*100;
+    document.getElementById("WageConst").value = wage_const*100;
     document.getElementById("Capacity").value = capacity;
-    document.getElementById("WageCh").value = wage_ch;
+    document.getElementById("WageCh").value = wage_ch*100;
 
 
     // document.getElementById("WageConst").value = JSONData[0].WAGE_CONST;
@@ -638,8 +638,8 @@ document.getElementById("CountryCombo").addEventListener("change", countryChange
 document.getElementById("companySelect").addEventListener("change", companyChange);
 document.getElementById("companySelect").addEventListener("change", populateParameters);
 document.getElementById("setWageConstButton").addEventListener("click", setWageConst);
-document.getElementById("setWageConstButton").addEventListener("click", setWageChange);
-document.getElementById("setWageConstButton").addEventListener("click", setReinvest);
+document.getElementById("setWageChangeButton").addEventListener("click", setWageChange);
+document.getElementById("setReinvestButton").addEventListener("click", setReinvest);
 
 //document.getElementById("SetFixedRateButton").addEventListener("click", changeInterestRate2);
 //document.getElementById('CountryCombo').onclick = print_combo();
