@@ -99,7 +99,7 @@ function changeInterestRate2() {
 
 function setWageConst() {
 
-    var myValue = document.getElementById("WageConst").value*100;
+    var myValue = document.getElementById("WageConst").value/100;
     
     putCompanyParameter('WAGE_CONST', myValue);
 
@@ -107,7 +107,7 @@ function setWageConst() {
 
 function setWageChange() {
 
-    var myValue = document.getElementById("WageCh").value*100;
+    var myValue = document.getElementById("WageCh").value/100;
     
     putCompanyParameter('WAGE_CH', myValue);
 
@@ -115,7 +115,7 @@ function setWageChange() {
 
 function setReinvest() {
 
-    var myValue = document.getElementById("Reinvest").value*100;
+    var myValue = document.getElementById("Reinvest").value/100;
     
     putCompanyParameter('PBR', myValue);
 
