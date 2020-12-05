@@ -68,34 +68,6 @@ function putCompanyParameter(parameter, value) { //parameter
 
 }
 
-function changeInterestRate() {
-    var targetInterestRate = document.getElementById("interestRateInput").value / 100;
-    putParameter('InterestRateMethod', 2)
-    putParameter('TargetInterestRate', targetInterestRate);
-
-    // getParameter('TargetInterestRate', function(result) {
-    //     var JSONData = JSON.parse(result).data;
-    //     console.log(JSONData.VALUE);
-    //     document.getElementById("interestRateInput").value = JSONData.VALUE*100;
-    //     }
-    // );
-
-}
-
-function changeInterestRate2() {
-    var targetInterestRate = document.getElementById("FixedRate").value / 100;
-    console.log("Testing change interest rate 2")
-    putParameter('InterestRateMethod', 2)
-    putParameter('TargetInterestRate', targetInterestRate);
-    console.log("Testing change interest rate 2")
-    // getParameter('TargetInterestRate', function(result) {
-    //     var JSONData = JSON.parse(result).data;
-    //     console.log(JSONData.VALUE);
-    //     document.getElementById("interestRateInput").value = JSONData.VALUE*100;
-    //     }
-    // );
-
-}
 
 function setWageConst() {
 
@@ -121,17 +93,14 @@ function setReinvest() {
 
 }
 
-function populateParameters() {
+function populateParameters(initialUpdate) {
 
     myCompany = document.getElementById("selectedCompany").innerHTML;
 
-    getCompanyParameters(myCompany, populateCallback);
-
-
-
+    getCompanyParameters(myCompany, initialUpdate, populateCallback);
 }
 
-function populateCallback(companyParameters) {
+function populateCallback(companyParameters, initialUpdate) {
 
     var JSONData = JSON.parse(companyParameters).data;
 
@@ -140,24 +109,14 @@ function populateCallback(companyParameters) {
     var capacity = JSONData[0].CAPACITY;
     var wage_ch = JSONData[0].WAGE_CH;
 
-    console.log(JSONData[0]);
+    if(initialUpdate){
+        document.getElementById("Reinvest").value = pbr*100;
+        document.getElementById("WageConst").value = wage_const*100;
+        document.getElementById("WageCh").value = wage_ch*100;
 
-    console.log(wage_const);
-    console.log(pbr);
-    console.log(capacity);
-    console.log(wage_ch);
-
-
-    document.getElementById("Reinvest").value = pbr*100;
-    document.getElementById("WageConst").value = wage_const*100;
+    }
     document.getElementById("Capacity").value = capacity;
-    document.getElementById("WageCh").value = wage_ch*100;
 
-
-    // document.getElementById("WageConst").value = JSONData[0].WAGE_CONST;
-    // document.getElementById("Reinvest").value = JSONData[0].PBR;
-    // document.getElementById("Capacity").value = JSONData[0].CAPACITY;
-    // document.getElementById("WageCh").value = JSONData[0].WAGE_CH;
 
 }
 
@@ -189,39 +148,11 @@ function countryChange() {
 
 }
 
-function changeSpendwill() {
-    var set_spendwill = document.getElementById("spendwillInput").value / 100;
-    putParameter('AverageSpendwill', set_spendwill);
-
-    // getParameter('AverageSpendwill', function(result) {
-    //     var JSONData = JSON.parse(result).data;
-    //     console.log(JSONData.VALUE);
-    //     document.getElementById("spendwillInput").value = JSONData.VALUE*100;
-    //     }
-    // );
-
-}
-
 function changeWageConstant() {
     var set_spendwill = document.getElementById("spendwillInput").value / 100;
     putParameter('AverageSpendwill', set_spendwill);
 
 }
-
-function changeBorrowwill() {
-    var set_borrowwill = document.getElementById("borrowwillInput").value / 100;
-    putParameter('AverageBorrowwill', set_borrowwill);
-
-    // getParameter('AverageBorrowwill', function(result) {
-    //     var JSONData = JSON.parse(result).data;
-    //     console.log(JSONData.VALUE);
-    //     document.getElementById("borrowwillInput").value = JSONData.VALUE*100;
-    //     }
-    // );
-
-}
-
-
 
 
 var getParameter = function (parameter, mycallback) {
@@ -251,7 +182,7 @@ var getParameter = function (parameter, mycallback) {
 
 };
 
-var getCompanyParameters = function (companyName, mycallback) {
+var getCompanyParameters = function (companyName, initialUpdate, mycallback) {
 
     var myCountry = getCountry();
 
@@ -260,7 +191,7 @@ var getCompanyParameters = function (companyName, mycallback) {
     url = url.concat('?myCompany=');
     url = url.concat(companyName);
 
-    console.log(url);
+    //console.log(url);
 
     var xhr = new XMLHttpRequest();
     xhr.open('GET', url, true);
@@ -268,10 +199,10 @@ var getCompanyParameters = function (companyName, mycallback) {
         //console.log(xhr.readyState);
         if (xhr.readyState == 4) { //XMLHttpRequest.DONE
             var response = xhr.responseText;
-            console.log("response: " + response); //Correctly prints JSON content to console
+            //console.log("response: " + response); //Correctly prints JSON content to console
 
             // call it here
-            mycallback(response);
+            mycallback(response, initialUpdate);
         }
     }
     xhr.send(null);
@@ -311,8 +242,9 @@ var getDatabaseLink = function () {
 function addMoreCompanyData(table, chart, mycallback) {
 
     timeStamp = myMoneyChart.data.labels[myMoneyChart.data.labels.length - 1];
+    //console.log(timeStamp);
 
-    getCompanyData(table, chart, timeStamp, mycallback, 0);
+    getCompanyData(chart, timeStamp, mycallback, 0);
 
 }
 
@@ -320,7 +252,7 @@ function refreshCompanyData(table, chart, mycallback) {
 
     timeStamp = 0; //myGDPChart.data.labels[myGDPChart.data.labels.length - 1];
 
-    getCompanyData(table, chart, timeStamp, mycallback, 1);
+    getCompanyData(chart, timeStamp, mycallback, 1);
 
 }
 
@@ -331,6 +263,7 @@ function getCompanyData(chart, timeStamp, mycallback, resetChart) {
     var myCountry = getCountry();
     //console.log(chart.data.datasets);
     //console.log(lastTimestamp);
+    //timeStamp = 0;
 
     myCompany = document.getElementById("selectedCompany").innerHTML;
 
@@ -340,7 +273,7 @@ function getCompanyData(chart, timeStamp, mycallback, resetChart) {
     url = url.concat(timeStamp);
     url = url.concat('&myCompany=' + myCompany)
 
-    console.log(url);
+    //console.log(url);
 
     var xhr = new XMLHttpRequest();
     xhr.open('GET', url, true);
@@ -367,7 +300,7 @@ function updateCompanyData(chart, newData, resetChart) {
 
     if (resetChart == 0) {
         var timeData = chart.data.labels;
-        var capcity = chart.data.datasets[4].data;
+        var capacity = chart.data.datasets[0].data;
     }
     else {
 
@@ -381,7 +314,7 @@ function updateCompanyData(chart, newData, resetChart) {
 
 
     for (var i in JSONData) {
-        timeData.push(JSONData[i].TIME);
+        timeData.push(JSONData[i].TIME_STAMP);
         capacity.push(JSONData[i].CAPACITY);
     };
 
@@ -443,7 +376,7 @@ function load_combo(select_id, option_array) {
     }
 }
 
-populateParameters();
+populateParameters(1);
 
 
 
@@ -512,7 +445,7 @@ initiateCompanyTable(myMoneyChart);
 
 setInterval(function () {
     addMoreCompanyData('COMPANY_TABLE', myMoneyChart, updateCompanyData);
-    populateParameters();
+    populateParameters(0);
 
 }, 2000);
 
