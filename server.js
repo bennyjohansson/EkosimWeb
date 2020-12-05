@@ -238,6 +238,31 @@ app.get('/ekosim/timetable/update/:myCountry', (req, res, next) => {
 
 });
 
+app.get('/ekosim/companytable/update/:myCountry', (req, res, next) => {
+
+    var myPath = './myDB/';
+    var myCountry = req.params.myCountry; //'./myDB/Bennyland.db' //
+    var myDatabase = myPath.concat(myCountry);
+    myDatabase = myDatabase.concat('.db');
+
+    var lastTime = req.query.timestamp;
+    var myCompany = req.query.myCompany;
+    myTable = getCompanyTableUpdate(lastTime, myDatabase, myCompAny, 'COMPANY_TABLE');
+
+    var mytableJSON = myTable.then((result) => {
+        //console.log(result[31]) // "Some User token"
+        //return result[31];
+        return res.json({
+            "message": "success",
+            "data": result
+        })
+    });
+
+
+    //console.log(mytableJSON)
+
+});
+
 app.get('/ekosim/worldtable/', (req, res, next) => {
 
     //var lastTime = [req.datab.lastTimestamp];
