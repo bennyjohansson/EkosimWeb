@@ -326,6 +326,14 @@ function addMoreGDPData(table, myGDPChart, myDIVChart, mycallback) {
 
 }
 
+function addMoreCompanyData(table, chart, mycallback) {
+
+    timeStamp = myMoneyChart.data.labels[myMoneyChart.data.labels.length - 1];
+
+    getCompanyData(table, chart, timeStamp, mycallback, 0);
+
+}
+
 function refreshMoneyData(table, chart, mycallback) {
 
     timeStamp = 0; //myGDPChart.data.labels[myGDPChart.data.labels.length - 1];
@@ -418,6 +426,40 @@ function getGDPData(table, myGDPChart, myDIVChart, timeStamp, mycallback, resetC
 
 }
 
+function getCompanyData(chart, timeStamp, mycallback, resetChart) {
+
+    //var lastTimestamp = 0;
+    var myCountry = getCountry();
+    //console.log(chart.data.datasets);
+    //console.log(lastTimestamp);
+
+    myCompany = document.getElementById("selectedCompany").innerHTML;
+
+    var url = 'http://ekosimweb-env.eba-66jamvpz.us-east-2.elasticbeanstalk.com/ekosim/companytable/update/';
+    url = url.concat(myCountry);
+    url = url.concat('?timestamp=');
+    url = url.concat(timeStamp);
+    url = url.concat('&myCompany=' + myCompany)
+
+    //console.log(url);
+
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', url, true);
+    xhr.onreadystatechange = function () {
+        //console.log(xhr.readyState);
+        if (xhr.readyState == 4) { //XMLHttpRequest.DONE
+            var response = xhr.responseText;
+            //console.log("response: " + response); //Correctly prints JSON content to console
+
+            // call it here
+            mycallback(chart, response, resetChart);
+        }
+    }
+    xhr.send(null);
+
+
+}
+
 
 function updateMoneyData(chart, newData, resetChart) {
 
@@ -499,95 +541,55 @@ function updateMoneyData(chart, newData, resetChart) {
 
 }
 
+function updateCompanyData(chart, newData, resetChart) {
+
+    //Parsing API-data
+    var JSONData = JSON.parse(newData).data;
+    //console.log(JSONData);
+
+    if (resetChart == 0) {
+        var timeData = chart.data.labels;
+        var capcity = chart.data.datasets[4].data;
+    }
+    else {
+
+        var timeData = [];
+        var capacity = [];
+
+    }
+
+    //console.log(consumerCapital.length);
+    //console.log(companyCapital.length);
+
+
+    for (var i in JSONData) {
+        timeData.push(JSONData[i].TIME);
+        capacity.push(JSONData[i].CAPACITY);
+    };
+
+
+    chart.data.labels = timeData;
+    chart.data.datasets[0].data = capacity;
+
+    chart.update();
+
+}
 
 
 
 
-
-
-
-initiateMoneyTable = function (myChart) {
+initiateCompanyTable = function (myChart) {
 
 
     var chartData = {
         labels: [0],
         datasets: [
             {
-                label: "Total money",
+                label: "Capacity",
                 borderColor: "black",
                 pointRadius: 0,
                 data: [0]
 
-            },
-            {
-                label: "Consumer Capital",
-                borderColor: "blue",
-                pointRadius: 0,
-                data: [0]
-            },
-            {
-                label: "Consumer Debts",
-                borderColor: "green",
-                pointRadius: 0,
-                data: [0]
-            },
-            {
-                label: "Consumer Deposits",
-                borderColor: "red",
-                pointRadius: 0,
-                borderDash: [15, 3],
-                data: [0]
-            },
-            {
-                label: "Bank Capital",
-                borderColor: "cyan",
-                pointRadius: 0,
-                borderDash: [15, 3],
-                data: [0]
-            },
-            {
-                label: "Bank Loans",
-                borderColor: "black",
-                pointRadius: 0,
-                data: [0]
-            },
-            {
-                label: "Bank Deposits",
-                borderColor: "grey",
-                pointRadius: 0,
-                data: [0]
-            },
-            {
-                label: "Bank Liquidity",
-                borderColor: "purple",
-                pointRadius: 0,
-                borderDash: [15, 3],
-                data: [0]
-            },
-            {
-                label: "Company Capital",
-                borderColor: "pink",
-                pointRadius: 0,
-                data: [0]
-            },
-            {
-                label: "Company Debts",
-                borderColor: "yellow",
-                pointRadius: 0,
-                data: [0]
-            },
-            {
-                label: "Market Capital",
-                borderColor: "#36a2eb",
-                pointRadius: 0,
-                data: [0]
-            },
-            {
-                label: "City Capital",
-                borderColor: "#ff6384",
-                pointRadius: 0,
-                borderDash: [15, 3],
-                data: [0]
             }
         ]
     };
@@ -595,6 +597,7 @@ initiateMoneyTable = function (myChart) {
     myChart.data = chartData;
 
 };
+
 
 
 
@@ -675,7 +678,7 @@ var myMoneyChart = new Chart(ctxMoney, {
     }
 });
 
-initiateMoneyTable(myMoneyChart);
+initiateCompanyTable(myMoneyChart);
 
 
 
@@ -690,7 +693,7 @@ initiateMoneyTable(myMoneyChart);
 */
 
 setInterval(function () {
-    addMoreMoneyData('MONEY_DATA', myMoneyChart, updateMoneyData);
+    addMoreCompanyData('COMPANY_TABLE', myMoneyChart, updateCompanyData);
     populateParameters();
 
 }, 2000);
