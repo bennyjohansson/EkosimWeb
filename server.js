@@ -247,6 +247,7 @@ app.get('/ekosim/companytable/update/:myCountry', (req, res, next) => {
 
     var lastTime = req.query.timestamp;
     var myCompany = req.query.myCompany;
+    console.log(myCompany);
     myTable = getCompanyTableUpdate(lastTime, myDatabase, myCompany, 'COMPANY_TABLE');
 
     var mytableJSON = myTable.then((result) => {
