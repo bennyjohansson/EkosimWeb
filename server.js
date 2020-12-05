@@ -163,7 +163,7 @@ app.get('/ekosim/getAllParameters/:myCountry', (req, res, next) => {
 app.get('/ekosim/getCompany/:myCountry', (req, res, next) => {
 
     var myPath = './myDB/';
-    var myCountry = req.params.myCountry; // //
+    var myCountry = req.params.myCountry; //
     var myDatabase = myPath.concat(myCountry);
     myDatabase = myDatabase.concat('.db');
 

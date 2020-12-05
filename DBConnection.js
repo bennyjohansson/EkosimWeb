@@ -137,6 +137,8 @@ getCompanyTable = function (myDatabase, table, company) { //database, table
         sql = sql.concat("'");
         sql = sql.concat(company);
         sql = sql.concat("'");
+        sql.concat(" AND TIME_STAMP = (SELECT MAX(TIME_STAMP) FROM COMPANY_TABLE)");
+
         console.log(sql);
         //db.each(`SELECT rowid as key, * FROM ${table} WHERE NAME = ${company}`, (err, row) => {
         db.each(sql, (err, row) => {
