@@ -182,7 +182,7 @@ function countryChange() {
     var myCountry = getCountry();
     document.getElementById("countryText").innerHTML = myCountry;
 
-    refreshMoneyData('MONEY_DATA', myMoneyChart, updateMoneyData);
+    refreshCompanyData('COMPANY_TABLE', myMoneyChart, updateCompanyData);
     //refreshGDPData('TIME_DATA', myGDPChart, myDIVChart, updateGDPData);
 
 
@@ -305,26 +305,8 @@ var getDatabaseLink = function () {
 
 };
 
-// /ekosim/moneytable/update/'
-// /ekosim/timetable/update/'
-// /ekosim/read/
-// /ekosim/:parameter
 
-function addMoreMoneyData(table, chart, mycallback) {
 
-    timeStamp = myMoneyChart.data.labels[myMoneyChart.data.labels.length - 1];
-
-    getMoneyData(table, chart, timeStamp, mycallback, 0);
-
-}
-
-function addMoreGDPData(table, myGDPChart, myDIVChart, mycallback) {
-
-    timeStamp = myGDPChart.data.labels[myGDPChart.data.labels.length - 1];
-
-    getGDPData(table, myGDPChart, myDIVChart, timeStamp, mycallback, 0);
-
-}
 
 function addMoreCompanyData(table, chart, mycallback) {
 
@@ -334,97 +316,14 @@ function addMoreCompanyData(table, chart, mycallback) {
 
 }
 
-function refreshMoneyData(table, chart, mycallback) {
+function refreshCompanyData(table, chart, mycallback) {
 
     timeStamp = 0; //myGDPChart.data.labels[myGDPChart.data.labels.length - 1];
 
-    getMoneyData(table, chart, timeStamp, mycallback, 1);
+    getCompanyData(table, chart, timeStamp, mycallback, 1);
 
 }
 
-function refreshGDPData(table, myGDPChart, myDIVChart, mycallback) {
-
-    timeStamp = 0; //myGDPChart.data.labels[myGDPChart.data.labels.length - 1];
-
-    getGDPData(table, myGDPChart, myDIVChart, timeStamp, mycallback, 1);
-
-}
-
-//refreshGDPData('TIME_DATA', myGDPChart, myDIVChart, updateGDPData);
-
-
-
-
-
-
-function getMoneyData(table, chart, timeStamp, mycallback, resetChart) {
-
-    //var lastTimestamp = 0;
-    var myCountry = getCountry();
-    //console.log(chart.data.datasets);
-    //console.log(lastTimestamp);
-
-
-
-    var url = 'http://ekosimweb-env.eba-66jamvpz.us-east-2.elasticbeanstalk.com/ekosim/moneytable/update/';
-    url = url.concat(myCountry);
-    url = url.concat('?timestamp=');
-    url = url.concat(timeStamp);
-
-    //console.log(url);
-
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET', url, true);
-    xhr.onreadystatechange = function () {
-        //console.log(xhr.readyState);
-        if (xhr.readyState == 4) { //XMLHttpRequest.DONE
-            var response = xhr.responseText;
-            //console.log("response: " + response); //Correctly prints JSON content to console
-
-            // call it here
-            mycallback(chart, response, resetChart);
-        }
-    }
-    xhr.send(null);
-
-
-}
-
-
-
-function getGDPData(table, myGDPChart, myDIVChart, timeStamp, mycallback, resetChart) {
-
-    //var lastTimestamp = 0;
-    var myCountry = getCountry();
-    lastTimestamp = myGDPChart.data.labels[myGDPChart.data.labels.length - 1];
-    //console.log(chart.data.datasets);
-    //console.log(lastTimestamp);
-
-
-
-    var url = 'http://ekosimweb-env.eba-66jamvpz.us-east-2.elasticbeanstalk.com/ekosim/timetable/update/';
-    url = url.concat(myCountry);
-    url = url.concat('?timestamp=');
-    url = url.concat(timeStamp);
-
-    //console.log(url);
-
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET', url, true);
-    xhr.onreadystatechange = function () {
-        //console.log(xhr.readyState);
-        if (xhr.readyState == 4) { //XMLHttpRequest.DONE
-            var response = xhr.responseText;
-            //console.log("response: " + response); //Correctly prints JSON content to console
-
-            // call it here
-            mycallback(myGDPChart, myDIVChart, response, resetChart);
-        }
-    }
-    xhr.send(null);
-
-
-}
 
 function getCompanyData(chart, timeStamp, mycallback, resetChart) {
 
@@ -441,7 +340,7 @@ function getCompanyData(chart, timeStamp, mycallback, resetChart) {
     url = url.concat(timeStamp);
     url = url.concat('&myCompany=' + myCompany)
 
-    //console.log(url);
+    console.log(url);
 
     var xhr = new XMLHttpRequest();
     xhr.open('GET', url, true);
@@ -457,87 +356,6 @@ function getCompanyData(chart, timeStamp, mycallback, resetChart) {
     }
     xhr.send(null);
 
-
-}
-
-
-function updateMoneyData(chart, newData, resetChart) {
-
-    //Parsing API-data
-    var JSONData = JSON.parse(newData).data;
-    //console.log(JSONData);
-
-    if (resetChart == 0) {
-        var timeData = chart.data.labels;
-        var totalMoney = chart.data.datasets[0].data;
-        var consumerCapital = chart.data.datasets[1].data;
-        var consumerDebts = chart.data.datasets[2].data;
-        var consumerDeposits = chart.data.datasets[3].data;
-        var bankCapital = chart.data.datasets[4].data;
-        var bankLoans = chart.data.datasets[5].data;
-        var bankDeposits = chart.data.datasets[6].data;
-        var bankLiquiditys = chart.data.datasets[7].data;
-        var companyCapital = chart.data.datasets[8].data;
-        var companyDebts = chart.data.datasets[9].data;
-        var marketCapital = chart.data.datasets[10].data;
-        var cityCapital = chart.data.datasets[11].data;
-    }
-    else {
-
-        var timeData = [];
-        var totalMoney = [];
-        var consumerCapital = [];
-        var consumerDebts = [];
-        var consumerDeposits = [];
-        var bankCapital = [];
-        var bankLoans = [];
-        var bankDeposits = [];
-        var bankLiquiditys = [];
-        var companyCapital = [];
-        var companyDebts = [];
-        var marketCapital = [];
-        var cityCapital = [];
-
-
-
-    }
-
-    //console.log(consumerCapital.length);
-    //console.log(companyCapital.length);
-
-
-    for (var i in JSONData) {
-        timeData.push(JSONData[i].TIME);
-        totalMoney.push(JSONData[i].TOTAL_CAPITAL);
-        consumerCapital.push(JSONData[i].CONSUMER_CAPITAL);
-        consumerDebts.push(JSONData[i].CONSUMER_DEBTS);
-        consumerDeposits.push(JSONData[i].CONSUMER_DEPOSITS);
-        bankCapital.push(JSONData[i].BANK_CAPITAL);
-        bankLoans.push(JSONData[i].BANK_LOANS);
-        bankDeposits.push(JSONData[i].BANK_DEPOSITS);
-        bankLiquiditys.push(JSONData[i].BANK_LIQUIDITY);
-        companyCapital.push(JSONData[i].COMPANY_CAIPTAL);
-        companyDebts.push(JSONData[i].COMPANY_DEBTS);
-        marketCapital.push(JSONData[i].MARKET_CAPITAL);
-        cityCapital.push(JSONData[i].CITY_CAPITAL);
-    };
-
-
-    chart.data.labels = timeData;
-    chart.data.datasets[0].data = totalMoney;
-    chart.data.datasets[1].data = consumerCapital;
-    chart.data.datasets[2].data = consumerDebts;
-    chart.data.datasets[3].data = consumerDeposits;
-    chart.data.datasets[4].data = bankCapital;
-    chart.data.datasets[5].data = bankLoans;
-    chart.data.datasets[6].data = bankDeposits;
-    chart.data.datasets[7].data = bankLiquiditys;
-    chart.data.datasets[8].data = companyCapital;
-    chart.data.datasets[9].data = companyDebts;
-    chart.data.datasets[10].data = marketCapital;
-    chart.data.datasets[11].data = cityCapital;
-
-    chart.update();
 
 }
 
@@ -656,7 +474,7 @@ Chart.defaults.global.elements.point.pointRadius = 0;
 Chart.defaults.global.elements.line.fill = false;
 
 /*
-* INITIATING MONEY CHART
+* INITIATING COMPANY CHART
 */
 var ctxMoney = document.getElementById('myMoneyChart').getContext("2d");
 
@@ -673,7 +491,7 @@ var myMoneyChart = new Chart(ctxMoney, {
         },
         title: {
             display: true,
-            text: 'Money Distribution'
+            text: 'Company development'
         }
     }
 });
