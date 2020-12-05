@@ -247,7 +247,7 @@ app.get('/ekosim/companytable/update/:myCountry', (req, res, next) => {
 
     var lastTime = req.query.timestamp;
     var myCompany = req.query.myCompany;
-    myTable = getCompanyTableUpdate(lastTime, myDatabase, myCompAny, 'COMPANY_TABLE');
+    myTable = getCompanyTableUpdate(lastTime, myDatabase, myCompany, 'COMPANY_TABLE');
 
     var mytableJSON = myTable.then((result) => {
         //console.log(result[31]) // "Some User token"
