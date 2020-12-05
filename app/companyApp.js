@@ -691,6 +691,7 @@ initiateMoneyTable(myMoneyChart);
 
 setInterval(function () {
     addMoreMoneyData('MONEY_DATA', myMoneyChart, updateMoneyData);
+    populateParameters();
 
 }, 2000);
 
