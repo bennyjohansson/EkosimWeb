@@ -59,6 +59,7 @@ getCompanyTableUpdate = function (lastTime, myDatabase, myCompany, table) { //da
         //console.log(`SELECT rowid as key, * FROM ${table} WHERE TIME > ${lastTime}`);
         //sql = 'SELECT rowid as key, * FROM ${table} WHERE TIME > ${lastTime}'
         //db.each(sql, (err, row) => {
+        console.log(`SELECT rowid as key, * FROM ${table} WHERE NAME = ${myCompany} AND TIME > ${lastTime}`)
         db.each(`SELECT rowid as key, * FROM ${table} WHERE NAME = ${myCompany} AND TIME > ${lastTime}`, (err, row) => {
 
             //db.each(`SELECT rowid as key, * FROM MONEY_DATA`, (err, row) => {
