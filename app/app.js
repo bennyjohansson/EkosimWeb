@@ -18,8 +18,8 @@ function putParameter(parameter, value) { //parameter
     myBody.PARAMETER = parameter; 
     myBody.VALUE = value;
 
-    console.log(url);
-    console.log(myBody);
+    //console.log(url);
+    //console.log(myBody);
     var xhr = new XMLHttpRequest();
     xhr.open('PUT', url, true);
     xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
@@ -134,7 +134,7 @@ var getCompany = function (companyName, mycallback) {
     url = url.concat('?companyName=');
     url = url.concat(companyName);
 
-    console.log(url);
+    //console.log(url);
 
     var xhr = new XMLHttpRequest();
     xhr.open('GET', url, true);
@@ -142,7 +142,7 @@ var getCompany = function (companyName, mycallback) {
         //console.log(xhr.readyState);
         if (xhr.readyState == 4) { //XMLHttpRequest.DONE
             var response = xhr.responseText;
-            console.log("response: " + response); //Correctly prints JSON content to console
+            //console.log("response: " + response); //Correctly prints JSON content to console
 
             // call it here
             mycallback(response);
@@ -384,7 +384,7 @@ function updateGDPData(GDPChart, DIVChart, newData, resetChart) {
     //Preparing GDP-data & DIV-data
 
     if(resetChart == 0) {
-        console.log("Not resetting data for GDP-data")
+        //console.log("Not resetting data for GDP-data")
         var timeData = GDPChart.data.labels;
         var nominal_gdp = GDPChart.data.datasets[0].data;
         var real_gdp = GDPChart.data.datasets[1].data;
@@ -403,7 +403,7 @@ function updateGDPData(GDPChart, DIVChart, newData, resetChart) {
 
     }
     else {
-        console.log("Resetting data for GDP-data")
+        //console.log("Resetting data for GDP-data")
         var timeData = [];
         var nominal_gdp = [];
         var price_out = [];

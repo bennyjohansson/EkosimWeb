@@ -46,6 +46,7 @@ function putCompanyParameter(parameter, value) { //parameter
     url = url.concat(myCountry);
     url = url.concat('?myCompany=');
     url = url.concat(myCompany);
+
     console.log(url);
     // url = url.concat('?parameter=');
     // url = url.concat(value);
