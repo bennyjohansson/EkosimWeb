@@ -456,7 +456,7 @@ function updateGDPData(GDPChart, DIVChart, newData, resetChart) {
         Growthx10[i] = ((nominal_gdp[i+1]*price_out[1]/price_out[i+1])/GDPreal[i]-1)*100;
         Growthx10MA[i] =  Growthx10.slice(Math.max(0,i-9), i+1).reduce(reducer)/10;
 
-        Inflation[i] = price_out[i+1]/price_out[i] - 1;
+        Inflation[i] = (price_out[i+1]/price_out[i] - 1)*100;
         Inflation10MA[i] = Inflation.slice(Math.max(0,i-9), i+1).reduce(reducer)/10;
 
         //Unemployment.push((no_consumers - employed[i])/no_consumers);
