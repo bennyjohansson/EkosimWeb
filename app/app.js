@@ -42,7 +42,7 @@ function changeInterestRate() {
 }
 
 function changeInterestRate2() {
-    var targetInterestRate = document.getElementById("FixedRate").value/100;
+    var targetInterestRate = document.getElementById("interestRateInput").value/100;
     console.log("Testing change interest rate 2")
     putParameter('InterestRateMethod', 2)
     putParameter('TargetInterestRate', targetInterestRate);
@@ -51,19 +51,6 @@ function changeInterestRate2() {
     //     var JSONData = JSON.parse(result).data;
     //     console.log(JSONData.VALUE);
     //     document.getElementById("interestRateInput").value = JSONData.VALUE*100;
-    //     }
-    // );
-
-}
-
-function changeCapitalReserveRatio() {
-    var reserveRatio = document.getElementById("reserveRatioInput").value;
-    putParameter('CapitalReserveRatio', reserveRatio);
-
-    // getParameter('CapitalReserveRatio', function(result) {
-    //     var JSONData = JSON.parse(result).data;
-    //     console.log(JSONData.VALUE);
-    //     document.getElementById("reserveRatioInput").value = JSONData.VALUE;
     //     }
     // );
 
@@ -703,20 +690,6 @@ initiateDIVTable = function(myChart) {
 */
 
 
-getParameter('InterestRateMethod', function(result) {
-    var JSONData = JSON.parse(result).data;
-    console.log(JSONData.VALUE);
-    var irMethod;
-    //element.innerHTML = "New Heading";
-    if(JSONData.VALUE == 1) {
-        irMethod = 'Market Interest Rate used';
-    }
-    else {
-        irMethod = 'Target Interest Rate used';
-    }
-    document.getElementById("irMethod").innerHTML = irMethod;
-    }
-);
 
 getParameter('TargetInterestRate', function(result) {
     var JSONData = JSON.parse(result).data;
@@ -725,12 +698,6 @@ getParameter('TargetInterestRate', function(result) {
     }
 );
 
-getParameter('CapitalReserveRatio', function(result) {
-    var JSONData = JSON.parse(result).data;
-    console.log(JSONData.VALUE);
-    document.getElementById("reserveRatioInput").value = JSONData.VALUE;
-    }
-);
 
 getParameter('AverageSpendwill', function(result) {
     var JSONData = JSON.parse(result).data;
@@ -788,6 +755,10 @@ testarray = ['Bennyland', 'Saraland', 'Otherland'];
 add_option ('CountryCombo', '--Select Country--');
 load_combo('CountryCombo', testarray);
 document.getElementById("CountryCombo").addEventListener("change", countryChange); 
+document.getElementById("SetFixedRateButton").addEventListener("click", changeInterestRate2);
+document.getElementById("SetAvgSpendwillButton").addEventListener("click", changeSpendwill);
+document.getElementById("SetAvgBorowwillButton").addEventListener("click", changeBorrowwill);
+
 //document.getElementById("SetFixedRateButton").addEventListener("click", changeInterestRate2);
 //document.getElementById('CountryCombo').onclick = print_combo();
 

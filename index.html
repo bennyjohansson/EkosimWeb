@@ -85,45 +85,94 @@
         </div>
     </div>
 
-    <!-- <div class="container">
-        <canvas id="myGDPChart"> </canvas>
+    < <!-- PARAMETER TABLE -->
+    <div class="container parameter-table">
+
+
+        <div class="row form-group">
+
+            <div class="col-md-6 my-input center-block">
+
+                <!-- FIRST INPUT ROW -->
+                <div class="row second-input-row">
+
+                    <!-- First col -->
+                    <div class="col-md" >
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="Spendwill"> Avg. Spendwill %</span>
+                            </div>
+                            <input type="text" class="form-control" id = "interestRateInput" placeholder="4" value="4" aria-label="Interest"
+                                aria-describedby="basic-addon1">
+                        </div>
+                    </div>
+
+                    <div class="col-md ok-group">
+                        <button type="button" id = "SetFixedRateButton" class="btn btn-primary btn-small ok-button"> Set </button>
+                        <!-- <button type="button" id = "SetFixedRateButton" onclick="changeInterestRate2()" class="btn btn-primary btn-small ok-button"> Set </button> -->
+
+                    </div>
+
+                </div>
+
+                <!-- SECOND INPUT ROW -->
+                <div class="row second-input-row">
+
+                    <!-- First col -->
+                    <div class="col">
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="Spendwill"> Avg. Spendwill %</span>
+                            </div>
+                            <input type="text" class="form-control" id = "spendwillInput" placeholder="70" value="70" aria-label="Interest"
+                                aria-describedby="basic-addon1">
+                            
+                        </div>
+                    </div>
+                    <div class="col-md ok-group">
+                        <button type="button" id = "SetAvgSpendwillButton" class="btn btn-primary btn-small ok-button"> Set </button>
+                        <!-- <button type="button" id = "SetFixedRateButton" onclick="changeInterestRate2()" class="btn btn-primary btn-small ok-button"> Set </button> -->
+
+                    </div>
+
+                </div>
+
+                <!-- THIRD INPUT ROW -->
+                <div class="row third-input-row">
+                    <!-- First col -->
+                    <div class="col">
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="Borowwill"> Avg. Borrowwill % </span>
+                            </div>
+                            <input type="text" class="form-control" id="borrowwillInput" value = "1" placeholder="1" aria-label="WageCh"
+                                aria-describedby="basic-addon1">
+                            
+                        </div>
+                    </div>
+
+                    <div class="col-md ok-group">
+                        <button type="button" id = "SetAvgBorowwillButton" class="btn btn-primary btn-small ok-button"> Set </button>
+                    </div>
+                    
+                </div>
+
+
+            </div>
+        </div>
     </div>
 
-    <div class="container">
-        <canvas id="myDIVChart"> </canvas>
-    </div> -->
-    <br><br>
-    <p1 id="irMethod"> Target Interest Rate </p1>
-    <br> <br>
-    <button onclick="putParameter('InterestRateMethod', 1)" class="btn btn-primary">Use market IR</button>
+    <hr />
+    <!-- Footer -->
+    <footer class="page-footer font-small blue">
 
-    <br> <br>
-    <button onclick="changeInterestRate()" class="btn btn-primary">Use target rate </button>
-    <input type="number" name="name" id="interestRateInput" value="5" />
+        <!-- Copyright -->
+        <div class="footer-copyright text-center py-3">© 2020 Copyright:
+            <a href="#"> EcosimGuy</a>
+        </div>
+        <!-- Copyright -->
 
-
-    %
-
-    <br>
-    <br> <br>
-
-    <button onclick="changeCapitalReserveRatio()" class="btn btn-primary"> Set capital reserve ratio </button>
-    <input type="number" name="name" id="reserveRatioInput" value="1" />
-
-    <br>
-    <br> <br>
-
-    <button onclick="changeSpendwill()" class="btn btn-primary"> Set average spendwill </button>
-    <input type="number" name="name" id="spendwillInput" value="80" /> %
-
-    <br>
-    <br> <br>
-
-    <button onclick="changeBorrowwill()" class="btn btn-primary"> Set average borrowwill </button>
-    <input type="number" name="name" id="borrowwillInput" value="5" /> %
-
-    <br>
-    <br>
+    </footer>
 
 
     <script src="./app/app.js"> </script>
