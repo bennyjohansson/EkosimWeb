@@ -59,6 +59,8 @@ function changeInterestRate2() {
 function changeSpendwill() {
     var set_spendwill = document.getElementById("spendwillInput").value/100;
     putParameter('AverageSpendwill', set_spendwill);
+    console.log("Setting spendwill to " + set_spendwill)
+
 
     // getParameter('AverageSpendwill', function(result) {
     //     var JSONData = JSON.parse(result).data;
