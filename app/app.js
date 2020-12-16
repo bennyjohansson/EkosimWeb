@@ -61,26 +61,29 @@ function changeSpendwill() {
     putParameter('AverageSpendwill', set_spendwill);
     console.log("Setting spendwill to " + set_spendwill)
 
-
-    // getParameter('AverageSpendwill', function(result) {
-    //     var JSONData = JSON.parse(result).data;
-    //     console.log(JSONData.VALUE);
-    //     document.getElementById("spendwillInput").value = JSONData.VALUE*100;
-    //     }
-    // );
-
 }
 
 function changeBorrowwill() {
     var set_borrowwill = document.getElementById("borrowwillInput").value/100;
     putParameter('AverageBorrowwill', set_borrowwill);
 
-    // getParameter('AverageBorrowwill', function(result) {
-    //     var JSONData = JSON.parse(result).data;
-    //     console.log(JSONData.VALUE);
-    //     document.getElementById("borrowwillInput").value = JSONData.VALUE*100;
-    //     }
-    // );
+}
+
+function changeInflationTarget() {
+    var set_inflation = document.getElementById("inflationInput").value/100;
+    putParameter('InflationTarget', set_inflation);
+
+}
+
+function changeIncomeTax() {
+    var set_incometax = document.getElementById("incomeTaxInput").value/100;
+    putParameter('IncomeTax', set_incometax);
+
+}
+
+function changeBudgetBalance() {
+    var set_budgetbalance = document.getElementById("budgetBalanceInput").value/100;
+    putParameter('BudgetBalance', set_budgetbalance);
 
 }
 
@@ -760,6 +763,9 @@ document.getElementById("CountryCombo").addEventListener("change", countryChange
 document.getElementById("SetFixedRateButton").addEventListener("click", changeInterestRate2);
 document.getElementById("SetAvgSpendwillButton").addEventListener("click", changeSpendwill);
 document.getElementById("SetAvgBorowwillButton").addEventListener("click", changeBorrowwill);
+document.getElementById("SetInflationTargetButton").addEventListener("click", changeInflationTarget);
+document.getElementById("SetIncomeTaxButton").addEventListener("click", changeIncomeTax);
+document.getElementById("SetBudgetBalanceButton").addEventListener("click", changeBudgetBalance);
 
 //document.getElementById("SetFixedRateButton").addEventListener("click", changeInterestRate2);
 //document.getElementById('CountryCombo').onclick = print_combo();
