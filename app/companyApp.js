@@ -109,6 +109,10 @@ function populateCallback(companyParameters, initialUpdate) {
     var pbr = JSONData[0].PBR;
     var capacity = JSONData[0].CAPACITY;
     var wage_ch = JSONData[0].WAGE_CH;
+    var production = JSONData[0].PRODUCTION;
+    var utilization = production/capacity;
+    utilization = utilization.toFixed(3)*100;
+
 
     if(initialUpdate){
         document.getElementById("Reinvest").value = pbr*100;
@@ -117,6 +121,7 @@ function populateCallback(companyParameters, initialUpdate) {
 
     }
     document.getElementById("Capacity").value = capacity;
+    document.getElementById("Utilization").value = utilization;
 
 
 }
@@ -302,11 +307,13 @@ function updateCompanyData(chart, newData, resetChart) {
     if (resetChart == 0) {
         var timeData = chart.data.labels;
         var capacity = chart.data.datasets[0].data;
+        var production = chart.data.datasets[1].data;
     }
     else {
 
         var timeData = [];
         var capacity = [];
+        var production = [];
 
     }
 
@@ -317,12 +324,21 @@ function updateCompanyData(chart, newData, resetChart) {
     for (var i in JSONData) {
         timeData.push(JSONData[i].TIME_STAMP);
         capacity.push(JSONData[i].CAPACITY);
+        production.push(JSONData[i].PRODUCTION);
     };
+
+    let Utilization = new Array(timeData.length);
+
+    for(i=0; i<timeData.length; i++) {
+        Utilization[i]=production[i]/capacity[i];
+        //Unemployment.push((no_consumers - employed[i])/no_consumers);
+
+    }
 
 
     chart.data.labels = timeData;
-    chart.data.datasets[0].data = capacity;
-
+    //chart.data.datasets[0].data = capacity;
+    chart.data.datasets[1].data = Utilization;
     chart.update();
 
 }
@@ -339,6 +355,13 @@ initiateCompanyTable = function (myChart) {
             {
                 label: "Capacity",
                 borderColor: "black",
+                pointRadius: 0,
+                data: [0]
+
+            },
+            {
+                label: "Utilization",
+                borderColor: "blue",
                 pointRadius: 0,
                 data: [0]
 
