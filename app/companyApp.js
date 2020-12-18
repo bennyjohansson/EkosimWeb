@@ -145,8 +145,8 @@ function countryChange() {
     var myCountry = getCountry();
     document.getElementById("countryText").innerHTML = myCountry;
 
-    refreshCompanyData('COMPANY_TABLE', myMoneyChart, updateCompanyData);
-
+    refreshCompanyData('COMPANY_TABLE', myMoneyChart1, updateCompanyData);
+    refreshCompanyData('COMPANY_TABLE', myMoneyChart2, updateCompanyData);
 
 }
 
@@ -241,25 +241,25 @@ var getDatabaseLink = function () {
 
 
 
-function addMoreCompanyData(table, chart, mycallback) {
+function addMoreCompanyData(table, chart1, chart2, mycallback) {
 
-    timeStamp = myMoneyChart.data.labels[myMoneyChart.data.labels.length - 1];
+    timeStamp = chart1.data.labels[chart1.data.labels.length - 1];
     //console.log(timeStamp);
 
-    getCompanyData(chart, timeStamp, mycallback, 0);
+    getCompanyData(chart1, chart2, timeStamp, mycallback, 0);
 
 }
 
-function refreshCompanyData(table, chart, mycallback) {
+function refreshCompanyData(table, chart1, chart2, mycallback) {
 
     timeStamp = 0; //myGDPChart.data.labels[myGDPChart.data.labels.length - 1];
 
-    getCompanyData(chart, timeStamp, mycallback, 1);
+    getCompanyData(chart1, chart2, timeStamp, mycallback, 1);
 
 }
 
 
-function getCompanyData(chart, timeStamp, mycallback, resetChart) {
+function getCompanyData(chart1, chart2, timeStamp, mycallback, resetChart) {
 
     //var lastTimestamp = 0;
     var myCountry = getCountry();
@@ -286,7 +286,7 @@ function getCompanyData(chart, timeStamp, mycallback, resetChart) {
             //console.log("response: " + response); //Correctly prints JSON content to console
 
             // call it here
-            mycallback(chart, response, resetChart);
+            mycallback(chart1, chart2, response, resetChart);
         }
     }
     xhr.send(null);
@@ -294,16 +294,16 @@ function getCompanyData(chart, timeStamp, mycallback, resetChart) {
 
 }
 
-function updateCompanyData(chart, newData, resetChart) {
+function updateCompanyData(chart1, chart2, newData, resetChart) {
 
     //Parsing API-data
     var JSONData = JSON.parse(newData).data;
     //console.log(JSONData);
 
     if (resetChart == 0) {
-        var timeData = chart.data.labels;
-        var capacity = chart.data.datasets[0].data;
-        var production = chart.data.datasets[1].data;
+        var timeData = chart1.data.labels;
+        var capacity = chart1.data.datasets[0].data;
+        var production = chart1.data.datasets[1].data;
     }
     else {
 
@@ -326,23 +326,31 @@ function updateCompanyData(chart, newData, resetChart) {
     let Utilization = new Array(timeData.length);
 
     for(i=0; i<timeData.length; i++) {
-        Utilization[i]=production[i]/capacity[i];
+        if(capacity[i] == 0) {
+            Utilization[i] = 0;
         //Unemployment.push((no_consumers - employed[i])/no_consumers);
-
+        }
+        else{
+            Utilization[i]=production[i]/capacity[i];
+        }
     }
+    //console.log(Utilization);
 
+    chart1.data.labels = timeData;
+    chart1.data.datasets[0].data = capacity;
+    chart1.data.datasets[1].data = production;
+    chart1.update();
 
-    chart.data.labels = timeData;
-    //chart.data.datasets[0].data = capacity;
-    chart.data.datasets[1].data = Utilization;
-    chart.update();
+    chart2.data.labels = timeData;
+    chart2.data.datasets[0].data = Utilization;
+    chart2.update();
 
 }
 
 
 
 
-initiateCompanyTable = function (myChart) {
+initiateCompanyTable1 = function (myChart) {
 
 
     var chartData = {
@@ -355,6 +363,26 @@ initiateCompanyTable = function (myChart) {
                 data: [0]
 
             },
+            {
+                label: "Production",
+                borderColor: "blue",
+                pointRadius: 0,
+                data: [0]
+
+            }
+        ]
+    };
+
+    myChart.data = chartData;
+
+};
+
+initiateCompanyTable2 = function (myChart) {
+
+
+    var chartData = {
+        labels: [0],
+        datasets: [
             {
                 label: "Utilization",
                 borderColor: "blue",
@@ -429,9 +457,10 @@ Chart.defaults.global.elements.line.fill = false;
 /*
 * INITIATING COMPANY CHART
 */
-var ctxMoney = document.getElementById('myMoneyChart').getContext("2d");
+var ctxMoney1 = document.getElementById('myMoneyChart1').getContext("2d");
+var ctxMoney2 = document.getElementById('myMoneyChart2').getContext("2d");
 
-var myMoneyChart = new Chart(ctxMoney, {
+var myMoneyChart1 = new Chart(ctxMoney1, {
     type: 'line',
     data: {
     },
@@ -449,7 +478,28 @@ var myMoneyChart = new Chart(ctxMoney, {
     }
 });
 
-initiateCompanyTable(myMoneyChart);
+var myMoneyChart2 = new Chart(ctxMoney2, {
+    type: 'line',
+    data: {
+    },
+    options: {
+        legend: {
+            position: "top"
+        },
+        animation: {
+            duration: 0
+        },
+        title: {
+            display: true,
+            text: 'Company development2'
+        }
+    }
+});
+
+
+initiateCompanyTable1(myMoneyChart1);
+initiateCompanyTable2(myMoneyChart2);
+
 
 
 
@@ -464,7 +514,7 @@ initiateCompanyTable(myMoneyChart);
 */
 
 setInterval(function () {
-    addMoreCompanyData('COMPANY_TABLE', myMoneyChart, updateCompanyData);
+    addMoreCompanyData('COMPANY_TABLE', myMoneyChart1, myMoneyChart2, updateCompanyData);
     populateParameters(0);
 
 }, 2000);
