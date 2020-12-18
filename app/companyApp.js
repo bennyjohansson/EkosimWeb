@@ -137,6 +137,9 @@ function companyChange() {
 
     document.getElementById("selectedCompany").innerHTML = myCompany;
 
+    refreshCompanyData('COMPANY_TABLE', myMoneyChart1,myMoneyChart2, updateCompanyData);
+
+
 
 }
 
@@ -145,8 +148,7 @@ function countryChange() {
     var myCountry = getCountry();
     document.getElementById("countryText").innerHTML = myCountry;
 
-    refreshCompanyData('COMPANY_TABLE', myMoneyChart1, updateCompanyData);
-    refreshCompanyData('COMPANY_TABLE', myMoneyChart2, updateCompanyData);
+    refreshCompanyData('COMPANY_TABLE', myMoneyChart1,myMoneyChart2, updateCompanyData);
 
 }
 
@@ -166,7 +168,6 @@ var getParameter = function (parameter, mycallback) {
     url = url.concat('?parameterID=');
     url = url.concat(parameter);
 
-    console.log(url);
 
     var xhr = new XMLHttpRequest();
     xhr.open('GET', url, true);
@@ -276,7 +277,6 @@ function getCompanyData(chart1, chart2, timeStamp, mycallback, resetChart) {
     url = url.concat('&myCompany=' + myCompany)
 
     //console.log(url);
-
     var xhr = new XMLHttpRequest();
     xhr.open('GET', url, true);
     xhr.onreadystatechange = function () {
