@@ -142,14 +142,10 @@ function companyChange() {
 
 function countryChange() {
 
-    //var myCountry = document.getElementById("CountryCombo").value;
-    //Testing
     var myCountry = getCountry();
     document.getElementById("countryText").innerHTML = myCountry;
 
     refreshCompanyData('COMPANY_TABLE', myMoneyChart, updateCompanyData);
-    //refreshGDPData('TIME_DATA', myGDPChart, myDIVChart, updateGDPData);
-
 
 
 }
