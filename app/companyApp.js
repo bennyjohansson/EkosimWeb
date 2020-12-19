@@ -110,6 +110,7 @@ function populateCallback(companyParameters, initialUpdate) {
     var capacity = JSONData[0].CAPACITY;
     var wage_ch = JSONData[0].WAGE_CH;
     var production = JSONData[0].PRODUCTION;
+    var employees = JSONData[0].EMPLOYEES;
     var utilization = production/capacity;
     utilization = utilization.toFixed(3)*100;
 
@@ -122,7 +123,7 @@ function populateCallback(companyParameters, initialUpdate) {
     }
     document.getElementById("Capacity").value = capacity;
     document.getElementById("Utilization").value = utilization;
-
+    document.getElementById("Employees").value = employees;
 
 }
 
@@ -304,12 +305,14 @@ function updateCompanyData(chart1, chart2, newData, resetChart) {
         var timeData = chart1.data.labels;
         var capacity = chart1.data.datasets[0].data;
         var production = chart1.data.datasets[1].data;
+        var employeesx1000 = chart1.data.datasets[2].data;
     }
     else {
 
         var timeData = [];
         var capacity = [];
         var production = [];
+        var employeesx1000 = [];
 
     }
 
@@ -321,6 +324,7 @@ function updateCompanyData(chart1, chart2, newData, resetChart) {
         timeData.push(JSONData[i].TIME_STAMP);
         capacity.push(JSONData[i].CAPACITY);
         production.push(JSONData[i].PRODUCTION);
+        employeesx1000.push(JSONData[i].EMPLOYEES*1000);
     };
 
     let Utilization = new Array(timeData.length);
@@ -334,11 +338,11 @@ function updateCompanyData(chart1, chart2, newData, resetChart) {
             Utilization[i]=production[i]/capacity[i];
         }
     }
-    //console.log(Utilization);
 
     chart1.data.labels = timeData;
     chart1.data.datasets[0].data = capacity;
     chart1.data.datasets[1].data = production;
+    chart1.data.datasets[2].data = (employeesx1000);
     chart1.update();
 
     chart2.data.labels = timeData;
@@ -366,6 +370,13 @@ initiateCompanyTable1 = function (myChart) {
             {
                 label: "Production",
                 borderColor: "blue",
+                pointRadius: 0,
+                data: [0]
+
+            }, 
+            {
+                label: "Employees*1000",
+                borderColor: "green",
                 pointRadius: 0,
                 data: [0]
 
