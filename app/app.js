@@ -741,6 +741,52 @@ function load_combo (select_id, option_array) {
     }
 }
 
+function populateParameters(initialUpdate) {
+
+
+    getCountryParameters(initialUpdate, populateCallback);
+}
+
+function populateCallback(companyParameters, initialUpdate) {
+
+    var JSONData = JSON.parse(companyParameters).data;
+
+    //var wage_const = JSONData[0].WAGE_CONST;
+
+
+    if(initialUpdate){
+        //document.getElementById("Reinvest").value = pbr*100;
+
+    }
+    //document.getElementById("Capacity").value = capacity;
+
+}
+
+var getCountryParameters = function (initialUpdate, mycallback) {
+
+    // var myCountry = getCountry();
+
+    // var url = 'http://ekosimweb-env.eba-66jamvpz.us-east-2.elasticbeanstalk.com/ekosim/getCompany/';
+    // url = url.concat(myCountry);
+
+    // //console.log(url);
+
+    // var xhr = new XMLHttpRequest();
+    // xhr.open('GET', url, true);
+    // xhr.onreadystatechange = function () {
+    //     //console.log(xhr.readyState);
+    //     if (xhr.readyState == 4) { //XMLHttpRequest.DONE
+    //         var response = xhr.responseText;
+    //         //console.log("response: " + response); //Correctly prints JSON content to console
+
+    //         // call it here
+    //         mycallback(response, initialUpdate);
+    //     }
+    // }
+    // xhr.send(null);
+
+};
+
 
 function countryChange() {
 
