@@ -1,7 +1,24 @@
-.btn {
+/* .btn {
 
     width: 220px
+} */
+
+.form-button {
+
+  width: 50px
 }
+
+.form-control {
+
+  width: 50px
+}
+
+.ok-group {
+  float: none; /* if you had floats before? otherwise inline-block will behave differently */
+    display: inline-block;
+}
+
+.label { font-size: 25% }
 
 body.company-body{
 
@@ -49,6 +66,11 @@ canvas {
   .input-group-text {
     width: 150px;
     }
+
+    /* .my-small-btn {
+      width: 10px;
+
+    } */
 
     /* .ok-group {
       width: 75px;

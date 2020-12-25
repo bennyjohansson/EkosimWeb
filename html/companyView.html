@@ -84,10 +84,24 @@
         </div>
     </div>
 
-
+    
 
     <!-- PARAMETER TABLE -->
     <div class="container parameter-table">
+
+        <div class="row form-group">
+            
+            <div class="col text-center my-companies">
+                <select class="custom-select mr-sm-2" id="companySelect"> </select>
+            </div>
+            <div class="col">
+                <p class="mb-0 text-center" id="selectedCompany">bempa_AB</p>
+            </div>
+            <div class="col">
+                <button type="button" class="btn btn-light">Add New company </button>
+            </div>
+            <div class="col"> </div>
+        </div>
 
         <div class="row form-group">
             <div class="col">
@@ -95,25 +109,12 @@
                 <input type="checkbox" class="form-check-input" id="checkChangeAll">
                 <label class="form-check-label" for="exampleCheck1"> Change all</label>
             </div>
-            <div class="col-3 text-center my-companies">
-                <select class="custom-select mr-sm-2" id="companySelect">
-                    <!-- <select class="form-control form-control-sm" id="companySelect"> </select> -->
+                
+            <div class="col">
+                <input type="checkbox" class="form-check-input" id="PayCash">
+                <label class="form-check-label" for="PayCash"> Pay cash </label>
+            </div>
 
-                    <!-- <option selected>Choose company</option>
-                    <option value="1">Bempa AB</option>
-                    <option value="2">Benny Inc. </option>
-                    <option value="3">johansson & johansson </option>
-                    <option value="3">Limpan AB </option>
-                    <option value="3">Bempa Co </option> -->
-                </select>
-            </div>
-            <div class="col-3">
-                <p class="mb-0 text-center" id="selectedCompany">bempa_AB</p>
-            </div>
-            <div class="col-3">
-                <button type="button" class="btn btn-light">Add New company </button>
-            </div>
-            <div class="col"> </div>
         </div>
 
         <div class="row form-group">

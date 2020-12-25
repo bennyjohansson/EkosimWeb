@@ -5,7 +5,7 @@
 <head>
     <!-- required tags -->
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">    
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="./css/style.css">
 
@@ -93,144 +93,148 @@
             <div class="col-md-6 my-input center-block">
 
                 <!-- FIRST INPUT ROW -->
-                <div class="row second-input-row">
-
+                <div class="row first-input-row">
                     <!-- First col -->
-                    <div class="col-md" >
-                        <label for="interestRateInput" data-toggle="tooltip" data-placement="top" title="Target interest rate in model">Interest %</label>
+                    <div class="col-mb-3">
+                        <label for="interestRateInput" data-toggle="tooltip" data-placement="top"
+                            title="Target interest rate in model">Interest %</label>
                         <div class="input-group mb-3">
-                            <!-- <div class="input-group-prepend">
-                                <span class="input-group-text" id="Interest"> Interst rate %</span>
-                            </div> -->
-                            <input type="text" class="form-control" id = "interestRateInput" placeholder="4" value="4" aria-label="Interest"
-                                aria-describedby="basic-addon1">
+                            <input type="text" class="form-control" id="interestRateInput" placeholder="4" value="4"
+                                aria-label="Interest" aria-describedby="basic-addon1">
+                                <div class="input-group-append">
+                                    <button type="button" id="SetFixedRateButton" class="btn btn-primary btn-small ok-button"> Set
+                                </button>
+                                </div>
                         </div>
                     </div>
-
-                    <div class="col-md ok-group">
-                        <label for="SetFixedRateButton">&nbsp;</label>
-                        <button type="button" id = "SetFixedRateButton" class="btn btn-primary btn-small ok-button"> Set </button>
-                        <!-- <button type="button" id = "SetFixedRateButton" onclick="changeInterestRate2()" class="btn btn-primary btn-small ok-button"> Set </button> -->
-
-                    </div>
-
                 </div>
 
                 <!-- SECOND INPUT ROW -->
                 <div class="row second-input-row">
 
                     <!-- First col -->
-                    <div class="col">
-                        <label for="spendwillInput" data-toggle="tooltip" data-placement="top" title="Average share of available capital a consumer spend. Deposit amount sensitive to interest rate.">Spendwill %</label>
+                    <div class="col-mb-3">
+                        <label for="spendwillInput" data-toggle="tooltip" data-placement="top"
+                            title="Average share of available capital a consumer spend. Deposit amount sensitive to interest rate.">Spendwill
+                            %</label>
                         <div class="input-group mb-3">
-                            <!-- <div class="input-group-prepend">
-                                <span class="input-group-text" id="Spendwill"> Avg. Spendwill %</span>
-                            </div> -->
-                            <input type="text" class="form-control" id = "spendwillInput" placeholder="70" value="70" aria-label="Interest"
-                                aria-describedby="basic-addon1">
-                            
+                            <input type="text" class="form-control" id="spendwillInput" placeholder="70" value="70"
+                                aria-label="Interest" aria-describedby="basic-addon1">
+                                <div class="input-group-append">
+                                    <button type="button" id="SetAvgSpendwillButton" class="btn btn-primary btn-small ok-button">
+                                    Set
+                                </button>
+                                </div>
+        
                         </div>
                     </div>
-                    <div class="col-md ok-group">
-                        <label for="SetAvgSpendwillButton">&nbsp;</label>
-                        <button type="button" id = "SetAvgSpendwillButton" class="btn btn-primary btn-small ok-button"> Set </button>
-                        <!-- <button type="button" id = "SetFixedRateButton" onclick="changeInterestRate2()" class="btn btn-primary btn-small ok-button"> Set </button> -->
-
-                    </div>
-
                 </div>
 
                 <!-- THIRD INPUT ROW -->
                 <div class="row third-input-row">
                     <!-- First col -->
-                    <div class="col">
-                        <label for="borrowwillInput" data-toggle="tooltip" data-placement="top" title="Parameter to control how much a consumer borrows. Correlated with interest rate.">Borowwill %</label>
+                    <div class="col-mb-3">
+                        <label for="borrowwillInput" data-toggle="tooltip" data-placement="top"
+                            title="Parameter to control how much a consumer borrows. Correlated with interest rate.">Borowwill
+                            %</label>
                         <div class="input-group mb-3">
-                            <!-- <div class="input-group-prepend">
-                                <span class="input-group-text" id="Borowwill"> Avg. Borrowwill % </span>
-                            </div> -->
-                            <input type="text" class="form-control" id="borrowwillInput" value = "1" placeholder="1" aria-label="WageCh"
-                                aria-describedby="basic-addon1">
-                            
+                            <input type="text" class="form-control" id="borrowwillInput" value="1" placeholder="1"
+                                aria-label="WageCh" aria-describedby="basic-addon1">
+                                <div class="input-group-append">
+                                    <button type="button" id="SetAvgBorowwillButton" class="btn btn-primary btn-small ok-button">
+                                    Set
+                                </button>
+                                </div>
                         </div>
                     </div>
-
-                    <div class="col-md ok-group">
-                        <label for="SetAvgBorowwillButton">&nbsp;</label>
-                        <button type="button" id = "SetAvgBorowwillButton" class="btn btn-primary btn-small ok-button"> Set </button>
-                    </div>
-                    
                 </div>
 
                 <!-- FOURTH INPUT ROW -->
                 <div class="row third-input-row">
                     <!-- First col -->
-                    <div class="col">
-                        <label for="inflationInput" data-toggle="tooltip" data-placement="top" title="Indicator of target wage-inflation. Controlled by money printing for budget deficit (QE).">Inflation Target %</label>
+                    <div class="col-mb-3">
+                        <label for="inflationInput" data-toggle="tooltip" data-placement="top"
+                            title="Indicator of target wage-inflation. Controlled by money printing for budget deficit (QE).">Inflation
+                            Target %</label>
                         <div class="input-group mb-3">
                             <!-- <div class="input-group-prepend">
                                 <span class="input-group-text" id="inflationTarget"> Inflation Target % </span>
                             </div> -->
-                            <input type="text" class="form-control" id="inflationInput" value = "1" placeholder="1" aria-label="WageCh"
-                                aria-describedby="basic-addon1">
-                            
+                            <input type="text" class="form-control" id="inflationInput" value="1" placeholder="1"
+                                aria-label="WageCh" aria-describedby="basic-addon1">
+                            <div class="input-group-append">
+
+                                <button type="button" id="SetInflationTargetButton"
+                                    class="btn btn-primary btn-small ok-button">
+                                    Set
+                                </button>
+                            </div>
                         </div>
                     </div>
-
-                    <div class="col-md ok-group">
-                        <label for="SetInflationTargetButton">&nbsp;</label>
-                        <button type="button" id = "SetInflationTargetButton" class="btn btn-primary btn-small ok-button"> Set </button>
-                    </div>
-                    
                 </div>
 
                 <!-- FIFTH INPUT ROW -->
                 <div class="row third-input-row">
                     <!-- First col -->
-                    <div class="col">
-                        <label for="incomeTax" data-toggle="tooltip" data-placement="top" title="Income tax as percentage of salary. Distributed evenly among citizens.">Income Tax %</label>
+                    <div class="col-mb-3">
+                        <label for="incomeTax" data-toggle="tooltip" data-placement="top"
+                            title="Income tax as percentage of salary. Distributed evenly among citizens.">Income Tax
+                            %</label>
                         <div class="input-group mb-3">
-                            <!-- <div class="input-group-prepend">
-                                <span class="input-group-text" id="incomeTax"> Income Tax % % </span>
-                            </div> -->
-                            <input type="text" class="form-control" id="incomeTaxInput" value = "30" placeholder="30" aria-label="WageCh"
-                                aria-describedby="basic-addon1">
-                            
+                            <input type="text" class="form-control" id="incomeTaxInput" value="30" placeholder="30"
+                                aria-label="WageCh" aria-describedby="basic-addon1">
+                            <div class="input-group-append">
+
+                                <button type="button" id="SetIncomeTaxButton"
+                                    class="btn btn-primary btn-small ok-button">
+                                    Set
+                                </button>
+                            </div>
                         </div>
                     </div>
-
-                    <div class="col-md ok-group">
-                        <label for="SetIncomeTaxButton">&nbsp;</label>
-                        <button type="button" id = "SetIncomeTaxButton" class="btn btn-primary btn-small ok-button"> Set </button>
-                    </div>
-                    
                 </div>
 
                 <!-- SIXTH INPUT ROW -->
                 <div class="row third-input-row">
                     <!-- First col -->
-                    <div class="col">
-                        <label for="budgetBalanceInput" data-toggle="tooltip" data-placement="top" title="Budget balance. Surplus paid directly to consumers as social benefit. Works similiar to inflation target.">Budget Balance %</label>
-                        <div class="input-group mb-3">
-                            <!-- <div class="input-group-prepend">
-                                <span class="input-group-text" id="budgetBalance"> Budget Balance % </span>
-                            </div> -->
-                            <input type="text" class="form-control" id="budgetBalanceInput" value = "0" placeholder="1" aria-label="WageCh"
-                                aria-describedby="basic-addon1">
-                            
+                    <div class="col-mb-3">
+                        <label for="budgetBalanceInput" data-toggle="tooltip" data-placement="top"
+                            title="Budget balance. Surplus paid directly to consumers as social benefit. Works similiar to inflation target.">Budget
+                            Balance %</label>
+                        <div class="input-group mb">
+                            <input type="text" class="form-control" id="budgetBalanceInput" value="0" placeholder="1"
+                                aria-label="WageCh" aria-describedby="basic-addon1">
+
+                            <div class="input-group-append">
+                                <button type="button" id="SetBudgetBalanceButton"
+                                    class="btn btn-primary btn-small ok-button">Set</button>
+                            </div>
                         </div>
                     </div>
-
-                    <div class="col-md ok-group">
-                        <label for="SetBudgetBalanceButton">&nbsp;</label>
-                        <button type="button" id = "SetBudgetBalanceButton" class="btn btn-primary btn-small ok-button"> Set </button>
-                    </div>
-                    
                 </div>
+                <br>
+
+                <!-- SEVENTH INPUT ROW -->
+                <div class="row seventh-input-row">
+                    <!-- First col -->
+                    <div class="col-mb-3">
+                        <label for="teststuff" class="control-label" data-toggle="tooltip" data-placement="top"
+                            title="Budget balance. Surplus paid directly to consumers as social benefit. Works similiar to inflation target.">Budget
+                            Balance %</label>
+
+                        <div class="input-group mb">
+                            <input type="text" class="form-control" value="4" id="teststuff">
+                            <div class="input-group-append">
+                                <button class="btn-primary btn-small form-button" type="button">Ok</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
-<br>
+    <br>
 
     <hr />
     <!-- Footer -->
@@ -259,7 +263,7 @@
         crossorigin="anonymous"></script>
 
     <script>
-        $(document).ready(function(){
+        $(document).ready(function () {
             $('[data-toggle="tooltip"]').tooltip();
         });
     </script>
