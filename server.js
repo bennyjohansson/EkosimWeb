@@ -289,7 +289,7 @@ app.get('/ekosim/worldtable/', (req, res, next) => {
 app.get('/ekosim/getHighScore/', (req, res, next) => {
 
     //var lastTime = [req.datab.lastTimestamp];
-    //console.log(lastTime)
+    console.log("HALLÅ ELLER I SERVER HIGH SCORE")
 
     myTable = getWorldTable('HIGH_SCORE');
 
