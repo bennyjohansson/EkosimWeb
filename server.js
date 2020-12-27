@@ -286,72 +286,69 @@ app.get('/ekosim/worldtable/', (req, res, next) => {
 
 });
 
-app.get('/ekosim/getHighScore/:myWorld', (req, res, next) => {
+app.get('/ekosim/getHighScore/', (req, res, next) => {
 
-    var myPath = './myDB/';
-    var myWorld = req.params.myWorld; // //
-    var myDatabase = myPath.concat(myWorld);
-    myDatabase = myDatabase.concat('.db');
+    //var lastTime = [req.datab.lastTimestamp];
+    //console.log(lastTime)
 
-    console.log(myDatabase);
     myTable = getWorldTable('HIGH_SCORE');
 
     var mytableJSON = myTable.then((result) => {
-
+        //console.log(result[31]) // "Some User token"
+        //return result[31];
         return res.json({
             "message": "success",
             "data": result
         })
     });
-
-
-    //console.log(mytableJSON)
-
-});
-
-app.get('/ekosim/paramtest/', (req, res) => {
-    console.log(req.query.paramA);
-
-    if (typeof req.query.paramA !== 'undefined' && typeof req.query.paramB !== 'undefined') {
-        let paramA = req.query.paramA;
-        let paramB = req.query.paramB;
-        //do something with paramA and paramB
-        console.log(paramA);
-        console.log(paramB);
-        res.send('Parameters identified: ' + paramA + ' and ' + paramB);
-    }
-    else {
-        console.log("Cant get parmeters");
-        res.status(500).send({ error: "Cant get parmeters" });
-
-    }
-
+    console.log(mytableJSON)
 
 });
 
 
+    app.get('/ekosim/paramtest/', (req, res) => {
+        console.log(req.query.paramA);
+
+        if (typeof req.query.paramA !== 'undefined' && typeof req.query.paramB !== 'undefined') {
+            let paramA = req.query.paramA;
+            let paramB = req.query.paramB;
+            //do something with paramA and paramB
+            console.log(paramA);
+            console.log(paramB);
+            res.send('Parameters identified: ' + paramA + ' and ' + paramB);
+        }
+        else {
+            console.log("Cant get parmeters");
+            res.status(500).send({ error: "Cant get parmeters" });
+
+        }
+
+
+    });
 
 
 
-/*const port = process.env.port || 3000;
-app.listen(3000, function () {
 
 
-    console.log('Forst API running on port 3000');
-});
-*/
+    /*const port = process.env.port || 3000;
+    app.listen(3000, function () {
+    
+    
+        console.log('Forst API running on port 3000');
+    });
+    */
 
-app.get("/", (req, res, next) => {
-    console.log(__dirname + '/index.html');
-    res.sendFile(__dirname + '/index.html');
-    //res.json(["Tony","Lisa","Michael","Ginger","Food"]);
+    app.get("/", (req, res, next) => {
+        console.log(__dirname + '/index.html');
+        res.sendFile(__dirname + '/index.html');
+        //res.json(["Tony","Lisa","Michael","Ginger","Food"]);
 
-});
+    });
 
-//8080
-app.listen(8080, function () {
+    //8080
+    app.listen(8080, function () {
 
 
-    console.log('Forst API running on port 8080');
-    //console.log(port);
-});
+        console.log('Forst API running on port 8080');
+        //console.log(port);
+    });
