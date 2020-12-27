@@ -286,6 +286,29 @@ app.get('/ekosim/worldtable/', (req, res, next) => {
 
 });
 
+app.get('/ekosim/getHighScore/:myWorld', (req, res, next) => {
+
+    var myPath = './myDB/';
+    var myWorld = req.params.myWorld; // //
+    var myDatabase = myPath.concat(myWorld);
+    myDatabase = myDatabase.concat('.db');
+
+    console.log(myDatabase);
+    myTable = getWorldTable('HIGH_SCORE');
+
+    var mytableJSON = myTable.then((result) => {
+
+        return res.json({
+            "message": "success",
+            "data": result
+        })
+    });
+
+
+    //console.log(mytableJSON)
+
+});
+
 app.get('/ekosim/paramtest/', (req, res) => {
     console.log(req.query.paramA);
 
@@ -332,73 +355,3 @@ app.listen(8080, function () {
     console.log('Forst API running on port 8080');
     //console.log(port);
 });
-
-/*
-* --------------------------
-*/
-
-// app.get('/ekosim/readmoney/', (req, res, next) => {
-
-//     let db = new sqlite3.Database('./myDB/Bennyland.db', sqlite3.OPEN_READONLY, (err) => {
-//         if (err) {
-//             console.error(err.message);
-//         }
-//         console.log('Connected to the ekosim database.');
-//     });
-
-//     var params = [];
-//     var sql = "select * from MONEY_DATA"// InterestRateMethod TargetInterestRate
-//     //params = [];
-//     //console.log(sql);
-//     //console.log(params);
-//     db.get(sql, params, (err, row) => {
-//         if (err) {
-//             res.status(400).json({ "error": err.message });
-//             return;
-//         }
-//         res.json({
-//             "message": "success",
-//             "data": row
-//         })
-//         //console.log(row)
-//     });
-
-//     //Closing the database
-//     db.close((err) => {
-//         if (err) {
-//             console.error(err.message);
-//         }
-//         console.log('Close the database connection.');
-//     });
-// });
-
-// app.get('/ekosim/test', (req, res, next) => {
-
-
-
-//     res.json({
-//                 "message": "success",
-//                  "data": "Test succeeded"});
-
-// });
-
-
-
-// app.get('/ekosim/readmoneytable/:table', (req, res, next) => {
-
-//     var myGetTable = [req.params.table];
-//     myTable = resolveReturnTable(myGetTable);
-
-//     var mytableJSON = myTable.then((result) => {
-//         //console.log(result[31]) // "Some User token"
-//         //return result[31];
-//         return res.json({
-//             "message": "success",
-//             "data": result
-//         })
-//     });
-
-
-//     //console.log(mytableJSON)
-
-// });

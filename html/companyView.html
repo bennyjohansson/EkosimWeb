@@ -125,23 +125,24 @@
                 <div class="row first-input-row">
                     <!-- First col -->
                     <div class="col-md center-block">
-                        <div class="input-group mb-3">
 
-                            <div class="input-group-prepend">
-                                <span class="input-group-text" id="basic-addon1"> Wage const % </span>
-
-                            </div>
+                        <label for="WageConst" data-toggle="tooltip" data-placement="top"
+                            title="Share of sales theat goes to wages">Wage const %</label>
+                        <div class="input-group mb-3">                            
                             <input type="text" class="form-control" placeholder="20" id="WageConst"
                                 aria-label="WageConst" aria-describedby="basic-addon1">
+                            <button type="button" class="btn btn-primary btn-small ok-button" id="setWageConstButton"> Ok
+                                </button>
+        
                         </div>
-                    </div>
-                    <div class="col-md ok-group">
-                        <button type="button" class="btn btn-primary btn-small ok-button" id="setWageConstButton"> Ok
-                        </button>
                     </div>
 
                     <!-- Second col -->
                     <div class="col-md center-block">
+
+                        <label for="Capacity" data-toggle="tooltip" data-placement="top"
+                            title="Max capacity">Capacity</label>
+
                         <div class="input-group mb-3">
                             <div class="input-group-prepend">
                                 <span class="input-group-text" id="basic-addon1"> Capacity </span>
@@ -156,21 +157,20 @@
                 <div class="row second-input-row">
                     <!-- First col -->
                     <div class="col">
+                        <label for="Reinvest" data-toggle="tooltip" data-placement="top"
+                            title="Max capacity">Reinvest %</label>
+
                         <div class="input-group mb-3">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text" id="basic-addon1"> Reinvest %</span>
-                            </div>
                             <input type="text" class="form-control" placeholder="50" id="Reinvest" aria-label="Reinvest"
                                 aria-describedby="basic-addon1">
-
-                        </div>
-                    </div>
-                    <div class="col-md ok-group">
-                        <button type="button" class="btn btn-primary btn-small ok-button" id="setReinvestButton"> Ok </button>
+                                <button type="button" class="btn btn-primary btn-small ok-button" id="setReinvestButton"> Ok </button>
+                            </div>
                     </div>
 
                     <!-- Second col -->
-                    <div class="col">
+                    <div class="col-md center-block">
+                        <label for="Employees" data-toggle="tooltip" data-placement="top"
+                        title="Employees">Capacity</label>
                         <div class="input-group mb-3">
                             <div class="input-group-prepend">
                                 <span class="input-group-text" id="basic-addon1"> Employees </span>
@@ -185,23 +185,20 @@
                 <!-- THIRD INPUT ROW -->
                 <div class="row third-input-row">
                     <!-- First col -->
-                    <div class="col">
+                    <div class="col-md center-block">
+                        <label for="WageCh" data-toggle="tooltip" data-placement="top"
+                        title="WageCh">Wage ch lim %</label>
                         <div class="input-group mb-3">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text" id="basic-addon1"> Wage ch lim % </span>
-                            </div>
                             <input type="text" class="form-control" placeholder="1" id="WageCh" aria-label="WageCh"
                                 aria-describedby="basic-addon1">
-
-                        </div>
-                    </div>
-
-                    <div class="col-md ok-group">
-                        <button type="button" class="btn btn-primary btn-small ok-button" id="setWageChangeButton"> Ok </button>
+                                <button type="button" class="btn btn-primary btn-small ok-button" id="setWageChangeButton"> Ok </button>
+                            </div>
                     </div>
 
                     <!-- Second col -->
                     <div class="col">
+                        <label for="Utilization" data-toggle="tooltip" data-placement="top"
+                        title="WageCh">Utilization %</label>
                         <div class="input-group mb-3">
                             <div class="input-group-prepend">
                                 <span class="input-group-text" id="basic-addon1"> Utilization % </span>
