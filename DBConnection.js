@@ -102,7 +102,7 @@ getWorldTable = function (table) { //database, table
             console.log('Connected to the Bennyworld database.');
         });
         const queries = [];
-        //console.log(`SELECT rowid as key, * FROM ${table} WHERE TIME > ${lastTime}`);
+        console.log(`SELECT rowid as key, * FROM ${table} `);
         db.each(`SELECT rowid as key, * FROM ${table} `, (err, row) => {
             //db.each(`SELECT rowid as key, * FROM MONEY_DATA`, (err, row) => {
             if (err) {
