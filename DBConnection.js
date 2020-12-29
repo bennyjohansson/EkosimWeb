@@ -127,6 +127,8 @@ getWorldTable = function (table) { //database, table
     });
 }
 
+
+
 getTable = function (myDatabase, table) { //database, table
     console.log(myDatabase);
     return new Promise((resolve, reject) => {
