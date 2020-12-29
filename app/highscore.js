@@ -21,7 +21,7 @@ function populateTable(myData, table) {
             for (key in element) {
                 if (key != "key" && key != "ID") {
                     if(key == "GROWTH") {
-                        elementValueStr = parseFloat(element[key]).toFixed(2).toString();
+                        elementValueStr = (parseFloat(element[key])*100).toFixed(2).toString();
                         //elementValueStr = elementValueNum.toString();
                     }
                     else {
