@@ -81,6 +81,14 @@ function changeIncomeTax() {
 
 }
 
+function changeCapitalGainsTax() {
+    var set_capitalgainstax = document.getElementById("capitalGainsTaxInput").value/100;
+    putParameter('CapitalGainsTax', set_capitalgainstax);
+
+}
+
+
+
 function changeBudgetBalance() {
     var set_budgetbalance = document.getElementById("budgetBalanceInput").value/100;
     putParameter('BudgetBalance', set_budgetbalance);
@@ -811,6 +819,8 @@ document.getElementById("SetAvgSpendwillButton").addEventListener("click", chang
 document.getElementById("SetAvgBorowwillButton").addEventListener("click", changeBorrowwill);
 document.getElementById("SetInflationTargetButton").addEventListener("click", changeInflationTarget);
 document.getElementById("SetIncomeTaxButton").addEventListener("click", changeIncomeTax);
+document.getElementById("SetCapitalGainsTaxButton").addEventListener("click", changeCapitalGainsTax);
+
 document.getElementById("SetBudgetBalanceButton").addEventListener("click", changeBudgetBalance);
 
 //document.getElementById("SetFixedRateButton").addEventListener("click", changeInterestRate2);

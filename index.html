@@ -177,7 +177,7 @@
                 <div class="row third-input-row">
                     <!-- First col -->
                     <div class="col-mb-3">
-                        <label for="incomeTax" data-toggle="tooltip" data-placement="top"
+                        <label for="incomeTaxInput" data-toggle="tooltip" data-placement="top"
                             title="Income tax as percentage of salary. Distributed evenly among citizens.">Income Tax
                             %</label>
                         <div class="input-group mb-3">
@@ -186,6 +186,27 @@
                             <div class="input-group-append">
 
                                 <button type="button" id="SetIncomeTaxButton"
+                                    class="btn btn-primary btn-small ok-button">
+                                    Set
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FIFTH INPUT ROW -->
+                <div class="row third-input-row">
+                    <!-- First col -->
+                    <div class="col-mb-3">
+                        <label for="capitalGainsTaxInput" data-toggle="tooltip" data-placement="top"
+                            title="Capital gains tax as percentage of dividends. Distributed evenly among citizens.">Capital gains Tax
+                            %</label>
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control" id="capitalGainsTaxInput" value="30" placeholder="30"
+                                aria-label="WageCh" aria-describedby="basic-addon1">
+                            <div class="input-group-append">
+
+                                <button type="button" id="SetCapitalGainsTaxButton"
                                     class="btn btn-primary btn-small ok-button">
                                     Set
                                 </button>
@@ -213,23 +234,6 @@
                     </div>
                 </div>
                 <br>
-
-                <!-- SEVENTH INPUT ROW -->
-                <div class="row seventh-input-row">
-                    <!-- First col -->
-                    <div class="col-mb-3">
-                        <label for="teststuff" class="control-label" data-toggle="tooltip" data-placement="top"
-                            title="Budget balance. Surplus paid directly to consumers as social benefit. Works similiar to inflation target.">Budget
-                            Balance %</label>
-
-                        <div class="input-group mb">
-                            <input type="text" class="form-control" value="4" id="teststuff">
-                            <div class="input-group-append">
-                                <button class="btn-primary btn-small form-button" type="button">Ok</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
             </div>
         </div>
