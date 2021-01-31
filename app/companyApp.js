@@ -94,6 +94,14 @@ function setReinvest() {
 
 }
 
+function changeInvestFocus() {
+
+    var myValue = document.getElementById("investFocusInput").value;
+    document.getElementById("rangeResult").innerHTML = myValue + " %";
+    putCompanyParameter('CAP_VS_EFF_SPLIT', myValue/100);
+
+}
+
 function populateParameters(initialUpdate) {
 
     myCompany = document.getElementById("selectedCompany").innerHTML;
@@ -124,6 +132,7 @@ function populateCallback(companyParameters, initialUpdate) {
     document.getElementById("Capacity").value = capacity;
     document.getElementById("Utilization").value = utilization;
     document.getElementById("Employees").value = employees;
+    document.getElementById("rangeResult").innerHTML = document.getElementById("investFocusInput").value + "%";
 
 }
 
@@ -453,6 +462,10 @@ document.getElementById("companySelect").addEventListener("change", populatePara
 document.getElementById("setWageConstButton").addEventListener("click", setWageConst);
 document.getElementById("setWageChangeButton").addEventListener("click", setWageChange);
 document.getElementById("setReinvestButton").addEventListener("click", setReinvest);
+document.getElementById("investFocusInput").addEventListener("change", changeInvestFocus);
+
+
+
 
 //document.getElementById("SetFixedRateButton").addEventListener("click", changeInterestRate2);
 //document.getElementById('CountryCombo').onclick = print_combo();

@@ -18,7 +18,7 @@ getMoneyTableUpdate = function (lastTime, myDatabase, table) { //database, table
         //console.log(`SELECT rowid as key, * FROM ${table} WHERE TIME > ${lastTime}`);
         //sql = 'SELECT rowid as key, * FROM ${table} WHERE TIME > ${lastTime}'
         //db.each(sql, (err, row) => {
-        db.each(`SELECT rowid as key, * FROM ${table} WHERE TIME > ${lastTime}`, (err, row) => {
+        db.each(`SELECT rowid as key, * FROM ${table} WHERE TIME => ${lastTime}`, (err, row) => {
 
             //db.each(`SELECT rowid as key, * FROM MONEY_DATA`, (err, row) => {
             if (err) {
@@ -66,7 +66,7 @@ getCompanyTableUpdate = function (lastTime, myDatabase, myCompany, table) { //da
         sql = sql.concat(" AND TIME_STAMP > " + lastTime);
         
 
-        console.log(`SELECT rowid as key, * FROM ${table} WHERE NAME = ${myCompany} AND TIME > ${lastTime}`)
+        console.log(`SELECT rowid as key, * FROM ${table} WHERE NAME = ${myCompany} AND TIME => ${lastTime}`)
         //db.each(`SELECT rowid as key, * FROM ${table} WHERE NAME = ${myCompany} AND TIME > ${lastTime}`, (err, row) => {
         db.each(sql, (err, row) => {
             //db.each(`SELECT rowid as key, * FROM MONEY_DATA`, (err, row) => {

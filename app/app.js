@@ -107,7 +107,7 @@ var getParameter = function (parameter, mycallback) {
     url = url.concat('?parameterID=');
     url = url.concat(parameter);
 
-    console.log(url);
+    //console.log(url);
 
     var xhr = new XMLHttpRequest();
     xhr.open('GET', url, true);
@@ -186,7 +186,7 @@ var getDatabaseLink = function () {
 
 function addMoreMoneyData(table, chart, mycallback) {
 
-    timeStamp = myGDPChart.data.labels[myGDPChart.data.labels.length - 1];
+    timeStamp = chart.data.labels[chart.data.labels.length - 1];
 
     getMoneyData(table, chart, timeStamp, mycallback, 0) ;
 
@@ -297,7 +297,23 @@ function updateMoneyData(chart, newData, resetChart) {
 
     //Parsing API-data
     var JSONData = JSON.parse(newData).data;
-    //console.log(JSONData);
+    // console.log(JSONData.length==0);
+    // console.log(!(chart.data.labels.length==0));
+    // console.log(JSONData[0]);
+    if(JSONData.length==0 && !(chart.data.labels.length == 0)) {
+        //console.log(JSONData.length+1);
+        // console.log(JSONData[JSONData.length-1].TIME);
+        // console.log(chart.data.labels[chart.data.labels.length-1])
+        //if(JSONData[JSONData.length-1].TIME < chart.data.labels[chart.data.labels.length-1]) {
+                //  console.log("Resetting chart at end time")
+                 //resetChart = 1;
+                 //chart.data.labels = [];
+        // //    }
+    }
+    // if(JSONData[JSONData.length-1].TIME < chart.data.labels[chart.data.labels.length]) {
+
+    //     resetChart = 1;
+    // }
     
     if(resetChart == 0) {
         var timeData = chart.data.labels;
@@ -337,7 +353,6 @@ function updateMoneyData(chart, newData, resetChart) {
     //console.log(consumerCapital.length);
     //console.log(companyCapital.length);
 
-
     for(var i in JSONData) {
         timeData.push(JSONData[i].TIME);
         totalMoney.push(JSONData[i].TOTAL_CAPITAL);
@@ -352,7 +367,7 @@ function updateMoneyData(chart, newData, resetChart) {
         companyDebts.push(JSONData[i].COMPANY_DEBTS);
         marketCapital.push(JSONData[i].MARKET_CAPITAL);
         cityCapital.push(JSONData[i].CITY_CAPITAL);
-    };
+    }
    
     
     chart.data.labels = timeData;
@@ -706,7 +721,7 @@ initiateDIVTable = function(myChart) {
 
 getParameter('TargetInterestRate', function(result) {
     var JSONData = JSON.parse(result).data;
-    console.log(JSONData.VALUE);
+    //console.log(JSONData.VALUE);
     document.getElementById("interestRateInput").value = JSONData.VALUE*100;
     }
 );
@@ -714,14 +729,14 @@ getParameter('TargetInterestRate', function(result) {
 
 getParameter('AverageSpendwill', function(result) {
     var JSONData = JSON.parse(result).data;
-    console.log(JSONData.VALUE);
+    //console.log(JSONData.VALUE);
     document.getElementById("spendwillInput").value = JSONData.VALUE*100;
     }
 );
 
 getParameter('AverageBorrowwill', function(result) {
     var JSONData = JSON.parse(result).data;
-    console.log(JSONData.VALUE);
+    //console.log(JSONData.VALUE);
     document.getElementById("borrowwillInput").value = JSONData.VALUE*100;
     }
 );
@@ -822,7 +837,6 @@ document.getElementById("SetIncomeTaxButton").addEventListener("click", changeIn
 document.getElementById("SetCapitalGainsTaxButton").addEventListener("click", changeCapitalGainsTax);
 
 document.getElementById("SetBudgetBalanceButton").addEventListener("click", changeBudgetBalance);
-
 //document.getElementById("SetFixedRateButton").addEventListener("click", changeInterestRate2);
 //document.getElementById('CountryCombo').onclick = print_combo();
 
@@ -923,11 +937,33 @@ initiateDIVTable(myDIVChart);
 * REGULAR UPDATE OF CHARTS
 */
 
+// var user = firebase.auth().currentUser;
+// document.getElementById("playerName").text = user.displayName ;
+// // .split(" ")[0];
+
+
+let firebaseAppDefined = false
+
+setInterval(function() {
+  if (!firebaseAppDefined) {
+    if (firebase.app()) {
+        var user = firebase.auth().currentUser;
+        console.log("Still running as: " + user.displayName.split(" ")[0]);
+        document.getElementById("playerName").text = "Hello " + user.displayName.split(" ")[0];
+    
+
+      firebaseAppDefined = true
+    }
+  }
+  console.log("Stuck in unneccessary function")
+}, 5000)
+
 setInterval(function() {
     addMoreMoneyData('MONEY_DATA', myMoneyChart, updateMoneyData);
     addMoreGDPData('TIME_DATA', myGDPChart, myDIVChart, updateGDPData);
+       }, 2000);
 
-    }, 2000);
-
-
-
+// var user = firebase.auth().currentUser;
+// console.log("Still running as: " + user.displayName.split(" ")[0]);
+// document.getElementById("playerName").text = "Hello " + user.displayName.split(" ")[0];
+       

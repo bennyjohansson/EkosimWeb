@@ -169,6 +169,32 @@
                     <div class="col">
                         <div class="input-group mb-3">
                             <div class="input-group-prepend">
+                                <span class="input-group-text"> Item Eff. Rate </span>
+                            </div>
+                            <input type="text" class="form-control" id="ItemEfficiencyRateInput" placeholder="0.002" value="0.002"
+                                aria-label="ItemEfficiency" aria-describedby="basic-addon1">
+
+                        </div>
+                    </div>
+                    <!-- Second col -->
+                    <div class="col-md ok-group"> 
+                        <button type="button" id="ItemEfficiencyRateButton" class="btn btn-primary btn-small ok-button"> Set
+                        </button>
+                    </div>
+
+                    <!-- Third col -->
+                    <div class="col-md">
+                        item_efficiency_increase = 0.5*log(ItemEfficiencyRate*items + 1);
+                    </div>
+
+                </div>
+
+                <!-- FIFTH INPUT ROW -->
+                <div class="row fourth-input-row">
+                    <!-- First col -->
+                    <div class="col">
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
                                 <span class="input-group-text"> Prod. Param. </span>
                             </div>
                             <input type="text" class="form-control" id="ProdParam" placeholder="0.002" value="0.002"

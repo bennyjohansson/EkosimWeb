@@ -80,7 +80,13 @@ function changeProdParam() {
     putParameter('ProductionParameter', setParameter);
 }
 
-changeProdParam
+function changeItemEfficiencyRate() {
+    var setParameter = document.getElementById("ItemEfficiencyRateInput").value;
+    console.log(setParameter);
+    putParameter('ItemEfficiencyRate', setParameter);
+}
+
+//changeProdParam
 
 function changeSpendwill() {
     var set_spendwill = document.getElementById("spendwillInput").value/100;
@@ -532,7 +538,7 @@ document.getElementById("SetCapacityIncRate").addEventListener("click", changeCa
 document.getElementById("SetFactorRate").addEventListener("click", changeFactorRate);
 document.getElementById("SetCapacityIncParam").addEventListener("click", changeCapacityIncParam);
 document.getElementById("SetProdParam").addEventListener("click", changeProdParam);
-
+document.getElementById("ItemEfficiencyRateButton").addEventListener("click", changeItemEfficiencyRate);
 
 //document.getElementById('CountryCombo').onclick = print_combo();
 
@@ -602,6 +608,13 @@ getParameter('ProductionParameter', function(result) {
     var JSONData = JSON.parse(result).data;
     console.log(JSONData.VALUE);
     document.getElementById("ProdParam").value = JSONData.VALUE;
+    }
+);
+
+getParameter('ItemEfficiencyRate', function(result) {
+    var JSONData = JSON.parse(result).data;
+    console.log(JSONData.VALUE);
+    document.getElementById("ItemEfficiencyRateInput").value = JSONData.VALUE;
     }
 );
 

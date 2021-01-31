@@ -84,13 +84,13 @@
         </div>
     </div>
 
-    
+
 
     <!-- PARAMETER TABLE -->
     <div class="container parameter-table">
 
         <div class="row form-group">
-            
+
             <div class="col text-center my-companies">
                 <select class="custom-select mr-sm-2" id="companySelect"> </select>
             </div>
@@ -100,120 +100,132 @@
             <div class="col">
                 <button type="button" class="btn btn-light">Add New company </button>
             </div>
-            <div class="col"> </div>
         </div>
 
         <div class="row form-group">
-            <div class="col">
+            <div class="col-md-3">
 
                 <input type="checkbox" class="form-check-input" id="checkChangeAll">
                 <label class="form-check-label" for="exampleCheck1"> Change all</label>
             </div>
-                
-            <div class="col">
+            <div class="col-md-6 text-center">
+
+                <form>
+                    <div class="form-group" >
+                        <p id="rangeResult"></p>
+                        <input type="range" class="form-control-range" min="0" max="100" step="5" id="investFocusInput" >
+                        <label for="customRange3" class="form-label"> Efficiency &nbsp;&nbsp;&nbsp;  &lt;-- Invest in --&gt;  &nbsp;&nbsp;&nbsp; Capacity</label>
+                    </div>
+                </form>
+            </div>
+
+            <div class="col-md-3">
                 <input type="checkbox" class="form-check-input" id="PayCash">
                 <label class="form-check-label" for="PayCash"> Pay cash </label>
             </div>
 
+
         </div>
 
-        <div class="row form-group">
+    <div class="row form-group">
 
-            <div class="col-md-10 my-input center-block">
+        <div class="col-md-10 my-input center-block">
 
-                <!-- FIRST INPUT ROW -->
-                <div class="row first-input-row">
-                    <!-- First col -->
-                    <div class="col-md center-block">
+            <!-- FIRST INPUT ROW -->
+            <div class="row first-input-row">
+                <!-- First col -->
+                <div class="col-md center-block">
 
-                        <label for="WageConst" data-toggle="tooltip" data-placement="top"
-                            title="Share of sales theat goes to wages">Wage const %</label>
-                        <div class="input-group mb-3">                            
-                            <input type="text" class="form-control" placeholder="20" id="WageConst"
-                                aria-label="WageConst" aria-describedby="basic-addon1">
-                            <button type="button" class="btn btn-primary btn-small ok-button" id="setWageConstButton"> Ok
-                                </button>
-        
-                        </div>
-                    </div>
+                    <label for="WageConst" data-toggle="tooltip" data-placement="top"
+                        title="Share of sales theat goes to wages">Wage const %</label>
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" placeholder="20" id="WageConst" aria-label="WageConst"
+                            aria-describedby="basic-addon1">
+                        <button type="button" class="btn btn-primary btn-small ok-button" id="setWageConstButton">
+                            Ok
+                        </button>
 
-                    <!-- Second col -->
-                    <div class="col-md center-block">
-
-                        <label for="Capacity" data-toggle="tooltip" data-placement="top"
-                            title="Max capacity">Capacity</label>
-
-                        <div class="input-group mb-3">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text" id="basic-addon1"> Capacity </span>
-                            </div>
-                            <input type="text" class="form-control" placeholder="10000" id="Capacity"
-                                aria-label="Capacity" aria-describedby="basic-addon1">
-                        </div>
                     </div>
                 </div>
 
-                <!-- SECOND INPUT ROW -->
-                <div class="row second-input-row">
-                    <!-- First col -->
-                    <div class="col">
-                        <label for="Reinvest" data-toggle="tooltip" data-placement="top"
-                            title="Max capacity">Reinvest %</label>
+                <!-- Second col -->
+                <div class="col-md center-block">
 
-                        <div class="input-group mb-3">
-                            <input type="text" class="form-control" placeholder="50" id="Reinvest" aria-label="Reinvest"
-                                aria-describedby="basic-addon1">
-                                <button type="button" class="btn btn-primary btn-small ok-button" id="setReinvestButton"> Ok </button>
-                            </div>
-                    </div>
+                    <label for="Capacity" data-toggle="tooltip" data-placement="top"
+                        title="Max capacity">Capacity</label>
 
-                    <!-- Second col -->
-                    <div class="col-md center-block">
-                        <label for="Employees" data-toggle="tooltip" data-placement="top"
-                        title="Employees">Capacity</label>
-                        <div class="input-group mb-3">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text" id="basic-addon1"> Employees </span>
-                            </div>
-                            <input type="text" class="form-control" placeholder="300" id="Employees"
-                                aria-label="Employees" aria-describedby="basic-addon1">
-
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="basic-addon1"> Capacity </span>
                         </div>
+                        <input type="text" class="form-control" placeholder="10000" id="Capacity" aria-label="Capacity"
+                            aria-describedby="basic-addon1">
                     </div>
                 </div>
-
-                <!-- THIRD INPUT ROW -->
-                <div class="row third-input-row">
-                    <!-- First col -->
-                    <div class="col-md center-block">
-                        <label for="WageCh" data-toggle="tooltip" data-placement="top"
-                        title="WageCh">Wage ch lim %</label>
-                        <div class="input-group mb-3">
-                            <input type="text" class="form-control" placeholder="1" id="WageCh" aria-label="WageCh"
-                                aria-describedby="basic-addon1">
-                                <button type="button" class="btn btn-primary btn-small ok-button" id="setWageChangeButton"> Ok </button>
-                            </div>
-                    </div>
-
-                    <!-- Second col -->
-                    <div class="col">
-                        <label for="Utilization" data-toggle="tooltip" data-placement="top"
-                        title="WageCh">Utilization %</label>
-                        <div class="input-group mb-3">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text" id="basic-addon1"> Utilization % </span>
-                            </div>
-                            <input type="text" class="form-control" placeholder="40%" id="Utilization"
-                                aria-label="Utilization" aria-describedby="basic-addon1">
-                        </div>
-                    </div>
-                </div>
-
-                
-
-
             </div>
+
+            <!-- SECOND INPUT ROW -->
+            <div class="row second-input-row">
+                <!-- First col -->
+                <div class="col">
+                    <label for="Reinvest" data-toggle="tooltip" data-placement="top" title="Max capacity">Reinvest
+                        %</label>
+
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" placeholder="50" id="Reinvest" aria-label="Reinvest"
+                            aria-describedby="basic-addon1">
+                        <button type="button" class="btn btn-primary btn-small ok-button" id="setReinvestButton"> Ok
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Second col -->
+                <div class="col-md center-block">
+                    <label for="Employees" data-toggle="tooltip" data-placement="top" title="Employees">Capacity</label>
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="basic-addon1"> Employees </span>
+                        </div>
+                        <input type="text" class="form-control" placeholder="300" id="Employees" aria-label="Employees"
+                            aria-describedby="basic-addon1">
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- THIRD INPUT ROW -->
+            <div class="row third-input-row">
+                <!-- First col -->
+                <div class="col-md center-block">
+                    <label for="WageCh" data-toggle="tooltip" data-placement="top" title="WageCh">Wage ch lim
+                        %</label>
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" placeholder="1" id="WageCh" aria-label="WageCh"
+                            aria-describedby="basic-addon1">
+                        <button type="button" class="btn btn-primary btn-small ok-button" id="setWageChangeButton">
+                            Ok </button>
+                    </div>
+                </div>
+
+                <!-- Second col -->
+                <div class="col">
+                    <label for="Utilization" data-toggle="tooltip" data-placement="top" title="WageCh">Utilization
+                        %</label>
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="basic-addon1"> Utilization % </span>
+                        </div>
+                        <input type="text" class="form-control" placeholder="40%" id="Utilization"
+                            aria-label="Utilization" aria-describedby="basic-addon1">
+                    </div>
+                </div>
+            </div>
+
+
+
+
         </div>
+    </div>
     </div>
 
     <hr />
