@@ -20,7 +20,7 @@ getMoneyTableUpdate = function (lastTime, myDatabase, table) { //database, table
         //db.each(sql, (err, row) => {
         sql = 'SELECT rowid as key, * FROM '
         sql = sql.concat(table);
-        sql = sql.concat(" WHERE TIME => " + lastTime);
+        sql = sql.concat(" WHERE TIME > " + lastTime);
         console.log(sql)
     
         //db.each(`SELECT rowid as key, * FROM ${table} WHERE TIME => ${lastTime}`, (err, row) => {
