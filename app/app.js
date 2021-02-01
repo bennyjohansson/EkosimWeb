@@ -952,7 +952,7 @@ setInterval(function() {
         document.getElementById("playerName").text = "Hello " + user.displayName.split(" ")[0];
     
 
-      firebaseAppDefined = true
+      firebaseAppDefined = true;
     }
   }
   console.log("Stuck in unneccessary function")
