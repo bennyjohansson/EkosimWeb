@@ -27,14 +27,18 @@ getMoneyTableUpdate = function (lastTime, myDatabase, table) { //database, table
         db.each(sql, (err, row) => {
                 //db.each(`SELECT rowid as key, * FROM MONEY_DATA`, (err, row) => {
             if (err) {
+                console.log("We have an error here");
                 reject(err); // optional: you might choose to swallow errors.
             } else {
+                console.log("No errors here")
                 queries.push(row); // accumulate the data
             }
         }, (err, n) => {
             if (err) {
+                console.log("We have an error here number two");
                 reject(err); // optional: again, you might choose to swallow this error.
             } else {
+                console.log("No errors here part two")
                 resolve(queries); // resolve the promise
             }
         });
