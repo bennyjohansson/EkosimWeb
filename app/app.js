@@ -944,19 +944,19 @@ initiateDIVTable(myDIVChart);
 
 let firebaseAppDefined = false
 
-// setInterval(function() {
-//   if (!firebaseAppDefined) {
-//     if (firebase.app()) {
-//         var user = firebase.auth().currentUser;
-//         console.log("Still running as: " + user.displayName.split(" ")[0]);
-//         document.getElementById("playerName").text = "Hello " + user.displayName.split(" ")[0];
+setInterval(function() {
+  if (!firebaseAppDefined) {
+    if (firebase.app()) {
+        var user = firebase.auth().currentUser;
+        console.log("Still running as: " + user.displayName.split(" ")[0]);
+        document.getElementById("playerName").text = "Hello " + user.displayName.split(" ")[0];
     
 
-//       firebaseAppDefined = true;
-//     }
-//   }
-//   console.log("Stuck in unneccessary function")
-// }, 5000)
+      firebaseAppDefined = true;
+    }
+  }
+  console.log("Stuck in unneccessary function")
+}, 5000)
 
 setInterval(function() {
     addMoreMoneyData('MONEY_DATA', myMoneyChart, updateMoneyData);
