@@ -4,7 +4,7 @@
   "description": "HTML and .js for Ekosim",
   "main": "DBConnection.js",
   "dependencies": {
-    "chart.js": "^2.9.3",
+    "chart.js": "^2.9.4",
     "express": "^4.17.1",
     "sqlite3": "^4.2.0"
   },
