@@ -35,7 +35,7 @@ getMoneyTableUpdate = function (lastTime, myDatabase, table) { //database, table
             }
         }, (err, n) => {
             if (err) {
-                console.log("We have an error here number two");
+                console.log("We have an error here number two" + err);
                 reject(err); // optional: again, you might choose to swallow this error.
             } else {
                 console.log("No errors here part two")
