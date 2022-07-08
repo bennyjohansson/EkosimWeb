@@ -1,4 +1,6 @@
 var mainApp = {};
+
+
 (function () {
   var mainContainer = document.getElementById("main_container");
 
@@ -27,4 +29,9 @@ var mainApp = {};
   init();
 
   mainApp.logout = logtout;
+
+  // exports.sendWelcomeEmail = functions.auth.user().onCreate((user) => {
+  //   console.log("TRIGGERED EVENT")
+  // });
+
 })();

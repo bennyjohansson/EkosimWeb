@@ -1,6 +1,9 @@
 //var XMLHttpRequest = require("xhr-browserify").XMLHttpRequest;
-
+//const functions = require('firebase-functions');
 //Called by change function
+
+
+
 function putParameter(parameter, value) { //parameter
 
     var myCountry = getCountry();
@@ -839,6 +842,7 @@ document.getElementById("SetCapitalGainsTaxButton").addEventListener("click", ch
 document.getElementById("SetBudgetBalanceButton").addEventListener("click", changeBudgetBalance);
 //document.getElementById("SetFixedRateButton").addEventListener("click", changeInterestRate2);
 //document.getElementById('CountryCombo').onclick = print_combo();
+
 
 /*
 * GENERATING CHARTS
