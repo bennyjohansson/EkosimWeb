@@ -4,20 +4,109 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Please login to Ecosim </title>
+    <title>Please login to Ecosim</title>
     <script src="https://www.gstatic.com/firebasejs/4.8.2/firebase.js"></script>
     <script src="https://www.gstatic.com/firebasejs/4.8.2/firebase-auth.js"></script>
-    <script src="https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.js"></script>
-    <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.css" />
-    
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
 </head>
 <body>
-    <!-- The surrounding HTML is left untouched by FirebaseUI.
-         Your app may use that space for branding, controls and other customizations.-->
-         <h1 style="text-align: center;">Please login or sign up with new email to continue</h1>
-         <div id="firebaseui-auth-container"></div>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <h1 class="text-center mt-5">Please login to continue</h1>
+                
+                <div class="card mt-4">
+                    <div class="card-body">
+                        <div id="login-form">
+                            <div class="form-group">
+                                <label for="email">Email:</label>
+                                <input type="email" id="email" class="form-control" placeholder="Enter your email" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="password">Password:</label>
+                                <input type="password" id="password" class="form-control" placeholder="Enter your password" required>
+                            </div>
+                            <div class="text-center">
+                                <button onclick="signIn()" class="btn btn-primary mr-2">Sign In</button>
+                                <button onclick="createAccount()" class="btn btn-secondary">Create Account</button>
+                            </div>
+                        </div>
+                        
+                        <div id="status" class="mt-3 p-3 border rounded" style="min-height: 50px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-<script src="../app/fireBase.js"></script>
-<script src="../app/login.js"></script>
+    <script src="../app/fireBase.js"></script>
+    <script>
+        function updateStatus(message) {
+            document.getElementById('status').innerHTML = message;
+            console.log(message);
+        }
+        
+        function signIn() {
+            var email = document.getElementById('email').value;
+            var password = document.getElementById('password').value;
+            
+            if (!email || !password) {
+                updateStatus('❌ Please enter both email and password');
+                return;
+            }
+            
+            updateStatus('⏳ Signing in...');
+            
+            firebase.auth().signInWithEmailAndPassword(email, password)
+                .then(function(userCredential) {
+                    updateStatus('✅ Sign in successful! Redirecting...');
+                    setTimeout(function() {
+                        window.location.href = '../';
+                    }, 1500);
+                })
+                .catch(function(error) {
+                    updateStatus('❌ Sign in failed: ' + error.message);
+                    console.error('Sign in error:', error);
+                });
+        }
+        
+        function createAccount() {
+            var email = document.getElementById('email').value;
+            var password = document.getElementById('password').value;
+            
+            if (!email || !password) {
+                updateStatus('❌ Please enter both email and password');
+                return;
+            }
+            
+            if (password.length < 6) {
+                updateStatus('❌ Password must be at least 6 characters long');
+                return;
+            }
+            
+            updateStatus('⏳ Creating account...');
+            
+            firebase.auth().createUserWithEmailAndPassword(email, password)
+                .then(function(userCredential) {
+                    updateStatus('✅ Account created successfully! Redirecting...');
+                    setTimeout(function() {
+                        window.location.href = '../';
+                    }, 1500);
+                })
+                .catch(function(error) {
+                    updateStatus('❌ Account creation failed: ' + error.message);
+                    console.error('Account creation error:', error);
+                });
+        }
+        
+        // Allow Enter key to sign in
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                signIn();
+            }
+        });
+        
+        updateStatus('Ready to sign in');
+    </script>
 </body>
 </html>

@@ -6,7 +6,7 @@ function putParameter(parameter, value) { //parameter
     var myCountry = getCountry();
 
 
-    var url = 'http://ekosimweb-env.eba-66jamvpz.us-east-2.elasticbeanstalk.com/ekosim/put/'; //TargetInteputrestRate';
+    var url = 'http://localhost:8080/ekosim/put/'; //TargetInteputrestRate';
     url = url.concat(myCountry);
 
 
@@ -42,7 +42,7 @@ function putCompanyParameter(parameter, value) { //parameter
     }
 
 
-    var url = 'http://ekosimweb-env.eba-66jamvpz.us-east-2.elasticbeanstalk.com/ekosim/putCompanyParameter/'; //TargetInteputrestRate';
+    var url = 'http://localhost:8080/ekosim/putCompanyParameter/'; //TargetInteputrestRate';
     url = url.concat(myCountry);
     url = url.concat('?myCompany=');
     url = url.concat(myCompany);
@@ -173,7 +173,7 @@ var getParameter = function (parameter, mycallback) {
 
     var myCountry = getCountry();
 
-    var url = 'http://ekosimweb-env.eba-66jamvpz.us-east-2.elasticbeanstalk.com/ekosim/read/';
+    var url = 'http://localhost:8080/ekosim/read/';
     url = url.concat(myCountry);
     url = url.concat('?parameterID=');
     url = url.concat(parameter);
@@ -199,7 +199,7 @@ var getCompanyParameters = function (companyName, initialUpdate, mycallback) {
 
     var myCountry = getCountry();
 
-    var url = 'http://ekosimweb-env.eba-66jamvpz.us-east-2.elasticbeanstalk.com/ekosim/getCompany/';
+    var url = 'http://localhost:8080/ekosim/getCompany/';
     url = url.concat(myCountry);
     url = url.concat('?myCompany=');
     url = url.concat(companyName);
@@ -280,7 +280,7 @@ function getCompanyData(chart1, chart2, timeStamp, mycallback, resetChart) {
 
     myCompany = document.getElementById("selectedCompany").innerHTML;
 
-    var url = 'http://ekosimweb-env.eba-66jamvpz.us-east-2.elasticbeanstalk.com/ekosim/companytable/update/';
+    var url = 'http://localhost:8080/ekosim/companytable/update/';
     url = url.concat(myCountry);
     url = url.concat('?timestamp=');
     url = url.concat(timeStamp);
