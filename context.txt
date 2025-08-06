@@ -1,0 +1,9 @@
+This software is the web frontend of a simulation of a backend economic system consisting of one 
+or many many cities that can trade together. Each city contains consumers, 
+companies, a bank, a marketplace and a government that acts as agents in 
+this simulation. Companies produces goods that sells in the marketplace to 
+consumers at tha price that clears the market. Companies can also invest 
+in upgrading their production facilities to become more efficient. The 
+backendcode is written in c++ with data stored in an SQLite Database. The frontend uses a number of APIs to interact with eh SQLite database to control the simulation. 
+
+It is very important that you make changes in very small steps and testing them as often as possible. I also would like to work with Git/GitHub using issues and creating a new issue for all larger steps with a corresponding new brach for each issue. As the issue is tested and closed we commit to the main branch. Please remind me of this frequently. 

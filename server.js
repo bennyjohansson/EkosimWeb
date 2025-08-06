@@ -9,6 +9,9 @@ var bodyParser = require('body-parser');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
+// Serve static files
+app.use(express.static('.'));
+
 app.use(function (req, res, next) {
 
     // Website you wish to allow to connect
@@ -33,7 +36,7 @@ app.put('/ekosim/put/:myCountry', function (req, res) {
     var ParameterID = req.body.PARAMETER;
     var value = req.body.VALUE;
 
-    var myPath = './myDB/';
+    var myPath = '../ekosim/myDB/';
     var myCountry = req.params.myCountry; // //
     var myDatabase = myPath.concat(myCountry);
     myDatabase = myDatabase.concat('.db');
@@ -60,7 +63,7 @@ app.put('/ekosim/putCompanyParameter/:myCountry', function (req, res) {
     var ParameterID = req.body.PARAMETER;
     var value = req.body.VALUE;
 
-    var myPath = './myDB/';
+    var myPath = '../ekosim/myDB/';
     var myCountry = req.params.myCountry; // //
     var myDatabase = myPath.concat(myCountry);
     myDatabase = myDatabase.concat('.db');
@@ -89,7 +92,7 @@ app.put('/ekosim/putCompanyParameter/:myCountry', function (req, res) {
 
 app.get('/ekosim/read/:myCountry', (req, res, next) => {
 
-    var myPath = './myDB/';
+    var myPath = '../ekosim/myDB/';
     var myCountry = req.params.myCountry; // //
     var myDatabase = myPath.concat(myCountry);
     myDatabase = myDatabase.concat('.db');
@@ -133,12 +136,12 @@ app.get('/ekosim/read/:myCountry', (req, res, next) => {
 
 app.get('/ekosim/getAllParameters/:myCountry', (req, res, next) => {
 
-    var myPath = './myDB/';
+    var myPath = '../ekosim/myDB/';
     var myCountry = req.params.myCountry; // //
     var myDatabase = myPath.concat(myCountry);
     myDatabase = myDatabase.concat('.db');
 
-    //myDatabase = './myDB/Bennyland.db';
+    //myDatabase = '../ekosim/myDB/Bennyland.db';
 
 
     console.log(myDatabase);
@@ -162,7 +165,7 @@ app.get('/ekosim/getAllParameters/:myCountry', (req, res, next) => {
 
 app.get('/ekosim/getCompany/:myCountry', (req, res, next) => {
 
-    var myPath = './myDB/';
+    var myPath = '../ekosim/myDB/';
     var myCountry = req.params.myCountry; //
     var myDatabase = myPath.concat(myCountry);
     myDatabase = myDatabase.concat('.db');
@@ -186,12 +189,12 @@ app.get('/ekosim/getCompany/:myCountry', (req, res, next) => {
 
 app.get('/ekosim/moneytable/update/:myCountry', (req, res, next) => {
 
-    var myPath = './myDB/';
+    var myPath = '../ekosim/myDB/';
     var myCountry = req.params.myCountry; // //
     var myDatabase = myPath.concat(myCountry);
     myDatabase = myDatabase.concat('.db');
 
-    //myDatabase = './myDB/Bennyland.db';
+    //myDatabase = '../ekosim/myDB/Bennyland.db';
 
     var lastTime = req.query.timestamp;
 
@@ -216,8 +219,8 @@ app.get('/ekosim/moneytable/update/:myCountry', (req, res, next) => {
 
 app.get('/ekosim/timetable/update/:myCountry', (req, res, next) => {
 
-    var myPath = './myDB/';
-    var myCountry = req.params.myCountry; //'./myDB/Bennyland.db' //
+    var myPath = '../ekosim/myDB/';
+    var myCountry = req.params.myCountry; //'../ekosim/myDB/Bennyland.db' //
     var myDatabase = myPath.concat(myCountry);
     myDatabase = myDatabase.concat('.db');
 
@@ -240,8 +243,8 @@ app.get('/ekosim/timetable/update/:myCountry', (req, res, next) => {
 
 app.get('/ekosim/companytable/update/:myCountry', (req, res, next) => {
 
-    var myPath = './myDB/';
-    var myCountry = req.params.myCountry; //'./myDB/Bennyland.db' //
+    var myPath = '../ekosim/myDB/';
+    var myCountry = req.params.myCountry; //'../ekosim/myDB/Bennyland.db' //
     var myDatabase = myPath.concat(myCountry);
     myDatabase = myDatabase.concat('.db');
 

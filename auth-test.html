@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Firebase Auth Test</title>
+    <script src="https://www.gstatic.com/firebasejs/4.8.2/firebase.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/4.8.2/firebase-auth.js"></script>
+</head>
+<body>
+    <h2>Firebase Authentication Test</h2>
+    <div id="status">Testing...</div>
+    <div id="auth-status"></div>
+    <button onclick="testSignIn()">Test Email Auth</button>
+
+    <script src="app/fireBase.js"></script>
+    <script>
+        document.getElementById('status').innerHTML = '✅ Firebase loaded from fireBase.js';
+        
+        function testSignIn() {
+            // Test if email auth provider is available
+            try {
+                var provider = new firebase.auth.EmailAuthProvider();
+                document.getElementById('auth-status').innerHTML = '✅ Email authentication provider is available';
+            } catch (error) {
+                document.getElementById('auth-status').innerHTML = '❌ Email auth error: ' + error.message;
+            }
+        }
+        
+        // Test auth state
+        firebase.auth().onAuthStateChanged(function(user) {
+            if (user) {
+                document.getElementById('auth-status').innerHTML += '<br>✅ User authenticated: ' + user.email;
+            } else {
+                document.getElementById('auth-status').innerHTML += '<br>ℹ️ No user authenticated';
+            }
+        });
+    </script>
+</body>
+</html>

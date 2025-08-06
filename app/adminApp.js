@@ -6,7 +6,7 @@ function putParameter(parameter, value) { //parameter
     var myCountry = getCountry();
 
 
-    var url = 'http://ekosimweb-env.eba-66jamvpz.us-east-2.elasticbeanstalk.com/ekosim/put/'; //TargetInteputrestRate';
+    var url = 'http://localhost:8080/ekosim/put/'; //TargetInteputrestRate';
     url = url.concat(myCountry);
 
     
@@ -121,7 +121,7 @@ var getParameter = function (parameter, mycallback) {
 
     var myCountry = getCountry();
 
-    var url = 'http://ekosimweb-env.eba-66jamvpz.us-east-2.elasticbeanstalk.com/ekosim/read/';
+    var url = 'http://localhost:8080/ekosim/read/';
     url = url.concat(myCountry);
     url = url.concat('?parameterID=');
     url = url.concat(parameter);
@@ -148,7 +148,7 @@ var getCompany = function (companyName, mycallback) {
 
     var myCountry = getCountry();
 
-    var url = 'http://ekosimweb-env.eba-66jamvpz.us-east-2.elasticbeanstalk.com/ekosim/getCompany/';
+    var url = 'http://localhost:8080/ekosim/getCompany/';
     url = url.concat(myCountry);
     url = url.concat('?companyName=');
     url = url.concat(companyName);
@@ -251,7 +251,7 @@ function getMoneyData(table, chart, timeStamp, mycallback, resetChart) {
 
 
     
-    var url = 'http://ekosimweb-env.eba-66jamvpz.us-east-2.elasticbeanstalk.com/ekosim/moneytable/update/';
+    var url = 'http://localhost:8080/ekosim/moneytable/update/';
     url = url.concat(myCountry);
     url = url.concat('?timestamp=');
     url = url.concat(timeStamp);
@@ -287,7 +287,7 @@ function getGDPData(table,  myGDPChart, myDIVChart, timeStamp, mycallback, reset
 
 
     
-    var url = 'http://ekosimweb-env.eba-66jamvpz.us-east-2.elasticbeanstalk.com/ekosim/timetable/update/';
+    var url = 'http://localhost:8080/ekosim/timetable/update/';
     url = url.concat(myCountry);
     url = url.concat('?timestamp=');
     url = url.concat(timeStamp);
