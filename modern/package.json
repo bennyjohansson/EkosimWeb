@@ -9,7 +9,12 @@
     "preview": "vite preview",
     "type-check": "vue-tsc --noEmit"
   },
-  "keywords": ["vue", "typescript", "economic-simulation", "charts"],
+  "keywords": [
+    "vue",
+    "typescript",
+    "economic-simulation",
+    "charts"
+  ],
   "author": "Benny Johansson",
   "license": "ISC",
   "dependencies": {
@@ -21,6 +26,7 @@
   "devDependencies": {
     "@types/chart.js": "^2.9.41",
     "@types/node": "^24.3.0",
+    "@vue/tsconfig": "^0.8.1",
     "chart.js": "^4.5.0",
     "pinia": "^3.0.3",
     "vue-tsc": "^3.0.6"
