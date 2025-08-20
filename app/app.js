@@ -828,7 +828,7 @@ function countryChange() {
 
 }
 
-testarray = ['Bennyland', 'Saraland', 'Otherland'];
+testarray = ['Bennyland', 'Saraland', 'Wernerland'];
 add_option ('CountryCombo', '--Select Country--');
 load_combo('CountryCombo', testarray);
 document.getElementById("CountryCombo").addEventListener("change", countryChange); 

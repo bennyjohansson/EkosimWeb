@@ -125,7 +125,7 @@ function addHighScoreRank(myData, growthweight, palmaweight, envweight) {
 
 function populateHighScoreTable(myHighScoreTable, myWorld, mycallback) {
 
-    var url = 'http://ekosimweb-env.eba-66jamvpz.us-east-2.elasticbeanstalk.com/ekosim/getHighScore/';
+    var url = 'http://localhost:8080/ekosim/getHighScore/';
     //url = url.concat(myWorld);
 
     //console.log(url);
