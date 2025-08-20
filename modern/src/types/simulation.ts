@@ -54,16 +54,18 @@ export interface ParameterUpdate {
 export interface MoneyDataPoint {
   key: number
   TIME: number
-  MONEY_SUPPLY?: number
-  INFLATION_RATE?: number
-  INTEREST_RATE?: number
-  GDP_GROWTH?: number
-  UNEMPLOYMENT_RATE?: number
-  CONSUMER_SPENDING?: number
-  GOVERNMENT_SPENDING?: number
-  BANK_RESERVES?: number
-  TOTAL_DEPOSITS?: number
-  TOTAL_LOANS?: number
+  TOTAL_CAPITAL?: number
+  CONSUMER_CAPITAL?: number
+  CONSUMER_DEBTS?: number
+  CONSUMER_DEPOSITS?: number
+  BANK_CAPITAL?: number
+  BANK_LOANS?: number
+  BANK_DEPOSITS?: number
+  BANK_LIQUIDITY?: number
+  COMPANY_CAIPTAL?: number  // Note: This has a typo in the legacy database
+  COMPANY_DEBTS?: number
+  MARKET_CAPITAL?: number
+  CITY_CAPITAL?: number
 }
 
 // ===== TIME DATA (GDP & ECONOMIC INDICATORS) =====

@@ -100,6 +100,16 @@
       </div>
     </div>
 
+    <!-- Live Chart Demo -->
+    <div class="demo-section">
+      <h3>📊 Real-time Chart Integration</h3>
+      <p class="chart-description">
+        This chart demonstrates our TypeScript interfaces working with real data from the legacy APIs. 
+        It shows money supply and interest rates over time with live updates.
+      </p>
+      <MoneyChart :selectedCountry="selectedCountry" />
+    </div>
+
     <!-- Error Display -->
     <div v-if="store.hasError" class="demo-section error-section">
       <h3>Error State</h3>
@@ -144,6 +154,7 @@
 import { ref, onMounted } from 'vue'
 import { useSimulationStore } from '@/stores/simulation'
 import { simulationAPI, parseAPIError } from '@/services/simulationAPI'
+import MoneyChart from '@/components/MoneyChart.vue'
 import type { 
   CountryCode, 
   EconomicParameter, 
@@ -472,5 +483,12 @@ onMounted(() => {
   font-size: 0.75rem;
   color: #742a2a;
   font-family: 'Monaco', 'Consolas', monospace;
+}
+
+.chart-description {
+  margin: 0 0 1rem 0;
+  color: #4a5568;
+  font-style: italic;
+  line-height: 1.5;
 }
 </style>

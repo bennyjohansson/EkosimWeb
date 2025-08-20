@@ -19,17 +19,31 @@ export function createMoneyChart(data: MoneyDataPoint[]): ChartConfiguration {
       labels: data.map(d => d.TIME.toString()),
       datasets: [
         {
-          label: 'Money Supply',
-          data: data.map(d => ({ x: d.TIME, y: d.MONEY_SUPPLY || 0 })),
+          label: 'Total Capital',
+          data: data.map(d => ({ x: d.TIME, y: d.TOTAL_CAPITAL || 0 })),
           borderColor: 'rgb(75, 192, 192)',
           backgroundColor: 'rgba(75, 192, 192, 0.2)',
           fill: false
         },
         {
-          label: 'Interest Rate (%)',
-          data: data.map(d => ({ x: d.TIME, y: (d.INTEREST_RATE || 0) * 100 })),
+          label: 'Consumer Capital',
+          data: data.map(d => ({ x: d.TIME, y: d.CONSUMER_CAPITAL || 0 })),
           borderColor: 'rgb(255, 99, 132)',
           backgroundColor: 'rgba(255, 99, 132, 0.2)',
+          fill: false
+        },
+        {
+          label: 'Bank Capital',
+          data: data.map(d => ({ x: d.TIME, y: d.BANK_CAPITAL || 0 })),
+          borderColor: 'rgb(54, 162, 235)',
+          backgroundColor: 'rgba(54, 162, 235, 0.2)',
+          fill: false
+        },
+        {
+          label: 'Company Capital',
+          data: data.map(d => ({ x: d.TIME, y: d.COMPANY_CAIPTAL || 0 })),
+          borderColor: 'rgb(255, 206, 86)',
+          backgroundColor: 'rgba(255, 206, 86, 0.2)',
           fill: false
         }
       ]
@@ -39,7 +53,7 @@ export function createMoneyChart(data: MoneyDataPoint[]): ChartConfiguration {
       plugins: {
         title: {
           display: true,
-          text: 'Money Supply & Interest Rates'
+          text: 'Economic Capital Distribution'
         }
       },
       scales: {
