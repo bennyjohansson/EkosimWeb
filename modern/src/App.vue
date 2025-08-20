@@ -6,57 +6,41 @@
     </header>
     
     <main class="app-main">
+      <!-- Status card for completion -->
       <div class="status-card">
-        <h2>✅ Modern Frontend Setup Complete!</h2>
+        <h2>✅ TypeScript Interfaces & API Service Complete!</h2>
         <div class="features">
           <div class="feature">
-            <span class="icon">⚡</span>
-            <span>Vue 3 Composition API</span>
+            <span class="icon">🔗</span>
+            <span>Type-safe API Client</span>
           </div>
           <div class="feature">
             <span class="icon">📘</span>
-            <span>TypeScript</span>
-          </div>
-          <div class="feature">
-            <span class="icon">🔥</span>
-            <span>Vite Build Tool</span>
-          </div>
-          <div class="feature">
-            <span class="icon">📊</span>
-            <span>Chart.js Integration Ready</span>
+            <span>Comprehensive TypeScript Interfaces</span>
           </div>
           <div class="feature">
             <span class="icon">🗄️</span>
-            <span>Pinia State Management</span>
+            <span>Pinia Store with State Management</span>
           </div>
           <div class="feature">
-            <span class="icon">🔗</span>
-            <span>API Proxy to Legacy Backend</span>
+            <span class="icon">🧪</span>
+            <span>Interactive Demo Component</span>
           </div>
         </div>
-        
-        <div class="next-steps">
-          <h3>📋 Next Development Steps:</h3>
-          <ol>
-            <li>Create TypeScript interfaces from legacy API analysis</li>
-            <li>Build chart components with Chart.js</li>
-            <li>Implement country/company selection</li>
-            <li>Create the 5 dashboard views</li>
-            <li>Add authentication integration</li>
-          </ol>
-        </div>
       </div>
+
+      <!-- Interactive demo -->
+      <SimulationDemo />
     </main>
     
     <footer class="app-footer">
-      <p>🚀 Ready for modern economic simulation frontend development!</p>
+      <p>🎯 TypeScript interfaces ready for modern frontend development!</p>
     </footer>
   </div>
 </template>
 
 <script setup lang="ts">
-// This is the modern Vue 3 Composition API syntax
-// No more complex JavaScript - clean TypeScript instead!
+import SimulationDemo from '@/components/SimulationDemo.vue'
 </script>
 
 <style scoped>
@@ -117,24 +101,6 @@
 
 .icon {
   font-size: 1.2rem;
-}
-
-.next-steps {
-  margin-top: 2rem;
-  padding: 1.5rem;
-  background: #f0fff4;
-  border-radius: 8px;
-  border-left: 4px solid #48bb78;
-}
-
-.next-steps h3 {
-  margin-top: 0;
-  color: #2d3748;
-}
-
-.next-steps ol {
-  color: #4a5568;
-  line-height: 1.6;
 }
 
 .app-footer {
