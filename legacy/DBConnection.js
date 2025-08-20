@@ -104,7 +104,7 @@ getCompanyTableUpdate = function (lastTime, myDatabase, myCompany, table) { //da
 getWorldTable = function (table) { //database, table
     return new Promise((resolve, reject) => {
 
-        let db = new sqlite3.Database('../ekosim/myDB/Bennyworld.db', sqlite3.OPEN_READONLY, (err) => {
+        let db = new sqlite3.Database('../../ekosim/myDB/Bennyworld.db', sqlite3.OPEN_READONLY, (err) => {
             if (err) {
                 console.error(err.message);
             }
