@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoSim Authentication Test</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">🔐 Authentication System Test</h1>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Authentication Status</h3>
+                    </div>
+                    <div class="card-body">
+                        <div id="authStatus">Loading...</div>
+                        <div id="userInfo" class="mt-3"></div>
+                        
+                        <div class="mt-3">
+                            <button id="refreshBtn" class="btn btn-primary" onclick="refreshStatus()">Refresh Status</button>
+                            <button id="logoutBtn" class="btn btn-danger" onclick="testLogout()" style="display: none;">Logout</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Quick Actions</h3>
+                    </div>
+                    <div class="card-body">
+                        <button class="btn btn-info btn-block mb-2" onclick="window.location.href='./html/login-modern.html'">
+                            Go to Modern Login
+                        </button>
+                        <button class="btn btn-success btn-block mb-2" onclick="window.location.href='./index.html'">
+                            Go to Main App
+                        </button>
+                        <button class="btn btn-warning btn-block mb-2" onclick="testAPI()">
+                            Test API Endpoints
+                        </button>
+                        <button class="btn btn-secondary btn-block" onclick="clearLocalStorage()">
+                            Clear Local Storage
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h3>API Test Results</h3>
+                    </div>
+                    <div class="card-body">
+                        <div id="apiResults">Click "Test API Endpoints" to see results</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="./app/auth-api.js"></script>
+    <script>
+        async function refreshStatus() {
+            const statusDiv = document.getElementById('authStatus');
+            const userInfoDiv = document.getElementById('userInfo');
+            const logoutBtn = document.getElementById('logoutBtn');
+            
+            try {
+                statusDiv.innerHTML = '<span class="text-info">Checking authentication...</span>';
+                
+                // Initialize and check auth
+                await window.authAPI.initialize();
+                
+                if (window.authAPI.isAuthenticated()) {
+                    const user = window.authAPI.getCurrentUser();
+                    statusDiv.innerHTML = '<span class="text-success">✅ Authenticated</span>';
+                    userInfoDiv.innerHTML = `
+                        <h5>User Information:</h5>
+                        <ul>
+                            <li><strong>ID:</strong> ${user.id}</li>
+                            <li><strong>Username:</strong> ${user.username}</li>
+                            <li><strong>Email:</strong> ${user.email}</li>
+                            <li><strong>Level:</strong> ${user.level}</li>
+                            <li><strong>Created:</strong> ${new Date(user.created_at).toLocaleString()}</li>
+                        </ul>
+                    `;
+                    logoutBtn.style.display = 'inline-block';
+                } else {
+                    statusDiv.innerHTML = '<span class="text-danger">❌ Not authenticated</span>';
+                    userInfoDiv.innerHTML = '<p class="text-muted">Please log in to see user information.</p>';
+                    logoutBtn.style.display = 'none';
+                }
+            } catch (error) {
+                statusDiv.innerHTML = `<span class="text-danger">❌ Error: ${error.message}</span>`;
+                userInfoDiv.innerHTML = '';
+                logoutBtn.style.display = 'none';
+            }
+        }
+        
+        function testLogout() {
+            if (confirm('Are you sure you want to logout?')) {
+                window.authAPI.logout();
+            }
+        }
+        
+        function clearLocalStorage() {
+            if (confirm('Clear all local storage data?')) {
+                localStorage.clear();
+                alert('Local storage cleared!');
+                refreshStatus();
+            }
+        }
+        
+        async function testAPI() {
+            const resultsDiv = document.getElementById('apiResults');
+            resultsDiv.innerHTML = '<div class="text-info">Testing API endpoints...</div>';
+            
+            const results = [];
+            
+            try {
+                // Test server connectivity
+                const response = await fetch('/');
+                if (response.ok) {
+                    results.push('✅ Server connectivity: OK');
+                } else {
+                    results.push('❌ Server connectivity: Failed');
+                }
+                
+                // Test auth endpoints
+                const verifyResponse = await fetch('/api/auth/verify', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token: window.authAPI.getToken() || 'invalid' })
+                });
+                
+                if (verifyResponse.ok) {
+                    const verifyData = await verifyResponse.json();
+                    results.push(`✅ Token verification: ${verifyData.success ? 'Valid' : 'Invalid'}`);
+                } else {
+                    results.push('❌ Token verification: Failed');
+                }
+                
+                // Test profile endpoint if authenticated
+                if (window.authAPI.isAuthenticated()) {
+                    const profileResponse = await fetch('/api/auth/profile', {
+                        headers: { 'Authorization': `Bearer ${window.authAPI.getToken()}` }
+                    });
+                    
+                    if (profileResponse.ok) {
+                        results.push('✅ Profile endpoint: OK');
+                    } else {
+                        results.push('❌ Profile endpoint: Failed');
+                    }
+                }
+                
+            } catch (error) {
+                results.push(`❌ API test error: ${error.message}`);
+            }
+            
+            resultsDiv.innerHTML = `
+                <ul>
+                    ${results.map(result => `<li>${result}</li>`).join('')}
+                </ul>
+            `;
+        }
+        
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            refreshStatus();
+        });
+    </script>
+</body>
+</html>

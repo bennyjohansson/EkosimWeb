@@ -12,7 +12,8 @@
     <script>var exports = {};</script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js">     </script>
 
-    <!-- Getting firebase -->
+    <!-- Modern Authentication System -->
+    <!-- Firebase scripts temporarily kept for compatibility, will be removed in final version -->
     <script src="https://www.gstatic.com/firebasejs/4.8.2/firebase.js"></script>
     <script src="https://www.gstatic.com/firebasejs/4.8.2/firebase-auth.js"></script>
 
@@ -42,7 +43,10 @@
             </div>
 
                 <div class="navbar-nav ml-auto text-center">
-                    <a class="nav-link" href="#" id="playerName"> Hello </a>
+                    <a class="nav-link" href="#" id="playerName" title="Click to view profile"> 
+                        <span class="user-greeting">Hello</span>
+                        <small class="user-level" style="opacity: 0.8;"></small>
+                    </a>
                 </div>
         </nav>
 
@@ -298,8 +302,11 @@
 
 
 </body>
+<!-- Modern Authentication System -->
+<script src="./app/auth-api.js"></script>
+<script src="./app/main-auth.js"></script>
+<!-- Legacy scripts for backward compatibility -->
 <script src="./app/fireBase.js"></script>
-<script src="./app/main.js"></script>
 
 
 </html>

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>EcoSim - Sign In</title>
+    
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    
+    <!-- Custom CSS -->
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .eco-branding {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+        }
+        
+        .eco-logo {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .eco-tagline {
+            color: rgba(255,255,255,0.9);
+            font-size: 0.9rem;
+            margin-top: 0.25rem;
+        }
+        
+        /* Override the auth container background for full page */
+        .auth-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            margin: 0;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Branding -->
+    <div class="eco-branding">
+        <div class="eco-logo">🌍 EcoSim</div>
+        <div class="eco-tagline">Economic Simulation Platform</div>
+    </div>
+
+    <!-- Main Login Container -->
+    <div id="firebaseui-auth-container"></div>
+
+    <!-- Loading indicator -->
+    <div id="loading" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 2000;">
+        <div class="text-center">
+            <div class="spinner-border text-primary" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+            <div class="mt-2">Initializing...</div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../app/auth-api.js"></script>
+    <script src="../app/auth-component.js"></script>
+    
+    <script>
+        // Show loading initially
+        document.getElementById('loading').style.display = 'block';
+        
+        // Hide loading when auth component is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                document.getElementById('loading').style.display = 'none';
+            }, 500);
+        });
+
+        // Handle authentication errors
+        window.addEventListener('error', function(e) {
+            console.error('Login page error:', e.error);
+            document.getElementById('loading').style.display = 'none';
+        });
+
+        // Check if already authenticated
+        window.addEventListener('load', async function() {
+            if (window.authAPI && window.authAPI.isAuthenticated()) {
+                console.log('🔐 Already authenticated, redirecting...');
+                window.location.href = '../index.html';
+            }
+        });
+    </script>
+</body>
+</html>
