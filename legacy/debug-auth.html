@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Authentication Flow</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .debug-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Authentication Debug</h1>
+    
+    <div class="debug-section">
+        <h2>Local Storage Inspection</h2>
+        <div id="localStorage-content"></div>
+        <button onclick="inspectLocalStorage()">Refresh Local Storage</button>
+        <button onclick="clearStorage()">Clear All Storage</button>
+    </div>
+    
+    <div class="debug-section">
+        <h2>Authentication API Test</h2>
+        <div id="auth-test-results"></div>
+        <button onclick="testAuthAPI()">Test Auth API</button>
+    </div>
+    
+    <div class="debug-section">
+        <h2>Quick Actions</h2>
+        <button onclick="window.location.href='./html/login-modern.html'">Go to Login</button>
+        <button onclick="window.location.href='./index.html'">Go to Main App</button>
+        <button onclick="testMainPage()">Test Main Page Logic</button>
+    </div>
+
+    <script src="./app/auth-api.js"></script>
+    <script>
+        function inspectLocalStorage() {
+            const content = document.getElementById('localStorage-content');
+            let html = '<h3>Local Storage Contents:</h3>';
+            
+            // Check our auth keys
+            const token = localStorage.getItem('auth_token');
+            const user = localStorage.getItem('auth_user');
+            
+            html += `<p><strong>auth_token:</strong> ${token ? token.substring(0, 50) + '...' : 'null'}</p>`;
+            html += `<p><strong>auth_user:</strong> ${user || 'null'}</p>`;
+            
+            // Check if authAPI is working
+            if (window.authAPI) {
+                html += `<p class="success">✅ authAPI loaded</p>`;
+                html += `<p><strong>authAPI.isAuthenticated():</strong> ${window.authAPI.isAuthenticated()}</p>`;
+                html += `<p><strong>authAPI.getCurrentUser():</strong> ${JSON.stringify(window.authAPI.getCurrentUser())}</p>`;
+            } else {
+                html += `<p class="error">❌ authAPI not loaded</p>`;
+            }
+            
+            content.innerHTML = html;
+        }
+        
+        async function testAuthAPI() {
+            const results = document.getElementById('auth-test-results');
+            results.innerHTML = '<p class="info">Testing...</p>';
+            
+            try {
+                // Test if API is accessible
+                const response = await fetch('/api/auth/verify', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token: window.authAPI?.getToken() || 'test' })
+                });
+                
+                const data = await response.json();
+                results.innerHTML = `
+                    <h3>API Test Results:</h3>
+                    <p><strong>Status:</strong> ${response.status}</p>
+                    <p><strong>Response:</strong> ${JSON.stringify(data, null, 2)}</p>
+                `;
+            } catch (error) {
+                results.innerHTML = `<p class="error">❌ API Error: ${error.message}</p>`;
+            }
+        }
+        
+        function clearStorage() {
+            localStorage.clear();
+            inspectLocalStorage();
+            alert('Storage cleared!');
+        }
+        
+        async function testMainPage() {
+            console.log('🔍 Testing main page authentication logic...');
+            
+            if (window.authAPI) {
+                try {
+                    await window.authAPI.initialize();
+                    console.log('Auth initialized:', window.authAPI.isAuthenticated());
+                    console.log('Current user:', window.authAPI.getCurrentUser());
+                } catch (error) {
+                    console.error('Auth initialization error:', error);
+                }
+            }
+        }
+        
+        // Auto-run on load
+        document.addEventListener('DOMContentLoaded', function() {
+            inspectLocalStorage();
+            console.log('🔍 Debug page loaded');
+            console.log('Current URL:', window.location.href);
+            console.log('authAPI available:', !!window.authAPI);
+        });
+    </script>
+</body>
+</html>

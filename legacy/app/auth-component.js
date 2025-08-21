@@ -265,7 +265,8 @@ class LoginComponent {
                 
                 // Redirect after short delay
                 setTimeout(() => {
-                    window.location.href = '../index.html';
+                    // Use absolute path to avoid any confusion
+                    window.location.href = '/';
                 }, 1500);
             } else {
                 this.showError(result.error || 'Authentication failed');

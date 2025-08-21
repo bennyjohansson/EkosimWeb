@@ -16,11 +16,11 @@ var mainApp = {};
     try {
       window.authAPI.logout();
       console.log('🔐 User logged out successfully');
-      window.location.replace("./html/login.html");
+      window.location.replace("./html/login-modern.html");
     } catch (error) {
       console.error('Logout error:', error);
       // Force redirect anyway
-      window.location.replace("./html/login.html");
+      window.location.replace("./html/login-modern.html");
     }
   }
 
@@ -73,14 +73,14 @@ var mainApp = {};
         if (mainContainer) {
           mainContainer.style.display = "none";
         }
-        window.location.replace("./html/login.html");
+        window.location.replace("./html/login-modern.html");
       }
     } catch (error) {
       console.error('🔐 Authentication initialization error:', error);
       if (mainContainer) {
         mainContainer.style.display = "none";
       }
-      window.location.replace("./html/login.html");
+      window.location.replace("./html/login-modern.html");
     }
   }
 
@@ -94,7 +94,7 @@ var mainApp = {};
       if (mainContainer) {
         mainContainer.style.display = "none";
       }
-      window.location.replace("./html/login.html");
+      window.location.replace("./html/login-modern.html");
     }
   }
 

@@ -42,8 +42,22 @@ export interface UserGameData {
 }
 
 export interface AuthCredentials {
-  username: string
+  username?: string
+  email: string
   password: string
+  level?: 'beginner' | 'intermediate' | 'advanced'
+}
+
+export interface LoginCredentials {
+  email: string
+  password: string
+}
+
+export interface RegisterCredentials {
+  username: string
+  email: string
+  password: string
+  level: 'beginner' | 'intermediate' | 'advanced'
 }
 
 export interface AuthResponse {
