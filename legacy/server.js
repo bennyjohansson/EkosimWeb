@@ -3,6 +3,11 @@ var app = express();
 let DBFunctions = require('./DBConnection')
 const sqlite3 = require('sqlite3').verbose();
 
+// Load environment configuration for authentication
+require('dotenv').config();
+const AuthRoutes = require('./routes/auth');
+const { authConfig, validateAuthConfig } = require('./config/auth.js');
+
 
 var bodyParser = require('body-parser');
 
@@ -348,10 +353,28 @@ app.get('/ekosim/getHighScore/', (req, res, next) => {
 
     });
 
+    // Initialize authentication system
+    console.log('🔐 Initializing authentication system...');
+    try {
+        validateAuthConfig();
+        const authRoutes = new AuthRoutes(authConfig);
+        app.use('/api/auth', authRoutes.getRouter());
+        console.log('✅ Authentication routes mounted at /api/auth');
+    } catch (error) {
+        console.error('❌ Failed to initialize authentication:', error.message);
+        process.exit(1);
+    }
+
     //8080
     app.listen(8080, function () {
 
 
         console.log('Forst API running on port 8080');
+        console.log('🔐 Authentication endpoints available:');
+        console.log('  POST /api/auth/register - Register new user');
+        console.log('  POST /api/auth/login - User login');
+        console.log('  GET  /api/auth/profile - Get user profile (protected)');
+        console.log('  PUT  /api/auth/profile - Update profile (protected)');
+        console.log('  POST /api/auth/verify - Verify JWT token');
         //console.log(port);
     });
