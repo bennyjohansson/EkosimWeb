@@ -4,8 +4,16 @@
   "description": "HTML and .js for Ekosim",
   "main": "DBConnection.js",
   "dependencies": {
+    "bcryptjs": "^3.0.2",
     "chart.js": "^2.9.4",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.1",
     "express": "^4.17.1",
+    "express-rate-limit": "^8.0.1",
+    "jsonwebtoken": "^9.0.2",
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0",
+    "passport-local": "^1.0.0",
     "sqlite3": "^5.1.7"
   },
   "scripts": {
@@ -21,5 +29,12 @@
   "bugs": {
     "url": "https://github.com/bennyjohansson/EkosimWeb/issues"
   },
-  "homepage": "https://github.com/bennyjohansson/EkosimWeb#readme"
+  "homepage": "https://github.com/bennyjohansson/EkosimWeb#readme",
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/passport": "^1.0.17",
+    "@types/passport-google-oauth20": "^2.0.16",
+    "@types/passport-local": "^1.0.38"
+  }
 }
