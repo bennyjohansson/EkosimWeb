@@ -64,7 +64,7 @@ export const useSimulationStore = defineStore('simulation', () => {
   // ===== COMPUTED GETTERS =====
 
   const isAuthenticated = computed(() => {
-    return user.value?.isAuthenticated ?? false
+    return user.value !== null
   })
 
   const currentCountry = computed(() => {
@@ -312,13 +312,14 @@ export const useSimulationStore = defineStore('simulation', () => {
 
     try {
       // This would integrate with Firebase auth
-      // For now, simulate login
+      // For now, simulate login with new User interface
       user.value = {
-        uid: 'demo-user',
+        id: 'demo-user',
+        username: email.split('@')[0],
         email,
-        displayName: email.split('@')[0],
-        country: currentCountry.value,
-        isAuthenticated: true
+        level: 'beginner',
+        createdAt: new Date().toISOString(),
+        lastLoginAt: new Date().toISOString()
       }
     } catch (error) {
       setError('LOGIN_FAILED', parseAPIError(error))

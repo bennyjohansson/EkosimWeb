@@ -7,6 +7,7 @@
  * - Economic entities: Consumers, Companies, Banks, Government
  * - Time-series data: Money supply, GDP, Company performance
  * - Parameters: Interest rates, spending behavior, taxes, etc.
+ * - Authentication: User management for educational multiplayer features
  */
 
 // ===== CORE TYPES =====
@@ -15,6 +16,57 @@ export type CountryCode = 'Bennyland' | 'Saraland' | 'Otherland'
 export type CompanyName = string
 export type ParameterName = string
 export type Timestamp = number
+
+// ===== AUTHENTICATION TYPES =====
+
+export interface User {
+  id: string
+  username: string
+  email: string
+  level: 'beginner' | 'intermediate' | 'expert'
+  createdAt: string
+  lastLoginAt?: string
+}
+
+export interface UserGameData {
+  userId: string
+  score: number
+  achievements: string[]
+  unlockedScenarios: string[]
+  completedTutorials: string[]
+  preferences: {
+    difficulty: 'easy' | 'medium' | 'hard'
+    autoSave: boolean
+    notifications: boolean
+  }
+}
+
+export interface AuthCredentials {
+  username: string
+  password: string
+}
+
+export interface AuthResponse {
+  success: boolean
+  token?: string
+  user?: User
+  error?: string
+}
+
+export interface GameSession {
+  id: string
+  userId: string
+  countryCode: CountryCode
+  isMultiplayer: boolean
+  participants?: string[]
+  createdAt: string
+  lastActivity: string
+  gameSettings: {
+    difficulty: 'beginner' | 'intermediate' | 'expert'
+    scenario?: string
+    timeLimit?: number
+  }
+}
 
 // ===== API RESPONSE WRAPPER =====
 
@@ -165,16 +217,6 @@ export interface SimulationState {
   lastCompanyTimestamp: number
   isRunning: boolean
   currentParameters: EconomicParameter[]
-}
-
-// ===== USER AUTHENTICATION =====
-
-export interface User {
-  uid: string
-  email: string
-  displayName?: string
-  country?: CountryCode
-  isAuthenticated: boolean
 }
 
 // ===== API ENDPOINTS INTERFACE =====

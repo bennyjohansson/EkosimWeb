@@ -93,7 +93,6 @@ import {
   type ChartConfiguration
 } from 'chart.js'
 import { simulationAPI, parseAPIError } from '@/services/simulationAPI'
-import { createMoneyChart } from '@/utils/chartConfig'
 import type { CountryCode, MoneyDataPoint } from '@/types/simulation'
 
 // Register Chart.js components
