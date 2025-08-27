@@ -18,6 +18,20 @@ export default defineConfig({
         target: 'http://localhost:8080',
         changeOrigin: true,
       },
+      // Proxy authentication API calls
+      '/api': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+      },
+      // Proxy any other backend routes
+      '/getWorldTable': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+      },
+      '/getHighScore': {
+        target: 'http://localhost:8080', 
+        changeOrigin: true,
+      },
     },
   },
   build: {

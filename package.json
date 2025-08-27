@@ -1,0 +1,15 @@
+{
+  "name": "ekosim-unified",
+  "version": "1.0.0",
+  "description": "Unified development environment for EkoSim",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:legacy\" \"npm run dev:modern\"",
+    "dev:legacy": "cd legacy && node server.js",
+    "dev:modern": "cd modern && npm run dev",
+    "start": "npm run dev",
+    "test:proxy": "node test-proxy.js"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
