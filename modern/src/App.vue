@@ -3,35 +3,17 @@
     <header class="app-header">
       <h1>🏛️ EkoSim - Economic Simulation Dashboard</h1>
       <nav class="app-nav">
-        <a href="#dashboard" class="nav-link active">Dashboard</a>
-        <a href="#admin" class="nav-link">Admin</a>
-        <a href="#company" class="nav-link">Company</a>
-        <a href="#bank" class="nav-link">Bank</a>
-        <a href="#highscore" class="nav-link">High Score</a>
+        <router-link to="/" class="nav-link">Dashboard</router-link>
+        <router-link to="/admin" class="nav-link">Admin</router-link>
+        <router-link to="/company" class="nav-link">Company</router-link>
+        <router-link to="/bank" class="nav-link">Bank</router-link>
+        <router-link to="/highscore" class="nav-link">High Score</router-link>
       </nav>
     </header>
     
     <main class="app-main">
-      <!-- This will be replaced with Vue Router views -->
-      <div class="dashboard-placeholder">
-        <h2>🚧 Modern EkoSim Dashboard</h2>
-        <p>Clean Vue 3 + TypeScript frontend ready for feature development</p>
-        
-        <div class="quick-stats">
-          <div class="stat-card">
-            <h3>API Connection</h3>
-            <span class="status-indicator">🟢 Connected</span>
-          </div>
-          <div class="stat-card">
-            <h3>Authentication</h3>
-            <span class="status-indicator">🔐 Ready</span>
-          </div>
-          <div class="stat-card">
-            <h3>Database</h3>
-            <span class="status-indicator">💾 Active</span>
-          </div>
-        </div>
-      </div>
+      <!-- Vue Router will render views here -->
+      <router-view />
     </main>
     
     <footer class="app-footer">
@@ -41,7 +23,7 @@
 </template>
 
 <script setup lang="ts">
-// Clean minimal App.vue ready for routing
+// Clean App.vue with Vue Router integration
 </script>
 
 <style scoped>
@@ -83,6 +65,12 @@
 }
 
 .nav-link.active {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+/* Vue Router active link styles */
+.nav-link.router-link-active {
   background: rgba(255, 255, 255, 0.3);
   border-color: rgba(255, 255, 255, 0.4);
 }
