@@ -8,6 +8,19 @@
         <router-link to="/company" class="nav-link">Company</router-link>
         <router-link to="/bank" class="nav-link">Bank</router-link>
         <router-link to="/highscore" class="nav-link">High Score</router-link>
+        
+        <!-- Authentication controls -->
+        <div class="auth-controls">
+          <span v-if="store.user" class="user-info">
+            👤 {{ store.user.username }}
+          </span>
+          <button v-if="store.isAuthenticated" @click="handleLogout" class="logout-btn">
+            🚪 Logout
+          </button>
+          <router-link v-else to="/login" class="nav-link login-link">
+            🔐 Login
+          </router-link>
+        </div>
       </nav>
     </header>
     
@@ -23,7 +36,16 @@
 </template>
 
 <script setup lang="ts">
-// Clean App.vue with Vue Router integration
+import { useRouter } from 'vue-router'
+import { useSimulationStore } from '@/stores/simulation'
+
+const router = useRouter()
+const store = useSimulationStore()
+
+function handleLogout() {
+  store.logout()
+  router.push('/login')
+}
 </script>
 
 <style scoped>
@@ -45,7 +67,46 @@
   display: flex;
   gap: 2rem;
   justify-content: center;
+  align-items: center;
   flex-wrap: wrap;
+}
+
+.auth-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-left: auto;
+}
+
+.user-info {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.875rem;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+}
+
+.logout-btn {
+  background: rgba(239, 68, 68, 0.8);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: background 0.2s;
+}
+
+.logout-btn:hover {
+  background: rgba(239, 68, 68, 1);
+}
+
+.login-link {
+  background: rgba(16, 185, 129, 0.8) !important;
+}
+
+.login-link:hover {
+  background: rgba(16, 185, 129, 1) !important;
 }
 
 .nav-link {
