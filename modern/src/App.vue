@@ -2,45 +2,46 @@
   <div id="app">
     <header class="app-header">
       <h1>🏛️ EkoSim - Economic Simulation Dashboard</h1>
-      <p class="subtitle">Modern Vue 3 + TypeScript Frontend</p>
+      <nav class="app-nav">
+        <a href="#dashboard" class="nav-link active">Dashboard</a>
+        <a href="#admin" class="nav-link">Admin</a>
+        <a href="#company" class="nav-link">Company</a>
+        <a href="#bank" class="nav-link">Bank</a>
+        <a href="#highscore" class="nav-link">High Score</a>
+      </nav>
     </header>
     
     <main class="app-main">
-      <!-- Status card for completion -->
-      <div class="status-card">
-        <h2>✅ TypeScript Interfaces & API Service Complete!</h2>
-        <div class="features">
-          <div class="feature">
-            <span class="icon">🔗</span>
-            <span>Type-safe API Client</span>
+      <!-- This will be replaced with Vue Router views -->
+      <div class="dashboard-placeholder">
+        <h2>🚧 Modern EkoSim Dashboard</h2>
+        <p>Clean Vue 3 + TypeScript frontend ready for feature development</p>
+        
+        <div class="quick-stats">
+          <div class="stat-card">
+            <h3>API Connection</h3>
+            <span class="status-indicator">🟢 Connected</span>
           </div>
-          <div class="feature">
-            <span class="icon">📘</span>
-            <span>Comprehensive TypeScript Interfaces</span>
+          <div class="stat-card">
+            <h3>Authentication</h3>
+            <span class="status-indicator">🔐 Ready</span>
           </div>
-          <div class="feature">
-            <span class="icon">🗄️</span>
-            <span>Pinia Store with State Management</span>
-          </div>
-          <div class="feature">
-            <span class="icon">🧪</span>
-            <span>Interactive Demo Component</span>
+          <div class="stat-card">
+            <h3>Database</h3>
+            <span class="status-indicator">💾 Active</span>
           </div>
         </div>
       </div>
-
-      <!-- Interactive demo -->
-      <SimulationDemo />
     </main>
     
     <footer class="app-footer">
-      <p>🎯 TypeScript interfaces ready for modern frontend development!</p>
+      <p>EkoSim v2.0 - Modern Economic Simulation Platform</p>
     </footer>
   </div>
 </template>
 
 <script setup lang="ts">
-import SimulationDemo from '@/components/SimulationDemo.vue'
+// Clean minimal App.vue ready for routing
 </script>
 
 <style scoped>
