@@ -2,6 +2,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 import DashboardView from '@/views/DashboardView.vue'
 import AdminView from '@/views/AdminView.vue'
 import CompanyView from '@/views/CompanyView.vue'
+import BankView from '@/views/BankView.vue'
+import HighScoreView from '@/views/HighScoreView.vue'
 import LoginView from '@/views/LoginView.vue'
 
 const routes = [
@@ -27,17 +29,17 @@ const routes = [
     component: CompanyView,
     meta: { requiresAuth: true }
   },
-  // Placeholder routes for future views
   {
     path: '/bank',
     name: 'Bank',
-    component: () => import('@/views/DashboardView.vue'), // Temporary fallback
+    component: BankView,
     meta: { requiresAuth: true }
   },
   {
     path: '/highscore',
     name: 'HighScore',
-    component: () => import('@/views/DashboardView.vue') // Temporary fallback
+    component: HighScoreView,
+    meta: { requiresAuth: true }
   }
 ]
 
@@ -47,25 +49,37 @@ const router = createRouter({
 })
 
 // Route guards for authentication
-router.beforeEach((to, from, next) => {
-  // Import store inside the guard to avoid circular dependency
-  const { useSimulationStore } = require('@/stores/simulation')
+router.beforeEach(async (to, _from, next) => {
+  console.log('=== ROUTE GUARD ===')
+  console.log('Navigating to:', to.path)
+  console.log('Route meta:', to.meta)
+  
+  // Import store dynamically to avoid circular dependency
+  const { useSimulationStore } = await import('@/stores/simulation')
   const store = useSimulationStore()
+  
+  console.log('User in store:', store.user)
+  console.log('Is authenticated:', store.isAuthenticated)
   
   // Check if route requires authentication
   if (to.meta.requiresAuth) {
+    console.log('Route requires authentication')
     if (store.isAuthenticated) {
+      console.log('User is authenticated, proceeding')
       next() // User is authenticated, proceed
     } else {
       // Redirect to login with return path
+      console.log('Route guard: Redirecting to login, not authenticated')
       next({
         name: 'Login',
         query: { redirect: to.fullPath }
       })
     }
   } else {
+    console.log('Route does not require authentication, proceeding')
     next() // Route doesn't require auth, proceed
   }
+  console.log('=== END ROUTE GUARD ===')
 })
 
 export default router

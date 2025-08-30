@@ -96,7 +96,7 @@ function handleDemoLogin() {
     id: 'demo-user',
     username: 'Demo User',
     email: 'demo@ekosim.com',
-    level: 'admin',
+    level: 'expert',
     createdAt: new Date().toISOString(),
     lastLoginAt: new Date().toISOString()
   }
