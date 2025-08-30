@@ -58,6 +58,35 @@
   font-size: 2.5rem;
 }
 
+.app-nav {
+  margin-top: 1rem;
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.nav-link {
+  color: white;
+  text-decoration: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  font-weight: 500;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.nav-link:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.nav-link.active {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
 .subtitle {
   margin: 0.5rem 0 0 0;
   opacity: 0.9;
@@ -70,38 +99,49 @@
   padding: 0 2rem;
 }
 
-.status-card {
+.dashboard-placeholder {
   background: white;
   border-radius: 12px;
   padding: 2rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  border-left: 4px solid #667eea;
+  text-align: center;
 }
 
-.status-card h2 {
+.dashboard-placeholder h2 {
   color: #2d3748;
   margin-top: 0;
+  margin-bottom: 1rem;
 }
 
-.features {
+.dashboard-placeholder p {
+  color: #718096;
+  margin-bottom: 2rem;
+}
+
+.quick-stats {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
-  margin: 1.5rem 0;
+  gap: 1.5rem;
+  margin-top: 2rem;
 }
 
-.feature {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem;
+.stat-card {
   background: #f7fafc;
   border-radius: 8px;
+  padding: 1.5rem;
   border: 1px solid #e2e8f0;
+  text-align: center;
 }
 
-.icon {
-  font-size: 1.2rem;
+.stat-card h3 {
+  margin: 0 0 0.5rem 0;
+  color: #2d3748;
+  font-size: 1rem;
+}
+
+.status-indicator {
+  font-size: 0.875rem;
+  font-weight: 500;
 }
 
 .app-footer {
