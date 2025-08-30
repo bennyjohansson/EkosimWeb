@@ -6,10 +6,16 @@
     "dev": "concurrently \"npm run dev:legacy\" \"npm run dev:modern\"",
     "dev:legacy": "cd legacy && node server.js",
     "dev:modern": "cd modern && npm run dev",
+    "build": "cd modern && npm run build",
+    "start:prod": "cd legacy && NODE_ENV=production node server.js",
     "start": "npm run dev",
-    "test:proxy": "node test-proxy.js"
+    "test:proxy": "node test-proxy.js",
+    "build:start": "npm run build && npm run start:prod"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
+  },
+  "dependencies": {
+    "axios": "^1.11.0"
   }
 }

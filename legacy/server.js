@@ -2,6 +2,7 @@ var express = require('express');
 var app = express();
 let DBFunctions = require('./DBConnection')
 const sqlite3 = require('sqlite3').verbose();
+const path = require('path');
 
 // Load environment configuration for authentication
 require('dotenv').config();
@@ -14,8 +15,34 @@ var bodyParser = require('body-parser');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
-// Serve static files
-app.use(express.static('.'));
+// Production: Serve Vue build from modern/dist
+// Development: This is skipped (Vite handles frontend)
+const isProduction = process.env.NODE_ENV === 'production';
+if (isProduction) {
+    console.log('🚀 Production mode: Serving Vue app from /modern/dist');
+    
+    // Serve static assets from Vue build
+    app.use(express.static(path.join(__dirname, '../modern/dist')));
+    
+    // For any non-API routes, serve the Vue app (SPA routing)
+    app.get('*', (req, res, next) => {
+        // Skip API routes - let them be handled by existing endpoints
+        if (req.path.startsWith('/ekosim') || 
+            req.path.startsWith('/api') || 
+            req.path.startsWith('/getWorldTable') || 
+            req.path.startsWith('/getHighScore')) {
+            return next();
+        }
+        
+        // Serve Vue app for all other routes
+        res.sendFile(path.join(__dirname, '../modern/dist/index.html'));
+    });
+} else {
+    console.log('🔧 Development mode: Vue app served by Vite proxy');
+    
+    // Original static file serving for development
+    app.use(express.static('.'));
+}
 
 app.use(function (req, res, next) {
 
