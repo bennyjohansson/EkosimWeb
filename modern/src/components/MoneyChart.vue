@@ -15,6 +15,49 @@
           Stop Auto-Update
         </button>
       </div>
+      
+      <!-- Series Visibility Controls -->
+      <div class="series-controls">
+        <h4>📊 Data Series</h4>
+        <div class="series-checkboxes">
+          <label class="series-checkbox">
+            <input 
+              type="checkbox" 
+              v-model="seriesVisibility.totalCapital"
+              @change="updateChart"
+            />
+            <span class="series-color" style="background-color: rgb(75, 192, 192)"></span>
+            Total Capital
+          </label>
+          <label class="series-checkbox">
+            <input 
+              type="checkbox" 
+              v-model="seriesVisibility.consumerCapital"
+              @change="updateChart"
+            />
+            <span class="series-color" style="background-color: rgb(255, 99, 132)"></span>
+            Consumer Capital
+          </label>
+          <label class="series-checkbox">
+            <input 
+              type="checkbox" 
+              v-model="seriesVisibility.bankCapital"
+              @change="updateChart"
+            />
+            <span class="series-color" style="background-color: rgb(54, 162, 235)"></span>
+            Bank Capital
+          </label>
+          <label class="series-checkbox">
+            <input 
+              type="checkbox" 
+              v-model="seriesVisibility.companyCapital"
+              @change="updateChart"
+            />
+            <span class="series-color" style="background-color: rgb(255, 206, 86)"></span>
+            Company Capital
+          </label>
+        </div>
+      </div>
     </div>
     
     <div class="chart-container">
@@ -136,6 +179,14 @@ const lastTimestamp = ref(0)
 let chart: Chart | null = null
 let updateInterval: ReturnType<typeof setInterval> | null = null
 
+// Series visibility controls
+const seriesVisibility = ref({
+  totalCapital: true,
+  consumerCapital: true,
+  bankCapital: true,
+  companyCapital: true
+})
+
 // Computed properties
 const latestTimestamp = computed(() => {
   if (dataPoints.value.length === 0) return 'No data'
@@ -181,51 +232,66 @@ function createChartConfig(): ChartConfiguration {
     consumerCapital: consumerCapitalData.slice(0, 3),
     bankCapital: bankCapitalData.slice(0, 3),
     companyCapital: companyCapitalData.slice(0, 3),
-    dataPointsCount: dataPoints.value.length
+    dataPointsCount: dataPoints.value.length,
+    visibility: seriesVisibility.value
   })
+
+  // Build datasets array based on visibility settings
+  const datasets = []
+  
+  if (seriesVisibility.value.totalCapital) {
+    datasets.push({
+      label: 'Total Capital',
+      data: totalCapitalData,
+      borderColor: 'rgb(75, 192, 192)',
+      backgroundColor: 'rgba(75, 192, 192, 0.2)',
+      tension: 0.4,
+      fill: false,
+      pointRadius: 2
+    })
+  }
+  
+  if (seriesVisibility.value.consumerCapital) {
+    datasets.push({
+      label: 'Consumer Capital',
+      data: consumerCapitalData,
+      borderColor: 'rgb(255, 99, 132)',
+      backgroundColor: 'rgba(255, 99, 132, 0.2)',
+      tension: 0.4,
+      fill: false,
+      pointRadius: 2
+    })
+  }
+  
+  if (seriesVisibility.value.bankCapital) {
+    datasets.push({
+      label: 'Bank Capital',
+      data: bankCapitalData,
+      borderColor: 'rgb(54, 162, 235)',
+      backgroundColor: 'rgba(54, 162, 235, 0.2)',
+      tension: 0.4,
+      fill: false,
+      pointRadius: 2
+    })
+  }
+  
+  if (seriesVisibility.value.companyCapital) {
+    datasets.push({
+      label: 'Company Capital',
+      data: companyCapitalData,
+      borderColor: 'rgb(255, 206, 86)',
+      backgroundColor: 'rgba(255, 206, 86, 0.2)',
+      tension: 0.4,
+      fill: false,
+      pointRadius: 2
+    })
+  }
 
   return {
     type: 'line',
     data: {
       labels,
-      datasets: [
-        {
-          label: 'Total Capital',
-          data: totalCapitalData,
-          borderColor: 'rgb(75, 192, 192)',
-          backgroundColor: 'rgba(75, 192, 192, 0.2)',
-          tension: 0.4,
-          fill: false,
-          pointRadius: 2
-        },
-        {
-          label: 'Consumer Capital',
-          data: consumerCapitalData,
-          borderColor: 'rgb(255, 99, 132)',
-          backgroundColor: 'rgba(255, 99, 132, 0.2)',
-          tension: 0.4,
-          fill: false,
-          pointRadius: 2
-        },
-        {
-          label: 'Bank Capital',
-          data: bankCapitalData,
-          borderColor: 'rgb(54, 162, 235)',
-          backgroundColor: 'rgba(54, 162, 235, 0.2)',
-          tension: 0.4,
-          fill: false,
-          pointRadius: 2
-        },
-        {
-          label: 'Company Capital',
-          data: companyCapitalData,
-          borderColor: 'rgb(255, 206, 86)',
-          backgroundColor: 'rgba(255, 206, 86, 0.2)',
-          tension: 0.4,
-          fill: false,
-          pointRadius: 2
-        }
-      ]
+      datasets
     },
     options: {
       responsive: true,
@@ -621,6 +687,58 @@ watch(() => props.selectedCountry, async () => {
   font-family: 'Monaco', 'Consolas', monospace;
 }
 
+/* Series visibility controls */
+.series-controls {
+  margin: 1rem 0;
+  padding: 1rem;
+  background: #f1f5f9;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+}
+
+.series-controls h4 {
+  margin: 0 0 0.75rem 0;
+  font-size: 1rem;
+  color: #334155;
+  font-weight: 600;
+}
+
+.series-checkboxes {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.series-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #475569;
+}
+
+.series-checkbox:hover {
+  background-color: #e2e8f0;
+}
+
+.series-checkbox input[type="checkbox"] {
+  margin: 0;
+  cursor: pointer;
+}
+
+.series-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  display: inline-block;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
 @media (max-width: 768px) {
   .chart-header {
     flex-direction: column;
@@ -634,6 +752,11 @@ watch(() => props.selectedCountry, async () => {
   
   .info-grid {
     grid-template-columns: 1fr;
+  }
+  
+  .series-checkboxes {
+    flex-direction: column;
+    gap: 0.5rem;
   }
 }
 </style>

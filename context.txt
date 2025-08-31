@@ -6,4 +6,4 @@ consumers at tha price that clears the market. Companies can also invest
 in upgrading their production facilities to become more efficient. The 
 backendcode is written in c++ with data stored in an SQLite Database. The frontend uses a number of APIs to interact with eh SQLite database to control the simulation. 
 
-It is very important that you make changes in very small steps and testing them as often as possible. I also would like to work with Git/GitHub using issues and creating a new issue for all larger steps with a corresponding new brach for each issue. As the issue is tested and closed we commit to the main branch. Please remind me of this frequently. 
+It is very important that you make changes in very small steps and testing them as often as possible. I also would like to work with Git/GitHub using issues and creating a new issue for all larger steps with a corresponding new brach for each issue. As the issue is tested and closed we commit to the master branch. Please remind me of this frequently. 
