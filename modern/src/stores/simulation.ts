@@ -17,6 +17,7 @@ import type {
   SimulationState,
   User,
   EconomicParameter,
+  EconomicParameterType,
   ParameterUpdate,
   MoneyDataPoint,
   TimeDataPoint,
@@ -53,6 +54,10 @@ export const useSimulationStore = defineStore('simulation', () => {
   const moneyData = ref<MoneyDataPoint[]>([])
   const timeData = ref<TimeDataPoint[]>([])
   const companyData = ref<CompanyData[]>([])
+  const bankData = ref<CompanyData[]>([])
+
+  // Loading states for specific data
+  const isLoadingBankData = ref(false)
 
   // Error handling
   const lastError = ref<SimulationError | null>(null)
@@ -225,6 +230,61 @@ export const useSimulationStore = defineStore('simulation', () => {
   }
 
   /**
+   * Load bank data (company data for the Bank)
+   */
+  async function loadBankData() {
+    if (isLoadingBankData.value) return
+
+    isLoadingBankData.value = true
+    clearError()
+
+    try {
+      const response = await withRetry(() =>
+        simulationAPI.getCompany(currentCountry.value, 'Bank')
+      )
+
+      if (response.message === 'success') {
+        bankData.value = response.data
+        console.log('Bank data loaded:', response.data)
+      } else {
+        throw new Error(response.error || 'Failed to load bank data')
+      }
+    } catch (error) {
+      setError('LOAD_BANK_DATA_FAILED', parseAPIError(error))
+    } finally {
+      isLoadingBankData.value = false
+    }
+  }
+
+  /**
+   * Update bank parameter (like interest rate)
+   */
+  async function updateBankParameter(parameterName: EconomicParameterType, value: number) {
+    clearError()
+
+    try {
+      const response = await withRetry(() =>
+        simulationAPI.updateParameter(currentCountry.value, {
+          PARAMETER: parameterName,
+          VALUE: value.toString()
+        })
+      )
+
+      if (response.message === 'success') {
+        // Reload parameters to get updated values
+        await loadParameters()
+        // Reload bank data to get updated bank state
+        await loadBankData()
+        console.log(`Bank parameter ${parameterName} updated to ${value}`)
+      } else {
+        throw new Error(response.error || 'Failed to update bank parameter')
+      }
+    } catch (error) {
+      setError('UPDATE_BANK_PARAMETER_FAILED', parseAPIError(error))
+    }
+  }
+
+  /**
    * Start real-time data polling
    */
   function startDataPolling(interval: number = 2000) {
@@ -376,11 +436,13 @@ export const useSimulationStore = defineStore('simulation', () => {
     moneyData: readonly(moneyData),
     timeData: readonly(timeData),
     companyData: readonly(companyData),
+    bankData: readonly(bankData),
     lastError: readonly(lastError),
 
     // Loading states
     isLoading: readonly(isLoading),
     isLoadingParameters: readonly(isLoadingParameters),
+    isLoadingBankData: readonly(isLoadingBankData),
     isPollingData: readonly(isPollingData),
 
     // Computed
@@ -397,6 +459,8 @@ export const useSimulationStore = defineStore('simulation', () => {
     updateParameter,
     loadMoneyDataUpdates,
     loadTimeDataUpdates,
+    loadBankData,
+    updateBankParameter,
     startDataPolling,
     stopDataPolling,
     initialize,

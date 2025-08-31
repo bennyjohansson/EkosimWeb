@@ -103,6 +103,8 @@ export interface EconomicParameter {
 export type EconomicParameterType = 
   | 'TargetInterestRate'
   | 'InterestRateMethod' 
+  | 'MarketInterestRate'
+  | 'CapitalRatio'
   | 'AverageSpendwill'
   | 'AverageBorrowwill'
   | 'InflationTarget'
