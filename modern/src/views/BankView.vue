@@ -268,9 +268,13 @@ const updateBankParameters = async () => {
 }
 
 .bank-compact-layout {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 1rem;
+  overflow: hidden;
 }
 
 .stats-row {
@@ -305,42 +309,48 @@ const updateBankParameters = async () => {
 
 .controls-compact {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: 1fr;
   gap: 1rem;
   background: white;
   border-radius: 6px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   padding: 1rem;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .control-group-compact {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.5rem;
+  gap: 0.5rem;
+  padding: 0.75rem;
   border: 1px solid #e9ecef;
   border-radius: 4px;
   background: #f8f9fa;
+  flex-wrap: nowrap;
+  min-width: 0;
 }
 
 .control-label {
-  min-width: 120px;
+  min-width: 100px;
   font-size: 0.9rem;
   font-weight: 600;
   color: #555;
+  flex-shrink: 0;
 }
 
 .control-input {
-  flex: 1;
+  width: 80px;
+  flex-shrink: 0;
   padding: 0.4rem 0.6rem;
   border: 1px solid #ddd;
   border-radius: 3px;
   font-size: 0.9rem;
-  min-width: 80px;
 }
 
 .current-value-compact {
-  min-width: 80px;
+  min-width: 70px;
+  flex-shrink: 0;
   text-align: center;
   font-weight: 600;
   color: #27ae60;
@@ -359,7 +369,8 @@ const updateBankParameters = async () => {
   font-weight: 600;
   font-size: 0.85rem;
   transition: all 0.2s;
-  min-width: 70px;
+  min-width: 60px;
+  flex-shrink: 0;
 }
 
 .btn-primary {
@@ -453,14 +464,32 @@ const updateBankParameters = async () => {
   }
   
   .control-group-compact {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 0.4rem;
+    padding: 0.6rem;
   }
   
   .control-label {
     min-width: auto;
-    text-align: center;
+    flex: 0 0 100%;
+    text-align: left;
+    margin-bottom: 0.25rem;
+  }
+  
+  .control-input {
+    width: 70px;
+    flex-shrink: 0;
+  }
+  
+  .current-value-compact {
+    min-width: 65px;
+    flex-shrink: 0;
+  }
+  
+  .btn-compact {
+    min-width: 55px;
+    flex-shrink: 0;
   }
   
   .chart-wrapper {
