@@ -57,6 +57,13 @@
             Company Capital
           </label>
         </div>
+        
+        <!-- Reset button -->
+        <div class="reset-controls">
+          <button @click="resetToDefaults" class="btn btn-reset">
+            Reset to Defaults
+          </button>
+        </div>
       </div>
     </div>
     
@@ -122,7 +129,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed, nextTick } from 'vue'
+import { ref, onMounted, onUnmounted, computed, nextTick, watch } from 'vue'
 import {
   Chart,
   CategoryScale,
@@ -186,6 +193,60 @@ const seriesVisibility = ref({
   bankCapital: true,
   companyCapital: true
 })
+
+// localStorage functions for persistence
+const STORAGE_KEY = 'moneyChartConfig'
+
+const saveConfiguration = () => {
+  try {
+    const config = {
+      visibleSeries: { ...seriesVisibility.value },
+      lastUsed: new Date().toISOString()
+    }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(config))
+    console.log('Chart configuration saved:', config)
+  } catch (error) {
+    console.warn('Failed to save chart configuration:', error)
+  }
+}
+
+const loadConfiguration = () => {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY)
+    if (saved) {
+      const config = JSON.parse(saved)
+      if (config.visibleSeries) {
+        seriesVisibility.value = { ...config.visibleSeries }
+        console.log('Chart configuration loaded:', config)
+        return true
+      }
+    }
+  } catch (error) {
+    console.warn('Failed to load chart configuration:', error)
+  }
+  return false
+}
+
+const resetToDefaults = () => {
+  // Define default configuration
+  const defaults = {
+    totalCapital: true,
+    consumerCapital: true,
+    bankCapital: true,
+    companyCapital: true
+  }
+  
+  // Reset to defaults
+  seriesVisibility.value = { ...defaults }
+  
+  // Clear saved configuration
+  try {
+    localStorage.removeItem(STORAGE_KEY)
+    console.log('Chart configuration reset to defaults')
+  } catch (error) {
+    console.warn('Failed to clear saved configuration:', error)
+  }
+}
 
 // Computed properties
 const latestTimestamp = computed(() => {
@@ -525,9 +586,18 @@ function stopAutoUpdate() {
 // Initialize on mount
 onMounted(async () => {
   console.log('Component mounted, loading data...')
+  
+  // Load saved configuration before loading data
+  loadConfiguration()
+  
   await loadData()
   // Chart will be initialized in loadData after data is available
 })
+
+// Auto-save configuration when visibility changes
+watch(seriesVisibility, () => {
+  saveConfiguration()
+}, { deep: true })
 
 // Cleanup on unmount
 onUnmounted(() => {
@@ -538,7 +608,6 @@ onUnmounted(() => {
 })
 
 // Watch for country changes
-import { watch } from 'vue'
 watch(() => props.selectedCountry, async () => {
   // Reset data when country changes
   dataPoints.value = []
@@ -737,6 +806,31 @@ watch(() => props.selectedCountry, async () => {
   border-radius: 2px;
   display: inline-block;
   border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.reset-controls {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+.btn-reset {
+  background-color: #f59e0b;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.2s;
+}
+
+.btn-reset:hover {
+  background-color: #d97706;
+}
+
+.btn-reset:active {
+  background-color: #b45309;
 }
 
 @media (max-width: 768px) {
