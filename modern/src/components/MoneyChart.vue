@@ -64,6 +64,25 @@
             Reset to Defaults
           </button>
         </div>
+        
+        <!-- Preset buttons -->
+        <div class="preset-controls">
+          <h4>Quick Presets:</h4>
+          <div class="preset-buttons">
+            <button @click="applyPreset('banking')" class="btn btn-preset">
+              Banking Focus
+            </button>
+            <button @click="applyPreset('economic')" class="btn btn-preset">
+              Economic Overview
+            </button>
+            <button @click="applyPreset('all')" class="btn btn-preset">
+              All Data
+            </button>
+            <button @click="applyPreset('minimal')" class="btn btn-preset">
+              Minimal View
+            </button>
+          </div>
+        </div>
       </div>
     </div>
     
@@ -245,6 +264,58 @@ const resetToDefaults = () => {
     console.log('Chart configuration reset to defaults')
   } catch (error) {
     console.warn('Failed to clear saved configuration:', error)
+  }
+}
+
+// Preset configurations for economic simulation
+const CHART_PRESETS = {
+  banking: {
+    name: 'Banking Focus',
+    description: 'Focus on banking metrics',
+    config: {
+      totalCapital: false,
+      consumerCapital: false,
+      bankCapital: true,
+      companyCapital: false
+    }
+  },
+  economic: {
+    name: 'Economic Overview', 
+    description: 'Overall economic view',
+    config: {
+      totalCapital: true,
+      consumerCapital: true,
+      bankCapital: false,
+      companyCapital: true
+    }
+  },
+  all: {
+    name: 'All Data',
+    description: 'Show all data series',
+    config: {
+      totalCapital: true,
+      consumerCapital: true,
+      bankCapital: true,
+      companyCapital: true
+    }
+  },
+  minimal: {
+    name: 'Minimal',
+    description: 'Only total capital',
+    config: {
+      totalCapital: true,
+      consumerCapital: false,
+      bankCapital: false,
+      companyCapital: false
+    }
+  }
+}
+
+const applyPreset = (presetKey: keyof typeof CHART_PRESETS) => {
+  const preset = CHART_PRESETS[presetKey]
+  if (preset) {
+    seriesVisibility.value = { ...preset.config }
+    console.log(`Applied preset: ${preset.name}`)
   }
 }
 
@@ -833,6 +904,45 @@ watch(() => props.selectedCountry, async () => {
   background-color: #b45309;
 }
 
+.preset-controls {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+.preset-controls h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.9rem;
+  color: #374151;
+  font-weight: 600;
+}
+
+.preset-buttons {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.btn-preset {
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: background-color 0.2s;
+  white-space: nowrap;
+}
+
+.btn-preset:hover {
+  background-color: #2563eb;
+}
+
+.btn-preset:active {
+  background-color: #1d4ed8;
+}
+
 @media (max-width: 768px) {
   .chart-header {
     flex-direction: column;
@@ -851,6 +961,14 @@ watch(() => props.selectedCountry, async () => {
   .series-checkboxes {
     flex-direction: column;
     gap: 0.5rem;
+  }
+  
+  .preset-buttons {
+    flex-direction: column;
+  }
+  
+  .btn-preset {
+    width: 100%;
   }
 }
 </style>
