@@ -105,6 +105,7 @@ export type EconomicParameterType =
   | 'InterestRateMethod' 
   | 'MarketInterestRate'
   | 'CapitalRatio'
+  | 'CapitalReserveRatio'
   | 'AverageSpendwill'
   | 'AverageBorrowwill'
   | 'InflationTarget'

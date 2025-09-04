@@ -25,12 +25,13 @@
             class="control-input" 
             step="0.1"
             :placeholder="targetInterestRate"
+            :value="newTargetInterestRate || targetInterestRate"
           />
           <span class="current-value-compact">{{ targetInterestRate }}%</span>
           <button 
             @click="updateTargetRate" 
             class="btn-compact btn-primary"
-            :disabled="isUpdating || !newTargetInterestRate"
+            :disabled="isUpdating || (!newTargetInterestRate && newTargetInterestRate !== 0)"
           >
             Set
           </button>
@@ -44,12 +45,13 @@
             class="control-input" 
             step="0.1"
             :placeholder="capitalRatio"
+            :value="newCapitalRatio || capitalRatio"
           />
           <span class="current-value-compact">{{ capitalRatio }}%</span>
           <button 
             @click="updateCapitalRatio" 
             class="btn-compact btn-primary"
-            :disabled="isUpdating || !newCapitalRatio"
+            :disabled="isUpdating || (!newCapitalRatio && newCapitalRatio !== 0)"
           >
             Set
           </button>
@@ -81,7 +83,6 @@ const store = useSimulationStore()
 // Reactive variables for form inputs
 const newTargetInterestRate = ref<number | null>(null)
 const newCapitalRatio = ref<number | null>(null)
-const newInterestRateMethod = ref<number | null>(null)
 const isUpdating = ref(false)
 
 // Computed properties for displaying current values
@@ -96,8 +97,10 @@ const marketInterestRate = computed(() => {
 })
 
 const capitalRatio = computed(() => {
-  const param = store.parameters.find(p => p.PARAMETER === 'CapitalRatio')
-  return param ? parseFloat(String(param.VALUE)).toFixed(2) : '0.00'
+  // Try both parameter names for backward compatibility
+  const param = store.parameters.find(p => p.PARAMETER === 'CapitalReserveRatio') ||
+                store.parameters.find(p => p.PARAMETER === 'CapitalRatio')
+  return param ? (parseFloat(String(param.VALUE)) * 100).toFixed(2) : '0.00'
 })
 
 const interestRateMethod = computed(() => {
@@ -107,49 +110,15 @@ const interestRateMethod = computed(() => {
   return method === 1 ? 'Target' : method === 2 ? 'Market' : 'Manual'
 })
 
-// Load bank data when component mounts
 onMounted(async () => {
   await store.loadBankData()
   await store.loadParameters()
-  await nextTick()
-  
-  // Populate form fields with current values
-  populateCurrentValues()
 })
-
-// Populate form fields with current parameter values
-const populateCurrentValues = () => {
-  // Set current target interest rate (convert from decimal to percentage)
-  const targetParam = store.parameters.find(p => p.PARAMETER === 'TargetInterestRate')
-  if (targetParam) {
-    newTargetInterestRate.value = parseFloat(String(targetParam.VALUE)) * 100
-  }
-  
-  // Set current capital ratio
-  const capitalParam = store.parameters.find(p => p.PARAMETER === 'CapitalRatio')
-  if (capitalParam) {
-    newCapitalRatio.value = parseFloat(String(capitalParam.VALUE))
-  }
-  
-  // Set current interest rate method
-  const methodParam = store.parameters.find(p => p.PARAMETER === 'InterestRateMethod')
-  if (methodParam) {
-    newInterestRateMethod.value = parseFloat(String(methodParam.VALUE))
-  }
-}
 
 // Cleanup chart on unmount (not needed anymore but keeping for clean structure)
 onUnmounted(() => {
   // No chart cleanup needed since we're using MoneyChart component
 })
-
-// Computed properties for bank data
-const bankInfo = computed(() => {
-  if (store.bankData.length === 0) return null
-  return store.bankData[0] // Get the first (and likely only) bank record
-})
-
-const isLoading = computed(() => store.isLoadingBankData)
 
 // Handle using market rate
 const useMarketRate = async () => {
@@ -157,8 +126,11 @@ const useMarketRate = async () => {
   
   isUpdating.value = true
   try {
-    await store.updateBankParameter('InterestRateMethod', 2)
-    console.log('Switched to market interest rate')
+    // Set InterestRateMethod to 1 for market rate (from legacy code)
+    await store.updateBankParameter('InterestRateMethod', 1)
+    console.log('Switched to market interest rate method')
+    // Refresh parameters to show updated values
+    await store.loadParameters()
   } catch (error) {
     console.error('Failed to switch to market rate:', error)
   } finally {
@@ -168,14 +140,18 @@ const useMarketRate = async () => {
 
 // Handle individual parameter updates
 const updateTargetRate = async () => {
-  if (isUpdating.value || !newTargetInterestRate.value) return
+  if (isUpdating.value || (!newTargetInterestRate.value && newTargetInterestRate.value !== 0)) return
   
   isUpdating.value = true
   try {
+    // Set InterestRateMethod to 2 for target rate (from legacy code)
+    await store.updateBankParameter('InterestRateMethod', 2)
+    // Set the target rate value (convert percentage to decimal)
     await store.updateBankParameter('TargetInterestRate', newTargetInterestRate.value / 100)
+    console.log(`Target interest rate set to ${newTargetInterestRate.value}%`)
     newTargetInterestRate.value = null
     await nextTick()
-    populateCurrentValues()
+    await store.loadParameters()
   } catch (error) {
     console.error('Failed to update target rate:', error)
   } finally {
@@ -184,76 +160,18 @@ const updateTargetRate = async () => {
 }
 
 const updateCapitalRatio = async () => {
-  if (isUpdating.value || !newCapitalRatio.value) return
+  if (isUpdating.value || (!newCapitalRatio.value && newCapitalRatio.value !== 0)) return
   
   isUpdating.value = true
   try {
-    await store.updateBankParameter('CapitalRatio', newCapitalRatio.value)
+    // Use CapitalReserveRatio parameter name from legacy code (convert percentage to decimal)
+    await store.updateBankParameter('CapitalReserveRatio', newCapitalRatio.value / 100)
+    console.log(`Capital reserve ratio set to ${newCapitalRatio.value}%`)
     newCapitalRatio.value = null
     await nextTick()
-    populateCurrentValues()
+    await store.loadParameters()
   } catch (error) {
     console.error('Failed to update capital ratio:', error)
-  } finally {
-    isUpdating.value = false
-  }
-}
-
-// Handle bank parameter updates
-const updateBankParameters = async () => {
-  if (isUpdating.value) return
-  
-  isUpdating.value = true
-  let updatesCount = 0
-  
-  try {
-    // Get current values for comparison
-    const currentTargetRate = store.parameters.find(p => p.PARAMETER === 'TargetInterestRate')
-    const currentCapitalRatio = store.parameters.find(p => p.PARAMETER === 'CapitalRatio')
-    const currentMethod = store.parameters.find(p => p.PARAMETER === 'InterestRateMethod')
-    
-    // Update target interest rate if changed
-    if (newTargetInterestRate.value !== null) {
-      const newRate = newTargetInterestRate.value / 100
-      const currentRate = currentTargetRate ? parseFloat(String(currentTargetRate.VALUE)) : 0
-      
-      if (Math.abs(newRate - currentRate) > 0.0001) { // Check for meaningful change
-        await store.updateBankParameter('TargetInterestRate', newRate)
-        updatesCount++
-      }
-    }
-    
-    // Update capital ratio if changed
-    if (newCapitalRatio.value !== null) {
-      const currentRatio = currentCapitalRatio ? parseFloat(String(currentCapitalRatio.VALUE)) : 0
-      
-      if (Math.abs(newCapitalRatio.value - currentRatio) > 0.01) { // Check for meaningful change
-        await store.updateBankParameter('CapitalRatio', newCapitalRatio.value)
-        updatesCount++
-      }
-    }
-    
-    // Update interest rate method if changed
-    if (newInterestRateMethod.value !== null) {
-      const currentMethodValue = currentMethod ? parseFloat(String(currentMethod.VALUE)) : 0
-      
-      if (newInterestRateMethod.value !== currentMethodValue) {
-        await store.updateBankParameter('InterestRateMethod', newInterestRateMethod.value)
-        updatesCount++
-      }
-    }
-    
-    if (updatesCount > 0) {
-      console.log(`Successfully updated ${updatesCount} bank parameter(s)`)
-      // Refresh the form with new current values
-      await nextTick()
-      populateCurrentValues()
-    } else {
-      console.log('No parameter changes detected')
-    }
-    
-  } catch (error) {
-    console.error('Failed to update bank parameters:', error)
   } finally {
     isUpdating.value = false
   }
