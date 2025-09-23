@@ -60,7 +60,7 @@ class AuthRoutes {
     // POST /api/auth/register - Register new user
     this.router.post('/register', async (req, res) => {
       try {
-        const { username, email, password, level } = req.body;
+        const { username, email, password, level, role, assignedCountry } = req.body;
 
         // Validate required fields
         if (!username || !email || !password) {
@@ -79,6 +79,8 @@ class AuthRoutes {
           email,
           password,
           level: level || 'beginner',
+          role: role || 'user',
+          assignedCountry,
           tenantId
         });
 

@@ -396,20 +396,22 @@ export const useSimulationStore = defineStore('simulation', () => {
 
   // ===== USER AUTHENTICATION =====
 
-  async function login(email: string, _password: string) {
+  async function login(email: string, password: string) {
     isLoading.value = true
     clearError()
 
     try {
-      // This would integrate with Firebase auth
-      // For now, simulate login with new User interface
-      user.value = {
-        id: 'demo-user',
-        username: email.split('@')[0],
-        email,
-        level: 'beginner',
-        createdAt: new Date().toISOString(),
-        lastLoginAt: new Date().toISOString()
+      // Import auth service
+      const { authService } = await import('@/services/authService')
+      
+      // Login using JWT authentication
+      const result = await authService.login(email, password)
+      
+      if (result.success && result.user) {
+        user.value = result.user
+        console.log('✅ User logged in:', result.user.email)
+      } else {
+        throw new Error(result.error || 'Login failed')
       }
     } catch (error) {
       setError('LOGIN_FAILED', parseAPIError(error))
@@ -420,9 +422,36 @@ export const useSimulationStore = defineStore('simulation', () => {
   }
 
   async function logout() {
-    stopDataPolling()
-    user.value = null
-    clearError()
+    try {
+      // Import auth service
+      const { authService } = await import('@/services/authService')
+      
+      // Logout and clear auth data
+      authService.logout()
+      user.value = null
+      
+      // Stop data polling
+      stopDataPolling()
+      clearError()
+      
+      console.log('✅ User logged out')
+    } catch (error) {
+      console.error('Logout error:', error)
+    }
+  }
+
+  // Initialize user from stored authentication
+  async function initializeAuth() {
+    try {
+      const { authService } = await import('@/services/authService')
+      
+      if (authService.isAuthenticated()) {
+        user.value = authService.getCurrentUser()
+        console.log('✅ User restored from storage:', user.value?.email)
+      }
+    } catch (error) {
+      console.error('Auth initialization error:', error)
+    }
   }
 
   // ===== ERROR HANDLING =====
@@ -508,6 +537,7 @@ export const useSimulationStore = defineStore('simulation', () => {
     cleanup,
     login,
     logout,
+    initializeAuth,
     clearError
   }
 })

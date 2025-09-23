@@ -21,6 +21,19 @@ function isValidCountry(countryName) {
 require('dotenv').config();
 const AuthRoutes = require('./routes/auth');
 const { authConfig, validateAuthConfig } = require('./config/auth.js');
+const AuthMiddleware = require('./middleware/AuthMiddleware');
+
+// Initialize authentication system BEFORE route definitions
+let authMiddleware = null;
+console.log('🔐 Initializing authentication system...');
+try {
+    validateAuthConfig();
+    authMiddleware = new AuthMiddleware(authConfig);
+    console.log('✅ Auth middleware initialized');
+} catch (error) {
+    console.error('❌ Failed to initialize authentication:', error.message);
+    process.exit(1);
+}
 
 
 var bodyParser = require('body-parser');
@@ -76,7 +89,11 @@ app.use(function (req, res, next) {
     next();
 });
 
-app.put('/ekosim/put/:myCountry', function (req, res) {
+app.put('/ekosim/put/:myCountry', 
+    authMiddleware ? authMiddleware.verifyToken() : (req, res, next) => next(),
+    authMiddleware ? authMiddleware.requireCountryAccess() : (req, res, next) => next(),
+    authMiddleware ? authMiddleware.requireWriteAccess() : (req, res, next) => next(),
+    function (req, res) {
 
     var ParameterID = req.body.PARAMETER;
     var value = req.body.VALUE;
@@ -103,7 +120,11 @@ app.put('/ekosim/put/:myCountry', function (req, res) {
 
 });
 
-app.put('/ekosim/putCompanyParameter/:myCountry', function (req, res) {
+app.put('/ekosim/putCompanyParameter/:myCountry', 
+    authMiddleware ? authMiddleware.verifyToken() : (req, res, next) => next(),
+    authMiddleware ? authMiddleware.requireCountryAccess() : (req, res, next) => next(),
+    authMiddleware ? authMiddleware.requireWriteAccess() : (req, res, next) => next(),
+    function (req, res) {
 
     var ParameterID = req.body.PARAMETER;
     var value = req.body.VALUE;
@@ -135,7 +156,37 @@ app.put('/ekosim/putCompanyParameter/:myCountry', function (req, res) {
 
 
 
-app.get('/ekosim/read/:myCountry', (req, res, next) => {
+app.get('/ekosim/read/:myCountry', 
+    authMiddleware ? authMiddleware.optionalAuth() : (req, res, next) => next(),
+    (req, res, next) => {
+    var myCountry = req.params.myCountry;
+    
+    // Check access if user is authenticated
+    if (req.user && authMiddleware) {
+        authMiddleware.userService.checkUserCountryAccess(req.user.id, myCountry)
+            .then(access => {
+                if (!access.hasAccess) {
+                    return res.status(403).json({
+                        "message": "error",
+                        "error": `Access denied to country: ${myCountry}`
+                    });
+                }
+                // Continue with request
+                next();
+            })
+            .catch(error => {
+                console.error('Country access check failed:', error);
+                return res.status(500).json({
+                    "message": "error", 
+                    "error": "Failed to verify country access"
+                });
+            });
+    } else {
+        // No authentication, allow but log the request
+        console.log(`📖 Unauthenticated read access to ${myCountry}`);
+        next();
+    }
+}, (req, res) => {
 
     var myPath = '../../ekosim/myDB/';
     var myCountry = req.params.myCountry; // //
@@ -533,16 +584,13 @@ app.get('/ekosim/getHighScore/', (req, res, next) => {
         }
     });
 
-    // Initialize authentication system
-    console.log('🔐 Initializing authentication system...');
+    // Mount authentication routes
     try {
-        validateAuthConfig();
         const authRoutes = new AuthRoutes(authConfig);
         app.use('/api/auth', authRoutes.getRouter());
         console.log('✅ Authentication routes mounted at /api/auth');
     } catch (error) {
-        console.error('❌ Failed to initialize authentication:', error.message);
-        process.exit(1);
+        console.error('❌ Failed to mount authentication routes:', error.message);
     }
 
     //8080

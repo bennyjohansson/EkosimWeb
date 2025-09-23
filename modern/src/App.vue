@@ -36,11 +36,17 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useSimulationStore } from '@/stores/simulation'
 
 const router = useRouter()
 const store = useSimulationStore()
+
+// Initialize authentication on app startup
+onMounted(async () => {
+  await store.initializeAuth()
+})
 
 function handleLogout() {
   store.logout()

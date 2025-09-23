@@ -49,9 +49,20 @@ class HTTPClient {
   ): Promise<ApiResponse<T>> {
     const url = `${this.baseURL}${endpoint}`
     
+    // Get auth headers from auth service
+    let authHeaders = {}
+    try {
+      const { authService } = await import('@/services/authService')
+      authHeaders = authService.getAuthHeaders()
+    } catch (error) {
+      // Auth service not available, continue without auth headers
+      console.warn('Auth service not available:', error)
+    }
+    
     const config: RequestInit = {
       headers: {
         'Content-Type': 'application/json',
+        ...authHeaders,
         ...options.headers,
       },
       ...options,
