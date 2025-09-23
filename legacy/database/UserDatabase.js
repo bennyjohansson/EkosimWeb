@@ -27,8 +27,8 @@ class UserDatabase {
         console.log('✅ Connected to users database');
       });
 
-      // Create users table with cloud-ready schema
       db.serialize(() => {
+        // First, ensure the basic users table exists
         db.run(`
           CREATE TABLE IF NOT EXISTS users (
             id TEXT PRIMARY KEY,
@@ -36,6 +36,8 @@ class UserDatabase {
             email TEXT UNIQUE NOT NULL,
             password_hash TEXT NOT NULL,
             level TEXT DEFAULT 'beginner' CHECK(level IN ('beginner', 'intermediate', 'expert')),
+            role TEXT DEFAULT 'user' CHECK(role IN ('user', 'admin', 'test')),
+            assigned_country TEXT,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             last_login_at DATETIME,
             is_active BOOLEAN DEFAULT 1,
@@ -74,6 +76,29 @@ class UserDatabase {
           }
         });
 
+        // Create user_countries table for country access control
+        db.run(`
+          CREATE TABLE IF NOT EXISTS user_countries (
+            id TEXT PRIMARY KEY,
+            user_id TEXT NOT NULL,
+            country_code TEXT NOT NULL,
+            access_level TEXT DEFAULT 'full' CHECK(access_level IN ('full', 'readonly')),
+            assigned_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            assigned_by TEXT,
+            is_active BOOLEAN DEFAULT 1,
+            FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
+            UNIQUE(user_id, country_code)
+          )
+        `, (err) => {
+          if (err) {
+            console.error('Error creating user_countries table:', err.message);
+            reject(err);
+            return;
+          } else {
+            console.log('✅ User countries table ready');
+          }
+        });
+
         // Create game_sessions table for multiplayer support
         db.run(`
           CREATE TABLE IF NOT EXISTS game_sessions (
@@ -102,8 +127,13 @@ class UserDatabase {
         // Create indexes for performance
         db.run(`CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)`);
         db.run(`CREATE INDEX IF NOT EXISTS idx_users_tenant ON users(tenant_id)`);
+        db.run(`CREATE INDEX IF NOT EXISTS idx_users_role ON users(role)`);
+        db.run(`CREATE INDEX IF NOT EXISTS idx_users_country ON users(assigned_country)`);
         db.run(`CREATE INDEX IF NOT EXISTS idx_sessions_user ON user_sessions(user_id)`);
         db.run(`CREATE INDEX IF NOT EXISTS idx_sessions_active ON user_sessions(is_active, expires_at)`);
+        db.run(`CREATE INDEX IF NOT EXISTS idx_user_countries_user ON user_countries(user_id)`);
+        db.run(`CREATE INDEX IF NOT EXISTS idx_user_countries_country ON user_countries(country_code)`);
+        db.run(`CREATE INDEX IF NOT EXISTS idx_user_countries_active ON user_countries(is_active)`);
         db.run(`CREATE INDEX IF NOT EXISTS idx_game_sessions_user ON game_sessions(user_id)`, (err) => {
           if (err) {
             console.error('Error creating indexes:', err.message);
