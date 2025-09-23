@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EkoSim Auth Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #ccc; }
+        .result { margin: 10px 0; padding: 10px; background: #f5f5f5; border-radius: 4px; }
+        .error { background: #ffebee; color: #c62828; }
+        .success { background: #e8f5e8; color: #2e7d32; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        input { padding: 8px; margin: 5px; width: 200px; }
+    </style>
+</head>
+<body>
+    <h1>🧪 EkoSim Authentication & Country Access Test</h1>
+
+    <div class="test-section">
+        <h3>🔐 Authentication</h3>
+        <input type="email" id="email" placeholder="Email" value="test@example.com">
+        <input type="password" id="password" placeholder="Password" value="password123">
+        <button onclick="login()">Login</button>
+        <button onclick="loginAdmin()">Login as Admin</button>
+        <div id="auth-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>📊 Country Access Tests</h3>
+        <select id="country">
+            <option value="Bennyland">Bennyland</option>
+            <option value="Saraland">Saraland</option>
+            <option value="Wernerland">Wernerland</option>
+        </select>
+        <button onclick="testGetParameters()">Get Parameters (GET)</button>
+        <button onclick="testUpdateParameter()">Update Parameter (PUT)</button>
+        <div id="country-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>📋 Test Results</h3>
+        <div id="test-log" class="result"></div>
+    </div>
+
+    <script>
+        let currentToken = null;
+        let testLog = [];
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            testLog.push(`[${timestamp}] ${message}`);
+            const logElement = document.getElementById('test-log');
+            logElement.innerHTML = testLog.slice(-10).join('<br>');
+            logElement.className = type === 'error' ? 'result error' : 'result success';
+        }
+
+        async function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success && result.token) {
+                    currentToken = result.token;
+                    document.getElementById('auth-result').innerHTML = 
+                        `✅ Login successful! User: ${result.user.username} (${result.user.role})`;
+                    document.getElementById('auth-result').className = 'result success';
+                    log(`Login successful: ${result.user.username} (${result.user.role})`);
+                } else {
+                    throw new Error(result.error || 'Login failed');
+                }
+            } catch (error) {
+                document.getElementById('auth-result').innerHTML = `❌ Login failed: ${error.message}`;
+                document.getElementById('auth-result').className = 'result error';
+                log(`Login failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function loginAdmin() {
+            document.getElementById('email').value = 'admin@example.com';
+            document.getElementById('password').value = 'admin123';
+            await login();
+        }
+
+        async function testGetParameters() {
+            if (!currentToken) {
+                alert('Please login first');
+                return;
+            }
+            
+            const country = document.getElementById('country').value;
+            
+            try {
+                const response = await fetch(`/ekosim/getAllParameters/${country}`, {
+                    headers: { 'Authorization': `Bearer ${currentToken}` }
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok && result.message === 'success') {
+                    document.getElementById('country-result').innerHTML = 
+                        `✅ GET ${country}: Found ${result.data.length} parameters`;
+                    document.getElementById('country-result').className = 'result success';
+                    log(`GET ${country}: Success, ${result.data.length} parameters`);
+                } else {
+                    throw new Error(result.error || `HTTP ${response.status}`);
+                }
+            } catch (error) {
+                document.getElementById('country-result').innerHTML = 
+                    `❌ GET ${country}: ${error.message}`;
+                document.getElementById('country-result').className = 'result error';
+                log(`GET ${country}: Failed - ${error.message}`, 'error');
+            }
+        }
+
+        async function testUpdateParameter() {
+            if (!currentToken) {
+                alert('Please login first');
+                return;
+            }
+            
+            const country = document.getElementById('country').value;
+            
+            try {
+                const response = await fetch(`/ekosim/put/${country}`, {
+                    method: 'PUT',
+                    headers: { 
+                        'Authorization': `Bearer ${currentToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        PARAMETER: 'TargetInterestRate',
+                        VALUE: '0.05'
+                    })
+                });
+                
+                if (response.ok) {
+                    const result = await response.text();
+                    document.getElementById('country-result').innerHTML = 
+                        `✅ PUT ${country}: ${result}`;
+                    document.getElementById('country-result').className = 'result success';
+                    log(`PUT ${country}: Success`);
+                } else {
+                    const result = await response.json();
+                    throw new Error(result.error || `HTTP ${response.status}`);
+                }
+            } catch (error) {
+                document.getElementById('country-result').innerHTML = 
+                    `❌ PUT ${country}: ${error.message}`;
+                document.getElementById('country-result').className = 'result error';
+                log(`PUT ${country}: Failed - ${error.message}`, 'error');
+            }
+        }
+
+        // Test available countries on page load
+        window.onload = async function() {
+            try {
+                const response = await fetch('/ekosim/getAvailableCountries');
+                const result = await response.json();
+                log(`Available countries: ${result.data.join(', ')}`);
+            } catch (error) {
+                log(`Failed to load countries: ${error.message}`, 'error');
+            }
+        };
+    </script>
+</body>
+</html>
