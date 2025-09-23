@@ -12,7 +12,7 @@
 
 // ===== CORE TYPES =====
 
-export type CountryCode = 'Bennyland' | 'Saraland' | 'Otherland'
+export type CountryCode = string  // Dynamically loaded from database
 export type CompanyName = string
 export type ParameterName = string
 export type Timestamp = number
@@ -335,8 +335,8 @@ export type ChartType = ChartConfiguration['type']
 
 // ===== CONSTANTS =====
 
-export const COUNTRIES: readonly CountryCode[] = ['Bennyland', 'Saraland', 'Otherland'] as const
-export const DEFAULT_COUNTRY: CountryCode = 'Bennyland'
+// COUNTRIES and DEFAULT_COUNTRY are now loaded dynamically from database
+// Available countries are discovered via /ekosim/getAvailableCountries endpoint
 
 export const ECONOMIC_PARAMETERS: readonly EconomicParameterType[] = [
   'TargetInterestRate',
@@ -359,5 +359,6 @@ export const API_ENDPOINTS = {
   TIME_UPDATES: '/ekosim/timetable/update',
   COMPANY_UPDATES: '/ekosim/companytable/update',
   WORLD_TABLE: '/ekosim/worldtable/',
-  HIGH_SCORE: '/ekosim/getHighScore/'
+  HIGH_SCORE: '/ekosim/getHighScore/',
+  AVAILABLE_COUNTRIES: '/ekosim/getAvailableCountries'
 } as const

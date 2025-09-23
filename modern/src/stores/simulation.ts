@@ -26,14 +26,16 @@ import type {
 } from '@/types/simulation'
 
 import { simulationAPI, parseAPIError, withRetry } from '@/services/simulationAPI'
-import { DEFAULT_COUNTRY, COUNTRIES } from '@/types/simulation'
 
 export const useSimulationStore = defineStore('simulation', () => {
   // ===== REACTIVE STATE =====
   
+  // Available countries loaded from database
+  const availableCountries = ref<CountryCode[]>([])
+  
   // Core simulation state
   const simulationState = ref<SimulationState>({
-    selectedCountry: DEFAULT_COUNTRY,
+    selectedCountry: '',  // Will be set after loading available countries
     lastMoneyTimestamp: 0,
     lastTimeTimestamp: 0,
     lastCompanyTimestamp: 0,
@@ -95,10 +97,35 @@ export const useSimulationStore = defineStore('simulation', () => {
   // ===== ACTIONS =====
 
   /**
+   * Load available countries from database
+   */
+  async function loadAvailableCountries() {
+    try {
+      isLoading.value = true
+      const response = await simulationAPI.getAvailableCountries()
+      
+      if (response.message === 'success') {
+        availableCountries.value = response.data
+        
+        // Set default country to first available if none selected
+        if (!simulationState.value.selectedCountry && response.data.length > 0) {
+          simulationState.value.selectedCountry = response.data[0]
+        }
+      } else {
+        setError('API_ERROR', response.error || 'Failed to load available countries')
+      }
+    } catch (error) {
+      setError('NETWORK_ERROR', `Failed to load countries: ${error}`)
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  /**
    * Set selected country and reload data
    */
   async function setCountry(country: CountryCode) {
-    if (!COUNTRIES.includes(country)) {
+    if (!availableCountries.value.includes(country)) {
       setError('INVALID_COUNTRY', `Invalid country: ${country}`)
       return
     }
@@ -342,6 +369,9 @@ export const useSimulationStore = defineStore('simulation', () => {
         throw new Error('Unable to connect to simulation backend')
       }
 
+      // Load available countries first
+      await loadAvailableCountries()
+
       // Load initial parameters
       await loadParameters()
 
@@ -420,11 +450,20 @@ export const useSimulationStore = defineStore('simulation', () => {
     }
   )
 
-  // Restore state from localStorage
-  const savedCountry = localStorage.getItem('ekosim_selected_country') as CountryCode
-  if (savedCountry && COUNTRIES.includes(savedCountry)) {
-    simulationState.value.selectedCountry = savedCountry
-  }
+  // ===== WATCHERS =====
+
+  // Watch for available countries to restore saved country
+  watch(availableCountries, (newCountries) => {
+    if (newCountries.length > 0) {
+      const savedCountry = localStorage.getItem('ekosim_selected_country') as CountryCode
+      if (savedCountry && newCountries.includes(savedCountry)) {
+        simulationState.value.selectedCountry = savedCountry
+      } else if (!simulationState.value.selectedCountry) {
+        // Set first available country as default if none selected
+        simulationState.value.selectedCountry = newCountries[0]
+      }
+    }
+  }, { immediate: true })
 
   // ===== RETURN STORE INTERFACE =====
 
@@ -438,6 +477,7 @@ export const useSimulationStore = defineStore('simulation', () => {
     companyData: readonly(companyData),
     bankData: readonly(bankData),
     lastError: readonly(lastError),
+    availableCountries: readonly(availableCountries),
 
     // Loading states
     isLoading: readonly(isLoading),
@@ -454,6 +494,7 @@ export const useSimulationStore = defineStore('simulation', () => {
     latestTimeData,
 
     // Actions
+    loadAvailableCountries,
     setCountry,
     loadParameters,
     updateParameter,

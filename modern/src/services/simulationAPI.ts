@@ -256,6 +256,10 @@ export class SimulationAPIService implements SimulationAPI {
     return this.client.get<HighScoreEntry[]>(API_ENDPOINTS.HIGH_SCORE)
   }
 
+  async getAvailableCountries(): Promise<ApiResponse<CountryCode[]>> {
+    return this.client.get<CountryCode[]>(API_ENDPOINTS.AVAILABLE_COUNTRIES)
+  }
+
   // ===== UTILITY METHODS =====
 
   /**

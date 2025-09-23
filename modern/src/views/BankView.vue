@@ -2,6 +2,27 @@
   <div class="bank-view">
     <h1>🏦 Bank Management</h1>
     
+    <!-- Country Selection -->
+    <div class="country-selector">
+      <label for="country-select">Country: </label>
+      <select 
+        id="country-select"
+        :value="store.simulationState.selectedCountry"
+        @change="handleCountryChange"
+        class="country-select"
+        :disabled="store.isLoading"
+      >
+        <option value="" disabled>Select a country...</option>
+        <option 
+          v-for="country in store.availableCountries" 
+          :key="country" 
+          :value="country"
+        >
+          {{ country }}
+        </option>
+      </select>
+    </div>
+    
     <div class="bank-compact-layout">
       <!-- Compact Parameter Controls -->
       <div class="controls-compact">
@@ -111,6 +132,7 @@ const interestRateMethod = computed(() => {
 })
 
 onMounted(async () => {
+  await store.initialize()
   await store.loadBankData()
   await store.loadParameters()
 })
@@ -176,6 +198,16 @@ const updateCapitalRatio = async () => {
     isUpdating.value = false
   }
 }
+
+// Handle country selection change
+const handleCountryChange = async (event: Event) => {
+  const target = event.target as HTMLSelectElement
+  const selectedCountry = target.value
+  
+  if (selectedCountry && selectedCountry !== store.simulationState.selectedCountry) {
+    await store.setCountry(selectedCountry)
+  }
+}
 </script>
 
 <style scoped>
@@ -183,6 +215,35 @@ const updateCapitalRatio = async () => {
   max-width: 1400px;
   margin: 0 auto;
   padding: 1rem;
+}
+
+.country-selector {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.country-selector label {
+  font-weight: 600;
+  color: #495057;
+}
+
+.country-select {
+  padding: 0.5rem;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  background: white;
+  font-size: 1rem;
+  min-width: 150px;
+}
+
+.country-select:disabled {
+  background: #e9ecef;
+  cursor: not-allowed;
 }
 
 .bank-compact-layout {

@@ -4,6 +4,19 @@ let DBFunctions = require('./DBConnection')
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 
+// Validation function to check if a country is valid
+function isValidCountry(countryName) {
+    const invalidPatterns = [
+        /world/i,     // Contains "world" (e.g., "Bennyworld")
+        /global/i,    // Contains "global"
+        /system/i,    // Contains "system"
+        /admin/i,     // Contains "admin"
+        /users/i      // Contains "users"
+    ];
+    
+    return !invalidPatterns.some(pattern => pattern.test(countryName));
+}
+
 // Load environment configuration for authentication
 require('dotenv').config();
 const AuthRoutes = require('./routes/auth');
@@ -168,13 +181,36 @@ app.get('/ekosim/read/:myCountry', (req, res, next) => {
 
 app.get('/ekosim/getAllParameters/:myCountry', (req, res, next) => {
 
+    var myCountry = req.params.myCountry;
+    
+    // Validate country before processing
+    if (!isValidCountry(myCountry)) {
+        console.error(`Invalid country rejected: ${myCountry}`);
+        return res.json({
+            "message": "error",
+            "data": [],
+            "error": `Invalid country: ${myCountry}`
+        });
+    }
+    
     var myPath = '../../ekosim/myDB/';
-    var myCountry = req.params.myCountry; // //
     var myDatabase = myPath.concat(myCountry);
     myDatabase = myDatabase.concat('.db');
 
     //myDatabase = '../../ekosim/myDB/Bennyland.db';
 
+    // Validate that the country exists and has a valid database
+    const fs = require('fs');
+    const path = require('path');
+    
+    if (!fs.existsSync(myDatabase)) {
+        console.error(`Database not found: ${myDatabase}`);
+        return res.json({
+            "message": "error",
+            "data": [],
+            "error": `Country ${myCountry} not found`
+        });
+    }
 
     console.log(myDatabase);
     myTable = getTable(myDatabase, 'PARAMETERS');
@@ -187,6 +223,13 @@ app.get('/ekosim/getAllParameters/:myCountry', (req, res, next) => {
             "message": "success",
             "data": result
         })
+    }).catch((error) => {
+        console.error(`Error getting parameters for ${myCountry}:`, error);
+        return res.json({
+            "message": "error", 
+            "data": [],
+            "error": `No PARAMETERS table found for ${myCountry}`
+        });
     });
 
 
@@ -197,12 +240,34 @@ app.get('/ekosim/getAllParameters/:myCountry', (req, res, next) => {
 
 app.get('/ekosim/getCompany/:myCountry', (req, res, next) => {
 
+    var myCountry = req.params.myCountry;
+    
+    // Validate country before processing
+    if (!isValidCountry(myCountry)) {
+        console.error(`Invalid country rejected: ${myCountry}`);
+        return res.json({
+            "message": "error",
+            "data": [],
+            "error": `Invalid country: ${myCountry}`
+        });
+    }
+
     var myPath = '../../ekosim/myDB/';
-    var myCountry = req.params.myCountry; //
     var myDatabase = myPath.concat(myCountry);
     myDatabase = myDatabase.concat('.db');
 
     var Company = req.query.myCompany;
+
+    // Validate that the database exists
+    const fs = require('fs');
+    if (!fs.existsSync(myDatabase)) {
+        console.error(`Database not found: ${myDatabase}`);
+        return res.json({
+            "message": "error",
+            "data": [],
+            "error": `Country ${myCountry} not found`
+        });
+    }
 
     myTable = getCompanyTable(myDatabase, 'COMPANY_TABLE', Company);
 
@@ -214,6 +279,13 @@ app.get('/ekosim/getCompany/:myCountry', (req, res, next) => {
             "message": "success",
             "data": result
         })
+    }).catch((error) => {
+        console.error(`Error getting company data for ${myCountry}:`, error);
+        return res.json({
+            "message": "error", 
+            "data": [],
+            "error": `No COMPANY_TABLE found for ${myCountry}`
+        });
     });
 });
 
@@ -221,14 +293,36 @@ app.get('/ekosim/getCompany/:myCountry', (req, res, next) => {
 
 app.get('/ekosim/moneytable/update/:myCountry', (req, res, next) => {
 
+    var myCountry = req.params.myCountry;
+    
+    // Validate country before processing
+    if (!isValidCountry(myCountry)) {
+        console.error(`Invalid country rejected: ${myCountry}`);
+        return res.json({
+            "message": "error",
+            "data": [],
+            "error": `Invalid country: ${myCountry}`
+        });
+    }
+
     var myPath = '../../ekosim/myDB/';
-    var myCountry = req.params.myCountry; // //
     var myDatabase = myPath.concat(myCountry);
     myDatabase = myDatabase.concat('.db');
 
     //myDatabase = '../../ekosim/myDB/Bennyland.db';
 
     var lastTime = req.query.timestamp;
+
+    // Validate that the database exists
+    const fs = require('fs');
+    if (!fs.existsSync(myDatabase)) {
+        console.error(`Database not found: ${myDatabase}`);
+        return res.json({
+            "message": "error",
+            "data": [],
+            "error": `Country ${myCountry} not found`
+        });
+    }
 
     console.log(lastTime)
     console.log(myDatabase);
@@ -242,6 +336,13 @@ app.get('/ekosim/moneytable/update/:myCountry', (req, res, next) => {
             "message": "success",
             "data": result
         })
+    }).catch((error) => {
+        console.error(`Error getting money data for ${myCountry}:`, error);
+        return res.json({
+            "message": "error", 
+            "data": [],
+            "error": `No MONEY_DATA table found for ${myCountry}`
+        });
     });
 
 
@@ -378,6 +479,58 @@ app.get('/ekosim/getHighScore/', (req, res, next) => {
         res.sendFile(__dirname + '/index.html');
         //res.json(["Tony","Lisa","Michael","Ginger","Food"]);
 
+    });
+
+
+    // Get all available countries/cities by scanning database files
+    app.get('/ekosim/getAvailableCountries', (req, res) => {
+        const fs = require('fs');
+        const path = require('path');
+        
+        try {
+            const dbPath = '../../ekosim/myDB/';  // Match other endpoints
+            const dbDir = path.resolve(__dirname, dbPath);
+            
+            // Check if directory exists
+            if (!fs.existsSync(dbDir)) {
+                console.error('Database directory not found:', dbDir);
+                return res.status(500).json({
+                    message: "error",
+                    error: "Database directory not found"
+                });
+            }
+            
+            // Read all files in the directory first
+            const files = fs.readdirSync(dbDir);
+            
+            // Filter to get only valid country database files
+            const dbFiles = files.filter(file => 
+                file.endsWith('.db') && 
+                !file.startsWith('.') && 
+                !file.includes('users.db') && // Exclude user authentication database
+                !file.toLowerCase().includes('world') && // Exclude world class instances (e.g., Bennyworld)
+                !file.toLowerCase().startsWith('global') && // Exclude global databases
+                file.length > 3 && // Ensure it's not just ".db"
+                fs.statSync(path.join(dbDir, file)).size > 0 // Exclude empty files
+            );
+            
+            // Extract country names (remove .db extension)
+            const countries = dbFiles.map(file => file.replace('.db', ''));
+            
+            console.log('Available countries found:', countries);
+            
+            res.json({
+                message: "success",
+                data: countries
+            });
+            
+        } catch (error) {
+            console.error('Error reading database directory:', error);
+            res.status(500).json({
+                message: "error", 
+                error: error.message
+            });
+        }
     });
 
     // Initialize authentication system
