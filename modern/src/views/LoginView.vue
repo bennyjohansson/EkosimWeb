@@ -151,7 +151,7 @@ const toggleMode = () => {
 const loadCountries = async () => {
   try {
     await store.loadAvailableCountries()
-    availableCountries.value = store.availableCountries
+    availableCountries.value = [...store.availableCountries]
   } catch (error) {
     console.error('Failed to load countries:', error)
     // Fallback countries
