@@ -2,15 +2,28 @@
   <div class="login-view">
     <div class="login-container">
       <div class="login-card">
-        <h1>🔐 EkoSim Login</h1>
-        <p class="login-subtitle">Access the Economic Simulation Dashboard</p>
+        <h1>🏦 EkoSim {{ isRegistering ? 'Register' : 'Login' }}</h1>
+        <p class="login-subtitle">{{ isRegistering ? 'Create your Economic Simulation account' : 'Access the Economic Simulation Dashboard' }}</p>
         
-        <form @submit.prevent="handleLogin" class="login-form">
+        <form @submit.prevent="isRegistering ? handleRegister() : handleLogin()" class="login-form">
+          <!-- Registration-only fields -->
+          <div v-if="isRegistering" class="form-group">
+            <label for="username">Username</label>
+            <input
+              id="username"
+              v-model="username"
+              type="text"
+              class="form-input"
+              placeholder="Enter your username"
+              required
+            />
+          </div>
+
           <div class="form-group">
             <label for="email">Email</label>
             <input 
               id="email"
-              v-model="loginForm.email" 
+              v-model="email" 
               type="email" 
               required 
               class="form-input"
@@ -22,12 +35,32 @@
             <label for="password">Password</label>
             <input 
               id="password"
-              v-model="loginForm.password" 
+              v-model="password" 
               type="password" 
               required 
               class="form-input"
               placeholder="Enter your password"
             />
+          </div>
+
+          <!-- Registration-only fields -->
+          <div v-if="isRegistering" class="form-group">
+            <label for="country">Assigned Country</label>
+            <select
+              id="country"
+              v-model="selectedCountry"
+              class="form-input"
+              required
+            >
+              <option value="" disabled>Select your country</option>
+              <option 
+                v-for="country in availableCountries" 
+                :key="country" 
+                :value="country"
+              >
+                {{ country }}
+              </option>
+            </select>
           </div>
           
           <button 
@@ -35,12 +68,32 @@
             :disabled="isLoading" 
             class="login-button"
           >
-            {{ isLoading ? 'Signing in...' : 'Sign In' }}
+            {{ isLoading ? 'Processing...' : (isRegistering ? 'Create Account' : 'Sign In') }}
           </button>
         </form>
         
         <div v-if="error" class="error-message">
           {{ error }}
+        </div>
+
+        <div v-if="successMessage" class="success-message">
+          ✅ {{ successMessage }}
+        </div>
+
+        <!-- Toggle between login/register -->
+        <div class="form-toggle">
+          <p v-if="!isRegistering">
+            Need an account? 
+            <button type="button" class="link-button" @click="toggleMode">
+              Register here
+            </button>
+          </p>
+          <p v-else>
+            Already have an account? 
+            <button type="button" class="link-button" @click="toggleMode">
+              Sign in here
+            </button>
+          </p>
         </div>
         
         <!-- Demo login for development -->
@@ -57,34 +110,115 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useSimulationStore } from '@/stores/simulation'
 
 const router = useRouter()
 const store = useSimulationStore()
 
-const loginForm = ref({
-  email: '',
-  password: ''
-})
-
+// Form state
+const isRegistering = ref(false)
+const email = ref('modern1758657141@example.com')
+const password = ref('password123')
+const username = ref('')
+const selectedCountry = ref('')
 const isLoading = ref(false)
 const error = ref('')
+const successMessage = ref('')
+const availableCountries = ref<string[]>([])
 
+// Toggle between login and registration
+const toggleMode = () => {
+  isRegistering.value = !isRegistering.value
+  error.value = ''
+  successMessage.value = ''
+  
+  if (isRegistering.value) {
+    // Clear form for registration
+    email.value = ''
+    password.value = ''
+    username.value = ''
+    selectedCountry.value = ''
+  } else {
+    // Reset to demo values for login
+    email.value = 'modern1758657141@example.com'
+    password.value = 'password123'
+  }
+}
+
+// Load available countries
+const loadCountries = async () => {
+  try {
+    await store.loadAvailableCountries()
+    availableCountries.value = store.availableCountries
+  } catch (error) {
+    console.error('Failed to load countries:', error)
+    // Fallback countries
+    availableCountries.value = ['Bennyland', 'Saraland', 'Wernerland']
+  }
+}
+
+// Handle login
 async function handleLogin() {
   isLoading.value = true
   error.value = ''
   
   try {
-    // Will integrate with actual auth service later
-    await store.login(loginForm.value.email, loginForm.value.password)
+    await store.login(email.value, password.value)
+    successMessage.value = 'Login successful! Redirecting...'
     
-    // Redirect to intended route or dashboard
-    const redirect = router.currentRoute.value.query.redirect as string
-    router.push(redirect || '/')
-  } catch (err) {
-    error.value = 'Invalid email or password'
+    setTimeout(() => {
+      const redirect = router.currentRoute.value.query.redirect as string
+      router.push(redirect || '/bank')
+    }, 1000)
+    
+  } catch (err: any) {
+    error.value = err.message || 'Login failed'
+  } finally {
+    isLoading.value = false
+  }
+}
+
+// Handle registration
+const handleRegister = async () => {
+  isLoading.value = true
+  error.value = ''
+  
+  try {
+    // Register user via API
+    const response = await fetch('/api/auth/register', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        username: username.value,
+        email: email.value,
+        password: password.value,
+        level: 'beginner',
+        role: 'user',
+        assignedCountry: selectedCountry.value
+      })
+    })
+    
+    const result = await response.json()
+    
+    if (result.success) {
+      successMessage.value = 'Registration successful! Logging you in...'
+      
+      // Auto-login after successful registration
+      setTimeout(async () => {
+        await store.login(email.value, password.value)
+        router.push('/bank')
+      }, 1500)
+      
+    } else {
+      throw new Error(result.error || 'Registration failed')
+    }
+    
+  } catch (error: any) {
+    error.value = error.message || 'Registration failed'
   } finally {
     isLoading.value = false
   }
@@ -102,8 +236,13 @@ function handleDemoLogin() {
   }
   
   const redirect = router.currentRoute.value.query.redirect as string
-  router.push(redirect || '/')
+  router.push(redirect || '/bank')
 }
+
+// Initialize
+onMounted(() => {
+  loadCountries()
+})
 </script>
 
 <style scoped>
@@ -234,5 +373,43 @@ function handleDemoLogin() {
 
 .demo-button:hover {
   background: #38a169;
+}
+
+.form-toggle {
+  text-align: center;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+.form-toggle p {
+  color: #718096;
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.link-button {
+  background: none;
+  border: none;
+  color: #667eea;
+  cursor: pointer;
+  text-decoration: underline;
+  font-size: inherit;
+  font-weight: 500;
+}
+
+.link-button:hover {
+  color: #5a6fd8;
+}
+
+.success-message {
+  color: #38a169;
+  text-align: center;
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: #f0fff4;
+  border: 1px solid #9ae6b4;
+  border-radius: 6px;
+  font-weight: 500;
 }
 </style>
