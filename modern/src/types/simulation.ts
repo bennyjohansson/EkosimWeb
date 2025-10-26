@@ -149,6 +149,14 @@ export interface TimeDataPoint {
   TAX_REVENUE?: number
   INTEREST_PAYMENTS?: number
   SOCIAL_BENEFITS?: number
+  INTEREST_RATE?: number
+  PRICE?: number
+  UNEMPLOYMENT?: number
+  WAGES?: number
+  CAP_RES_RATIO?: number
+  GDP_NOMINAL?: number
+  GDP_ITEMS?: number
+  INVESTMENTS?: number
 }
 
 // ===== COMPANY DATA =====

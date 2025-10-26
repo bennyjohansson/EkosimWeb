@@ -1,9 +1,9 @@
 <!-- filepath: /Users/bennyjohansson/Documents/Projects/EkoWeb/modern/src/components/MoneyChart.vue -->
 
 <template>
-  <div class="money-chart">
+  <div class="bank-chart">
     <div class="chart-header">
-      <h3>💰 Economic Capital Distribution</h3>
+      <h3>🏦 Banking Metrics & Interest Rates</h3>
       <div class="chart-controls">
         <button @click="loadData" :disabled="isLoading" class="btn btn-small">
           {{ isLoading ? 'Loading...' : 'Refresh Data' }}
@@ -23,47 +23,21 @@
           <label class="series-checkbox">
             <input 
               type="checkbox" 
-              v-model="seriesVisibility.totalCapital"
-              @change="updateChart"
-            />
-            <span class="series-color" style="background-color: rgb(75, 192, 192)"></span>
-            Total Capital
-          </label>
-          <label class="series-checkbox">
-            <input 
-              type="checkbox" 
-              v-model="seriesVisibility.consumerCapital"
-              @change="updateChart"
-            />
-            <span class="series-color" style="background-color: rgb(255, 99, 132)"></span>
-            Consumer Capital
-          </label>
-          <label class="series-checkbox">
-            <input 
-              type="checkbox" 
-              v-model="seriesVisibility.bankCapital"
-              @change="updateChart"
-            />
-            <span class="series-color" style="background-color: rgb(54, 162, 235)"></span>
-            Bank Capital
-          </label>
-          <label class="series-checkbox">
-            <input 
-              type="checkbox" 
-              v-model="seriesVisibility.companyCapital"
-              @change="updateChart"
-            />
-            <span class="series-color" style="background-color: rgb(255, 206, 86)"></span>
-            Company Capital
-          </label>
-          <label class="series-checkbox">
-            <input 
-              type="checkbox" 
               v-model="seriesVisibility.interestRate"
               @change="updateChart"
             />
-            <span class="series-color" style="background-color: rgb(255, 99, 255)"></span>
-            Interest Rate % (x1000)
+            <span class="series-color" style="background-color: rgb(54, 162, 235)"></span>
+            Interest Rate %
+          </label>
+          <label class="series-checkbox">
+            <input 
+              type="checkbox" 
+              v-model="seriesVisibility.inflationRate"
+              @change="updateChart"
+              disabled
+            />
+            <span class="series-color" style="background-color: rgb(255, 193, 7)"></span>
+            Inflation Rate % (Coming Soon)
           </label>
         </div>
         
@@ -97,12 +71,6 @@
     
     <div class="chart-container">
       <canvas ref="chartCanvas"></canvas>
-    </div>
-    
-    <!-- Interest Rate Chart (separate scale) -->
-    <div v-if="seriesVisibility.interestRate" class="chart-container interest-rate-chart">
-      <h4>📈 Interest Rate Timeline</h4>
-      <canvas ref="interestRateCanvas"></canvas>
     </div>
     
     <div class="chart-info">
@@ -177,7 +145,7 @@ import {
   type ChartConfiguration
 } from 'chart.js'
 import { simulationAPI, parseAPIError } from '@/services/simulationAPI'
-import type { CountryCode, MoneyDataPoint, TimeDataPoint } from '@/types/simulation'
+import type { CountryCode, TimeDataPoint } from '@/types/simulation'
 
 // Register Chart.js components
 Chart.register(
@@ -210,27 +178,22 @@ const props = withDefaults(defineProps<Props>(), {
 
 // Template refs
 const chartCanvas = ref<HTMLCanvasElement>()
-const interestRateCanvas = ref<HTMLCanvasElement>()
 
 // Reactive state
-const dataPoints = ref<MoneyDataPoint[]>([])
-const timeDataPoints = ref<TimeDataPoint[]>([])
+const dataPoints = ref<TimeDataPoint[]>([])
 const isLoading = ref(false)
 const isAutoUpdating = ref(false)
 const error = ref<string>('')
 const lastTimestamp = ref(0)
-const lastTimeTimestamp = ref(0)
 let chart: Chart | null = null
-let interestRateChart: Chart | null = null
 let updateInterval: ReturnType<typeof setInterval> | null = null
 
-// Series visibility controls
+// Series visibility controls for banking metrics
 const seriesVisibility = ref({
-  totalCapital: true,
-  consumerCapital: true,
-  bankCapital: true,
-  companyCapital: true,
-  interestRate: false
+  interestRate: true,
+  inflationRate: false,  // We'll add this later
+  realRate: false,       // We'll add this later
+  gdpGrowth: false       // We'll add this later
 })
 
 // localStorage functions for persistence
@@ -272,8 +235,7 @@ const resetToDefaults = () => {
     totalCapital: true,
     consumerCapital: true,
     bankCapital: true,
-    companyCapital: true,
-    interestRate: false
+    companyCapital: true
   }
   
   // Reset to defaults
@@ -297,8 +259,7 @@ const CHART_PRESETS = {
       totalCapital: false,
       consumerCapital: false,
       bankCapital: true,
-      companyCapital: false,
-      interestRate: true
+      companyCapital: false
     }
   },
   economic: {
@@ -308,8 +269,7 @@ const CHART_PRESETS = {
       totalCapital: true,
       consumerCapital: true,
       bankCapital: false,
-      companyCapital: true,
-      interestRate: false
+      companyCapital: true
     }
   },
   all: {
@@ -319,8 +279,7 @@ const CHART_PRESETS = {
       totalCapital: true,
       consumerCapital: true,
       bankCapital: true,
-      companyCapital: true,
-      interestRate: true
+      companyCapital: true
     }
   },
   minimal: {
@@ -330,8 +289,7 @@ const CHART_PRESETS = {
       totalCapital: true,
       consumerCapital: false,
       bankCapital: false,
-      companyCapital: false,
-      interestRate: false
+      companyCapital: false
     }
   }
 }
@@ -370,37 +328,6 @@ function getDataRange() {
   const min = Math.min(...totalCapitalValues)
   const max = Math.max(...totalCapitalValues)
   return `${min.toLocaleString()} - ${max.toLocaleString()}`
-}
-
-// Load time data from API (contains interest rates and other economic indicators)
-async function loadTimeData() {
-  try {
-    const response = await simulationAPI.getTimeDataUpdates(
-      props.selectedCountry,
-      lastTimeTimestamp.value
-    )
-    
-    if (response.message === 'success') {
-      if (response.data.length > 0) {
-        console.log('Time data loaded:', {
-          count: response.data.length,
-          firstPoint: response.data[0],
-          hasInterestRate: response.data[0].INTEREST_RATE !== undefined
-        })
-        
-        // Append new time data points
-        timeDataPoints.value.push(...response.data)
-        
-        // Update last timestamp
-        const maxTime = Math.max(...response.data.map(d => d.TIME))
-        lastTimeTimestamp.value = maxTime
-      }
-    } else {
-      console.warn('Failed to load time data:', response.error)
-    }
-  } catch (err) {
-    console.error('Error loading time data:', err)
-  }
 }
 
 // Chart configuration
@@ -625,7 +552,7 @@ async function loadData() {
   error.value = ''
   
   try {
-    const response = await simulationAPI.getMoneyDataUpdates(
+    const response = await simulationAPI.getTimeDataUpdates(
       props.selectedCountry,
       lastTimestamp.value
     )
@@ -633,9 +560,9 @@ async function loadData() {
     if (response.message === 'success') {
       if (response.data.length > 0) {
         // Debug: Log the actual data structure
-        console.log('Raw API response data:', response.data)
-        console.log('First data point:', response.data[0])
-        console.log('Available fields:', Object.keys(response.data[0] || {}))
+        console.log('Raw Time API response data:', response.data)
+        console.log('First time data point:', response.data[0])
+        console.log('Available time fields:', Object.keys(response.data[0] || {}))
         
         // Append new data points
         dataPoints.value.push(...response.data)
@@ -644,9 +571,6 @@ async function loadData() {
         const maxTime = Math.max(...response.data.map(d => d.TIME))
         lastTimestamp.value = maxTime
         
-        // Load time data for interest rates
-        await loadTimeData()
-        
         // Initialize chart if it doesn't exist, otherwise update it
         if (!chart) {
           console.log('No chart exists, initializing with data...')
@@ -654,18 +578,6 @@ async function loadData() {
         } else {
           console.log('Chart exists, updating with new data...')
           updateChart()
-        }
-
-        // Handle interest rate chart
-        if (seriesVisibility.value.interestRate) {
-          await nextTick() // Wait for DOM updates
-          if (!interestRateChart) {
-            console.log('Initializing interest rate chart...')
-            await initInterestRateChart()
-          } else {
-            console.log('Updating interest rate chart...')
-            updateInterestRateChart()
-          }
         }
       }
     } else {
@@ -706,144 +618,6 @@ function updateChart() {
   }
 }
 
-// Create interest rate time series from database time data
-function createInterestRateTimeSeries(hasData: boolean): Array<{ x: number, y: number }> {
-  if (!hasData || timeDataPoints.value.length === 0) {
-    return [{ x: 0, y: 0 }]
-  }
-
-  console.log('Creating interest rate time series from database data:', {
-    timeDataCount: timeDataPoints.value.length,
-    samplePoint: timeDataPoints.value[0]
-  })
-
-  // Use actual historical interest rate data from database
-  const result = timeDataPoints.value.map(d => ({
-    x: d.TIME,
-    y: (d.INTEREST_RATE || 0) * 100 // Convert to percentage like legacy code
-  }))
-  
-  console.log('Interest rate time series created:', {
-    pointCount: result.length,
-    sampleValues: result.slice(0, 3),
-    lastValues: result.slice(-3)
-  })
-  
-  return result
-}
-
-// Interest Rate Chart Functions
-function createInterestRateChartConfig(): ChartConfiguration {
-  const hasData = dataPoints.value.length > 0
-  const labels = hasData ? dataPoints.value.map(d => d.TIME.toString()) : ['0']
-  
-  // Create interest rate data from historical tracking
-  const interestRateData = createInterestRateTimeSeries(hasData)
-
-  return {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [{
-        label: 'Interest Rate %',
-        data: interestRateData,
-        borderColor: 'rgb(147, 51, 234)',
-        backgroundColor: 'rgba(147, 51, 234, 0.2)',
-        tension: 0.4,
-        fill: true,
-        pointRadius: 3
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      interaction: {
-        intersect: false,
-        mode: 'index'
-      },
-      plugins: {
-        title: {
-          display: true,
-          text: `Interest Rate Timeline - ${props.selectedCountry}`,
-          font: { size: 14, weight: 'bold' }
-        },
-        legend: {
-          display: true,
-          position: 'top'
-        },
-        tooltip: {
-          backgroundColor: 'rgba(0, 0, 0, 0.8)',
-          titleColor: 'white',
-          bodyColor: 'white',
-          borderColor: 'rgba(147, 51, 234, 0.8)',
-          borderWidth: 1
-        }
-      },
-      scales: {
-        x: {
-          type: 'linear',
-          title: {
-            display: true,
-            text: 'Time'
-          }
-        },
-        y: {
-          type: 'linear',
-          title: {
-            display: true,
-            text: 'Interest Rate (%)'
-          },
-          min: 0,
-          max: Math.max(10, 
-            timeDataPoints.value.length > 0 
-              ? Math.max(...timeDataPoints.value.map(d => (d.INTEREST_RATE || 0) * 100)) * 1.2
-              : 10
-          )
-        }
-      }
-    }
-  }
-}
-
-async function initInterestRateChart() {
-  if (!interestRateCanvas.value) {
-    console.warn('Interest rate canvas not available')
-    return
-  }
-
-  try {
-    // Clean up existing chart
-    const existingChart = Chart.getChart(interestRateCanvas.value)
-    if (existingChart) {
-      existingChart.destroy()
-    }
-
-    const config = createInterestRateChartConfig()
-    console.log('Creating interest rate chart...')
-    interestRateChart = new Chart(interestRateCanvas.value, config)
-    interestRateChart.update()
-    console.log('Interest rate chart created successfully')
-    
-  } catch (err) {
-    console.error('Error creating interest rate chart:', err)
-    error.value = `Interest rate chart failed: ${err instanceof Error ? err.message : String(err)}`
-  }
-}
-
-function updateInterestRateChart() {
-  if (!interestRateChart) return
-
-  try {
-    const config = createInterestRateChartConfig()
-    interestRateChart.data = config.data
-    interestRateChart.options.plugins!.title!.text = `Interest Rate Timeline - ${props.selectedCountry}`
-    interestRateChart.update('none')
-    console.log('Interest rate chart updated successfully')
-  } catch (err) {
-    console.error('Error updating interest rate chart:', err)
-  }
-}
-
 // Start auto-updating
 function startAutoUpdate() {
   if (isAutoUpdating.value) return
@@ -879,23 +653,11 @@ watch(seriesVisibility, () => {
   saveConfiguration()
 }, { deep: true })
 
-// Watch for time data changes to update interest rate chart
-watch(timeDataPoints, () => {
-  // Update interest rate chart when new time data is available
-  if (interestRateChart && seriesVisibility.value.interestRate && timeDataPoints.value.length > 0) {
-    console.log('Time data updated, refreshing interest rate chart')
-    updateInterestRateChart()
-  }
-}, { deep: true })
-
 // Cleanup on unmount
 onUnmounted(() => {
   stopAutoUpdate()
   if (chart) {
     chart.destroy()
-  }
-  if (interestRateChart) {
-    interestRateChart.destroy()
   }
 })
 
@@ -903,16 +665,11 @@ onUnmounted(() => {
 watch(() => props.selectedCountry, async () => {
   // Reset data when country changes
   dataPoints.value = []
-  timeDataPoints.value = []
   lastTimestamp.value = 0
-  lastTimeTimestamp.value = 0
   
   // Update chart title and reload data
   if (chart) {
     updateChart()
-  }
-  if (interestRateChart) {
-    updateInterestRateChart()
   }
   await loadData()
 })
@@ -956,19 +713,6 @@ watch(() => props.selectedCountry, async () => {
   margin: 1rem 0;
   height: 400px;
   position: relative;
-}
-
-.interest-rate-chart {
-  height: 300px;
-  margin-top: 2rem;
-  border-top: 2px solid #e9ecef;
-  padding-top: 1rem;
-}
-
-.interest-rate-chart h4 {
-  margin: 0 0 1rem 0;
-  color: #495057;
-  font-size: 1.2rem;
 }
 
 .chart-info {

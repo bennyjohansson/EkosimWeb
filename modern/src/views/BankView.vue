@@ -82,7 +82,9 @@
       <!-- Chart Section -->
       <div class="chart-compact">
         <h3>Bank Performance & Economic Data</h3>
-        <MoneyChart :selectedCountry="store.simulationState.selectedCountry" />
+        <MoneyChart 
+          :selectedCountry="store.simulationState.selectedCountry" 
+        />
       </div>
     </div>
 
@@ -95,7 +97,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, computed, ref, nextTick, watch } from 'vue'
+import { onMounted, onUnmounted, computed, ref, nextTick } from 'vue'
 import { useSimulationStore } from '@/stores/simulation'
 import MoneyChart from '@/components/MoneyChart.vue'
 
