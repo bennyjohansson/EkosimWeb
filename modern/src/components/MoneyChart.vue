@@ -62,8 +62,17 @@
               v-model="seriesVisibility.interestRate"
               @change="updateChart"
             />
-            <span class="series-color" style="background-color: rgb(255, 99, 255)"></span>
-            Interest Rate % (x1000)
+            <span class="series-color" style="background-color: rgb(147, 51, 234)"></span>
+            Interest Rate %
+          </label>
+          <label class="series-checkbox">
+            <input 
+              type="checkbox" 
+              v-model="seriesVisibility.inflation"
+              @change="updateChart"
+            />
+            <span class="series-color" style="background-color: rgb(255, 127, 0)"></span>
+            Inflation %
           </label>
         </div>
         
@@ -99,9 +108,9 @@
       <canvas ref="chartCanvas"></canvas>
     </div>
     
-    <!-- Interest Rate Chart (separate scale) -->
-    <div v-if="seriesVisibility.interestRate" class="chart-container interest-rate-chart">
-      <h4>📈 Interest Rate Timeline</h4>
+    <!-- Economic Indicators Chart (Interest Rate & Inflation) -->
+    <div v-if="seriesVisibility.interestRate || seriesVisibility.inflation" class="chart-container interest-rate-chart">
+      <h4>📈 Economic Indicators Timeline</h4>
       <canvas ref="interestRateCanvas"></canvas>
     </div>
     
@@ -180,6 +189,7 @@ import { simulationAPI, parseAPIError } from '@/services/simulationAPI'
 import type { CountryCode, MoneyDataPoint, TimeDataPoint } from '@/types/simulation'
 
 // Register Chart.js components
+// Chart.js component registration
 Chart.register(
   CategoryScale,
   LinearScale,
@@ -190,14 +200,6 @@ Chart.register(
   Tooltip,
   Legend
 )
-
-console.log('Chart.js components registered:', {
-  registry: Chart.registry,
-  controllers: Object.keys(Chart.registry.controllers || {}),
-  elements: Object.keys(Chart.registry.elements || {}),
-  plugins: Object.keys(Chart.registry.plugins || {}),
-  scales: Object.keys(Chart.registry.scales || {})
-})
 
 // Props
 interface Props {
@@ -230,7 +232,8 @@ const seriesVisibility = ref({
   consumerCapital: true,
   bankCapital: true,
   companyCapital: true,
-  interestRate: false
+  interestRate: false,
+  inflation: false
 })
 
 // localStorage functions for persistence
@@ -273,7 +276,8 @@ const resetToDefaults = () => {
     consumerCapital: true,
     bankCapital: true,
     companyCapital: true,
-    interestRate: false
+    interestRate: false,
+    inflation: false
   }
   
   // Reset to defaults
@@ -298,7 +302,8 @@ const CHART_PRESETS = {
       consumerCapital: false,
       bankCapital: true,
       companyCapital: false,
-      interestRate: true
+      interestRate: true,
+      inflation: true
     }
   },
   economic: {
@@ -309,7 +314,8 @@ const CHART_PRESETS = {
       consumerCapital: true,
       bankCapital: false,
       companyCapital: true,
-      interestRate: false
+      interestRate: false,
+      inflation: false
     }
   },
   all: {
@@ -320,7 +326,8 @@ const CHART_PRESETS = {
       consumerCapital: true,
       bankCapital: true,
       companyCapital: true,
-      interestRate: true
+      interestRate: true,
+      inflation: true
     }
   },
   minimal: {
@@ -331,7 +338,8 @@ const CHART_PRESETS = {
       consumerCapital: false,
       bankCapital: false,
       companyCapital: false,
-      interestRate: false
+      interestRate: false,
+      inflation: false
     }
   }
 }
@@ -656,14 +664,14 @@ async function loadData() {
           updateChart()
         }
 
-        // Handle interest rate chart
-        if (seriesVisibility.value.interestRate) {
+        // Handle economic indicators chart (interest rate & inflation)
+        if (seriesVisibility.value.interestRate || seriesVisibility.value.inflation) {
           await nextTick() // Wait for DOM updates
           if (!interestRateChart) {
-            console.log('Initializing interest rate chart...')
+            console.log('Initializing economic indicators chart...')
             await initInterestRateChart()
           } else {
-            console.log('Updating interest rate chart...')
+            console.log('Updating economic indicators chart...')
             updateInterestRateChart()
           }
         }
@@ -732,27 +740,89 @@ function createInterestRateTimeSeries(hasData: boolean): Array<{ x: number, y: n
   return result
 }
 
-// Interest Rate Chart Functions
+// Calculate inflation from price data (like legacy implementation)
+function calculateInflation(hasData: boolean): Array<{ x: number, y: number }> {
+  if (!hasData || timeDataPoints.value.length <= 1) {
+    return [{ x: 0, y: 0 }]
+  }
+
+  console.log('Calculating inflation from price data:', {
+    timeDataCount: timeDataPoints.value.length,
+    samplePrices: timeDataPoints.value.slice(0, 3).map(d => d.PRICE)
+  })
+
+  const result: Array<{ x: number, y: number }> = []
+  
+  // Calculate inflation: (price[i+1]/price[i] - 1) * 100
+  for (let i = 0; i < timeDataPoints.value.length - 1; i++) {
+    const currentPrice = timeDataPoints.value[i].PRICE || 1
+    const nextPrice = timeDataPoints.value[i + 1].PRICE || 1
+    
+    const inflationRate = ((nextPrice / currentPrice) - 1) * 100
+    
+    result.push({
+      x: timeDataPoints.value[i].TIME,
+      y: inflationRate
+    })
+  }
+  
+  // Add last point with same inflation as previous
+  if (result.length > 0 && timeDataPoints.value.length > 0) {
+    const lastDataPoint = timeDataPoints.value[timeDataPoints.value.length - 1]
+    result.push({
+      x: lastDataPoint.TIME,
+      y: result[result.length - 1].y
+    })
+  }
+  
+  console.log('Inflation calculated:', {
+    pointCount: result.length,
+    sampleValues: result.slice(0, 3),
+    lastValues: result.slice(-3)
+  })
+  
+  return result
+}
+
+// Economic Indicators Chart Functions (Interest Rate & Inflation)
 function createInterestRateChartConfig(): ChartConfiguration {
   const hasData = dataPoints.value.length > 0
   const labels = hasData ? dataPoints.value.map(d => d.TIME.toString()) : ['0']
   
-  // Create interest rate data from historical tracking
-  const interestRateData = createInterestRateTimeSeries(hasData)
+  // Build datasets based on what's enabled
+  const datasets = []
+  
+  if (seriesVisibility.value.interestRate) {
+    const interestRateData = createInterestRateTimeSeries(hasData)
+    datasets.push({
+      label: 'Interest Rate %',
+      data: interestRateData,
+      borderColor: 'rgb(147, 51, 234)',
+      backgroundColor: 'rgba(147, 51, 234, 0.2)',
+      tension: 0.4,
+      fill: false,
+      pointRadius: 3
+    })
+  }
+  
+  if (seriesVisibility.value.inflation) {
+    const inflationData = calculateInflation(hasData)
+    datasets.push({
+      label: 'Inflation %',
+      data: inflationData,
+      borderColor: 'rgb(255, 127, 0)',
+      backgroundColor: 'rgba(255, 127, 0, 0.2)',
+      tension: 0.4,
+      fill: false,
+      pointRadius: 3
+    })
+  }
 
   return {
     type: 'line',
     data: {
       labels,
-      datasets: [{
-        label: 'Interest Rate %',
-        data: interestRateData,
-        borderColor: 'rgb(147, 51, 234)',
-        backgroundColor: 'rgba(147, 51, 234, 0.2)',
-        tension: 0.4,
-        fill: true,
-        pointRadius: 3
-      }]
+      datasets
     },
     options: {
       responsive: true,
@@ -764,7 +834,7 @@ function createInterestRateChartConfig(): ChartConfiguration {
       plugins: {
         title: {
           display: true,
-          text: `Interest Rate Timeline - ${props.selectedCountry}`,
+          text: `Economic Indicators Timeline - ${props.selectedCountry}`,
           font: { size: 14, weight: 'bold' }
         },
         legend: {
@@ -791,7 +861,7 @@ function createInterestRateChartConfig(): ChartConfiguration {
           type: 'linear',
           title: {
             display: true,
-            text: 'Interest Rate (%)'
+            text: 'Percentage (%)'
           },
           min: 0,
           max: Math.max(10, 
@@ -879,11 +949,11 @@ watch(seriesVisibility, () => {
   saveConfiguration()
 }, { deep: true })
 
-// Watch for time data changes to update interest rate chart
+// Watch for time data changes to update economic indicators chart
 watch(timeDataPoints, () => {
-  // Update interest rate chart when new time data is available
-  if (interestRateChart && seriesVisibility.value.interestRate && timeDataPoints.value.length > 0) {
-    console.log('Time data updated, refreshing interest rate chart')
+  // Update economic indicators chart when new time data is available
+  if (interestRateChart && (seriesVisibility.value.interestRate || seriesVisibility.value.inflation) && timeDataPoints.value.length > 0) {
+    console.log('Time data updated, refreshing economic indicators chart')
     updateInterestRateChart()
   }
 }, { deep: true })
