@@ -449,7 +449,7 @@ function createChartConfig(): ChartConfiguration {
       backgroundColor: 'rgba(75, 192, 192, 0.2)',
       tension: 0.4,
       fill: false,
-      pointRadius: 2
+      pointRadius: 0
     })
   }
   
@@ -461,7 +461,7 @@ function createChartConfig(): ChartConfiguration {
       backgroundColor: 'rgba(255, 99, 132, 0.2)',
       tension: 0.4,
       fill: false,
-      pointRadius: 2
+      pointRadius: 0
     })
   }
   
@@ -473,7 +473,7 @@ function createChartConfig(): ChartConfiguration {
       backgroundColor: 'rgba(54, 162, 235, 0.2)',
       tension: 0.4,
       fill: false,
-      pointRadius: 2
+      pointRadius: 0
     })
   }
   
@@ -485,7 +485,7 @@ function createChartConfig(): ChartConfiguration {
       backgroundColor: 'rgba(255, 206, 86, 0.2)',
       tension: 0.4,
       fill: false,
-      pointRadius: 2
+      pointRadius: 0
     })
   }
 
@@ -765,16 +765,26 @@ function calculateInflation(hasData: boolean): Array<{ x: number, y: number }> {
 
   const result: Array<{ x: number, y: number }> = []
   
-  // Calculate inflation: (price[i+1]/price[i] - 1) * 100
+  // Calculate raw inflation: (price[i+1]/price[i] - 1) * 100
+  const rawInflation: number[] = []
   for (let i = 0; i < timeDataPoints.value.length - 1; i++) {
     const currentPrice = timeDataPoints.value[i].PRICE || 1
     const nextPrice = timeDataPoints.value[i + 1].PRICE || 1
     
     const inflationRate = ((nextPrice / currentPrice) - 1) * 100
+    rawInflation.push(inflationRate)
+  }
+  
+  // Apply 10-point moving average to smooth the data
+  for (let i = 0; i < rawInflation.length; i++) {
+    const startIdx = Math.max(0, i - 9) // Last 10 points (or fewer if near start)
+    const endIdx = i + 1
+    const slice = rawInflation.slice(startIdx, endIdx)
+    const average = slice.reduce((sum, val) => sum + val, 0) / slice.length
     
     result.push({
       x: timeDataPoints.value[i].TIME,
-      y: inflationRate
+      y: average
     })
   }
   
@@ -787,7 +797,7 @@ function calculateInflation(hasData: boolean): Array<{ x: number, y: number }> {
     })
   }
   
-  console.log('Inflation calculated:', {
+  console.log('Inflation calculated (10-point moving average):', {
     pointCount: result.length,
     sampleValues: result.slice(0, 3),
     lastValues: result.slice(-3)
@@ -813,7 +823,7 @@ function createInterestRateChartConfig(): ChartConfiguration {
       backgroundColor: 'rgba(147, 51, 234, 0.2)',
       tension: 0.4,
       fill: false,
-      pointRadius: 3
+      pointRadius: 0
     })
   }
   
@@ -831,7 +841,7 @@ function createInterestRateChartConfig(): ChartConfiguration {
       backgroundColor: 'rgba(255, 127, 0, 0.2)',
       tension: 0.4,
       fill: false,
-      pointRadius: 3
+      pointRadius: 0
     })
   }
 
