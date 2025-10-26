@@ -4,6 +4,7 @@
       <h1>🏛️ EkoSim - Economic Simulation Dashboard</h1>
       <nav class="app-nav">
         <router-link to="/" class="nav-link">Dashboard</router-link>
+        <router-link to="/country" class="nav-link">Country View</router-link>
         <router-link to="/admin" class="nav-link">Admin</router-link>
         <router-link to="/company" class="nav-link">Company</router-link>
         <router-link to="/bank" class="nav-link">Bank</router-link>

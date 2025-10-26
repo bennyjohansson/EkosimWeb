@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import DashboardView from '@/views/DashboardView.vue'
+import CountryView from '@/views/CountryView.vue'
 import AdminView from '@/views/AdminView.vue'
 import CompanyView from '@/views/CompanyView.vue'
 import BankView from '@/views/BankView.vue'
@@ -16,6 +17,12 @@ const routes = [
     path: '/',
     name: 'Dashboard',
     component: DashboardView
+  },
+  {
+    path: '/country',
+    name: 'Country',
+    component: CountryView,
+    meta: { requiresAuth: true }
   },
   {
     path: '/admin',
