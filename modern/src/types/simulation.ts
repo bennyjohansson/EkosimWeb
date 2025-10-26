@@ -200,12 +200,12 @@ export interface WorldTableEntry {
 
 export interface HighScoreEntry {
   key: number
-  PLAYER_NAME: string
+  ID: number
   COUNTRY: CountryCode
-  GDP_SCORE: number
-  EFFICIENCY_SCORE?: number
-  TIMESTAMP: number
-  TOTAL_SCORE?: number
+  GROWTH: number
+  PALMA: number
+  ENV_IMP: number
+  TIMENOW: string
 }
 
 // ===== CHART DATA STRUCTURES =====
