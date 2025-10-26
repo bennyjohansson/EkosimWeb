@@ -56,24 +56,6 @@
             <span class="series-color" style="background-color: rgb(255, 206, 86)"></span>
             Company Capital
           </label>
-          <label class="series-checkbox">
-            <input 
-              type="checkbox" 
-              v-model="seriesVisibility.interestRate"
-              @change="updateChart"
-            />
-            <span class="series-color" style="background-color: rgb(147, 51, 234)"></span>
-            Interest Rate %
-          </label>
-          <label class="series-checkbox">
-            <input 
-              type="checkbox" 
-              v-model="seriesVisibility.inflation"
-              @change="updateChart"
-            />
-            <span class="series-color" style="background-color: rgb(255, 127, 0)"></span>
-            Inflation %
-          </label>
         </div>
         
         <!-- Reset button -->
@@ -109,9 +91,33 @@
     </div>
     
     <!-- Economic Indicators Chart (Interest Rate & Inflation) -->
-    <div v-if="seriesVisibility.interestRate || seriesVisibility.inflation" class="chart-container interest-rate-chart">
+    <div v-if="seriesVisibility.interestRate || seriesVisibility.inflation" class="interest-rate-chart">
+      <div class="series-controls">
+        <label class="series-checkbox">
+          <input 
+            type="checkbox" 
+            v-model="seriesVisibility.interestRate"
+            @change="handleSeriesChange"
+          />
+          <span class="series-color" style="background-color: rgb(147, 51, 234)"></span>
+          Interest Rate %
+        </label>
+        <label class="series-checkbox">
+          <input 
+            type="checkbox" 
+            v-model="seriesVisibility.inflation"
+            @change="handleSeriesChange"
+          />
+          <span class="series-color" style="background-color: rgb(255, 127, 0)"></span>
+          Inflation %
+        </label>
+      </div>
       <h4>📈 Economic Indicators Timeline</h4>
-      <canvas ref="interestRateCanvas"></canvas>
+      
+      <!-- NEW: dedicated height wrapper for the canvas -->
+      <div class="chart-viewport">
+        <canvas ref="interestRateCanvas"></canvas>
+      </div>
     </div>
     
     <div class="chart-info">
@@ -492,6 +498,8 @@ function createChartConfig(): ChartConfiguration {
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      resizeDelay: 200,
+      layout: { autoPadding: true },
       interaction: {
         mode: 'index' as const,
         intersect: false,
@@ -506,7 +514,8 @@ function createChartConfig(): ChartConfiguration {
         },
         legend: {
           display: true,
-          position: 'top' as const
+          position: 'top' as const,
+          labels: { font: { size: 12 } }
         },
         tooltip: {
           callbacks: {
@@ -667,13 +676,16 @@ async function loadData() {
         // Handle economic indicators chart (interest rate & inflation)
         if (seriesVisibility.value.interestRate || seriesVisibility.value.inflation) {
           await nextTick() // Wait for DOM updates
-          if (!interestRateChart) {
-            console.log('Initializing economic indicators chart...')
-            await initInterestRateChart()
-          } else {
-            console.log('Updating economic indicators chart...')
-            updateInterestRateChart()
-          }
+          // Add a small delay to ensure the chart-viewport is properly sized
+          setTimeout(async () => {
+            if (!interestRateChart) {
+              console.log('Initializing economic indicators chart...')
+              await initInterestRateChart()
+            } else {
+              console.log('Updating economic indicators chart...')
+              updateInterestRateChart()
+            }
+          }, 100)
         }
       }
     } else {
@@ -807,6 +819,11 @@ function createInterestRateChartConfig(): ChartConfiguration {
   
   if (seriesVisibility.value.inflation) {
     const inflationData = calculateInflation(hasData)
+    console.log('Adding inflation data to chart:', {
+      enabled: seriesVisibility.value.inflation,
+      dataPoints: inflationData.length,
+      sampleData: inflationData.slice(0, 3)
+    })
     datasets.push({
       label: 'Inflation %',
       data: inflationData,
@@ -827,6 +844,8 @@ function createInterestRateChartConfig(): ChartConfiguration {
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      resizeDelay: 200,
+      layout: { autoPadding: true },
       interaction: {
         intersect: false,
         mode: 'index'
@@ -835,11 +854,12 @@ function createInterestRateChartConfig(): ChartConfiguration {
         title: {
           display: true,
           text: `Economic Indicators Timeline - ${props.selectedCountry}`,
-          font: { size: 14, weight: 'bold' }
+          font: { size: 16, weight: 'bold' }
         },
         legend: {
           display: true,
-          position: 'top'
+          position: 'top',
+          labels: { font: { size: 12 } }
         },
         tooltip: {
           backgroundColor: 'rgba(0, 0, 0, 0.8)',
@@ -863,12 +883,8 @@ function createInterestRateChartConfig(): ChartConfiguration {
             display: true,
             text: 'Percentage (%)'
           },
-          min: 0,
-          max: Math.max(10, 
-            timeDataPoints.value.length > 0 
-              ? Math.max(...timeDataPoints.value.map(d => (d.INTEREST_RATE || 0) * 100)) * 1.2
-              : 10
-          )
+          min: -5,
+          max: 20
         }
       }
     }
@@ -880,6 +896,15 @@ async function initInterestRateChart() {
     console.warn('Interest rate canvas not available')
     return
   }
+
+  console.log('Interest rate canvas found:', interestRateCanvas.value)
+  console.log('Canvas parent:', interestRateCanvas.value.parentElement)
+  console.log('Canvas dimensions:', {
+    clientWidth: interestRateCanvas.value.clientWidth,
+    clientHeight: interestRateCanvas.value.clientHeight,
+    offsetWidth: interestRateCanvas.value.offsetWidth,
+    offsetHeight: interestRateCanvas.value.offsetHeight
+  })
 
   try {
     // Clean up existing chart
@@ -911,6 +936,26 @@ function updateInterestRateChart() {
     console.log('Interest rate chart updated successfully')
   } catch (err) {
     console.error('Error updating interest rate chart:', err)
+  }
+}
+
+// Handle series visibility changes
+function handleSeriesChange() {
+  // Update main chart
+  updateChart()
+  
+  // Update economic indicators chart if it exists
+  if (interestRateChart) {
+    updateInterestRateChart()
+  }
+  // If economic indicators should be visible but chart doesn't exist, create it
+  else if (seriesVisibility.value.interestRate || seriesVisibility.value.inflation) {
+    nextTick(() => {
+      if (!interestRateChart) {
+        console.log('Creating economic indicators chart due to series change')
+        initInterestRateChart()
+      }
+    })
   }
 }
 
@@ -995,6 +1040,7 @@ watch(() => props.selectedCountry, async () => {
   padding: 1.5rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   margin: 1rem 0;
+  isolation: isolate;
 }
 
 .chart-header {
@@ -1023,16 +1069,33 @@ watch(() => props.selectedCountry, async () => {
 }
 
 .chart-container {
-  margin: 1rem 0;
-  height: 400px;
   position: relative;
+  width: 100%;
+  max-width: 100%;
+  height: 400px;
+  overflow: visible;
+  margin: 1rem 0;
 }
 
 .interest-rate-chart {
-  height: 300px;
-  margin-top: 2rem;
+  position: relative;
+  width: 100%;
+  margin: 1rem 0 2rem;
   border-top: 2px solid #e9ecef;
-  padding-top: 1rem;
+  padding: 1rem 1rem 0;
+}
+
+.interest-rate-chart .chart-viewport {
+  position: relative;
+  height: 400px;
+  overflow: hidden;
+}
+
+.chart-container canvas,
+.interest-rate-chart .chart-viewport canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
 }
 
 .interest-rate-chart h4 {
@@ -1042,8 +1105,10 @@ watch(() => props.selectedCountry, async () => {
 }
 
 .chart-info {
-  margin-top: 1rem;
-  padding: 1rem;
+  position: relative;
+  z-index: 0;
+  margin-top: 3rem;
+  padding: 1.5rem;
   background: #f8f9fa;
   border-radius: 6px;
 }

@@ -126,13 +126,6 @@ const capitalRatio = computed(() => {
   return param ? (parseFloat(String(param.VALUE)) * 100).toFixed(2) : '0.00'
 })
 
-const interestRateMethod = computed(() => {
-  const param = store.parameters.find(p => p.PARAMETER === 'InterestRateMethod')
-  if (!param) return 'Unknown'
-  const method = parseFloat(String(param.VALUE))
-  return method === 1 ? 'Target' : method === 2 ? 'Market' : 'Manual'
-})
-
 onMounted(async () => {
   await store.initialize()
   await store.loadBankData()
