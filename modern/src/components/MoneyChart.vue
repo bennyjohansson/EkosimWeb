@@ -90,8 +90,8 @@
       <canvas ref="chartCanvas"></canvas>
     </div>
     
-    <!-- Economic Indicators Chart (Interest Rate & Inflation) -->
-    <div v-if="seriesVisibility.interestRate || seriesVisibility.inflation" class="interest-rate-chart">
+    <!-- Economic Indicators Chart (Interest Rate & Inflation & Growth & Unemployment & Average Wage) -->
+    <div v-if="seriesVisibility.interestRate || seriesVisibility.inflation || seriesVisibility.growth || seriesVisibility.unemployment || seriesVisibility.averageWage" class="interest-rate-chart">
       <div class="series-controls">
         <label class="series-checkbox">
           <input 
@@ -110,6 +110,33 @@
           />
           <span class="series-color" style="background-color: rgb(255, 127, 0)"></span>
           Inflation %
+        </label>
+        <label class="series-checkbox">
+          <input 
+            type="checkbox" 
+            v-model="seriesVisibility.growth"
+            @change="handleSeriesChange"
+          />
+          <span class="series-color" style="background-color: rgb(34, 197, 94)"></span>
+          Growth %
+        </label>
+        <label class="series-toggle">
+          <input 
+            type="checkbox" 
+            v-model="seriesVisibility.unemployment"
+            @change="handleSeriesChange"
+          />
+          <span class="series-color" style="background-color: rgb(239, 68, 68)"></span>
+          Unemployment ×10
+        </label>
+        <label class="series-toggle">
+          <input 
+            type="checkbox" 
+            v-model="seriesVisibility.averageWage"
+            @change="handleSeriesChange"
+          />
+          <span class="series-color" style="background-color: rgb(168, 85, 247)"></span>
+          Average Wage ÷1000
         </label>
       </div>
       <h4>📈 Economic Indicators Timeline</h4>
@@ -239,7 +266,10 @@ const seriesVisibility = ref({
   bankCapital: true,
   companyCapital: true,
   interestRate: false,
-  inflation: false
+  inflation: false,
+  growth: false,
+  unemployment: false,
+  averageWage: false
 })
 
 // localStorage functions for persistence
@@ -283,7 +313,10 @@ const resetToDefaults = () => {
     bankCapital: true,
     companyCapital: true,
     interestRate: false,
-    inflation: false
+    inflation: false,
+    growth: false,
+    unemployment: false,
+    averageWage: false
   }
   
   // Reset to defaults
@@ -298,7 +331,6 @@ const resetToDefaults = () => {
   }
 }
 
-// Preset configurations for economic simulation
 const CHART_PRESETS = {
   banking: {
     name: 'Banking Focus',
@@ -309,7 +341,10 @@ const CHART_PRESETS = {
       bankCapital: true,
       companyCapital: false,
       interestRate: true,
-      inflation: true
+      inflation: true,
+      growth: false,
+      unemployment: false,
+      averageWage: false
     }
   },
   economic: {
@@ -321,7 +356,10 @@ const CHART_PRESETS = {
       bankCapital: false,
       companyCapital: true,
       interestRate: false,
-      inflation: false
+      inflation: false,
+      growth: false,
+      unemployment: false,
+      averageWage: false
     }
   },
   all: {
@@ -333,7 +371,10 @@ const CHART_PRESETS = {
       bankCapital: true,
       companyCapital: true,
       interestRate: true,
-      inflation: true
+      inflation: true,
+      growth: true,
+      unemployment: true,
+      averageWage: true
     }
   },
   minimal: {
@@ -345,7 +386,10 @@ const CHART_PRESETS = {
       bankCapital: false,
       companyCapital: false,
       interestRate: false,
-      inflation: false
+      inflation: false,
+      growth: false,
+      unemployment: false,
+      averageWage: false
     }
   }
 }
@@ -806,6 +850,137 @@ function calculateInflation(hasData: boolean): Array<{ x: number, y: number }> {
   return result
 }
 
+// Calculate growth from GDP data (like legacy implementation)
+function calculateGrowth(hasData: boolean): Array<{ x: number, y: number }> {
+  if (!hasData || timeDataPoints.value.length <= 1) {
+    return [{ x: 0, y: 0 }]
+  }
+
+  console.log('Calculating growth from GDP data:', {
+    timeDataCount: timeDataPoints.value.length,
+    sampleGDP: timeDataPoints.value.slice(0, 3).map(d => d.GDP_NOMINAL)
+  })
+
+  const result: Array<{ x: number, y: number }> = []
+  
+  // Calculate raw real GDP growth: ((nominal_gdp[i+1]*price[1]/price[i+1])/real_gdp[i]-1)*100
+  const rawGrowth: number[] = []
+  const prices = timeDataPoints.value.map(d => d.PRICE || 1)
+  const nominalGDP = timeDataPoints.value.map(d => d.GDP_NOMINAL || 0)
+  
+  // Calculate real GDP for each point
+  const realGDP: number[] = []
+  for (let i = 0; i < timeDataPoints.value.length; i++) {
+    realGDP[i] = nominalGDP[i] * (prices[1] || 1) / (prices[i] || 1)
+  }
+  
+  // Calculate growth rates
+  for (let i = 0; i < realGDP.length - 1; i++) {
+    if (realGDP[i] > 0) {
+      const growthRate = ((realGDP[i + 1] / realGDP[i]) - 1) * 100
+      rawGrowth.push(growthRate)
+    } else {
+      rawGrowth.push(0)
+    }
+  }
+  
+  // Apply 10-point moving average to smooth the data (like legacy)
+  for (let i = 0; i < rawGrowth.length; i++) {
+    const startIdx = Math.max(0, i - 9) // Last 10 points (or fewer if near start)
+    const endIdx = i + 1
+    const slice = rawGrowth.slice(startIdx, endIdx)
+    const average = slice.reduce((sum, val) => sum + val, 0) / slice.length
+    
+    result.push({
+      x: timeDataPoints.value[i].TIME,
+      y: average
+    })
+  }
+  
+  // Add last point with same growth as previous
+  if (result.length > 0 && timeDataPoints.value.length > 0) {
+    const lastDataPoint = timeDataPoints.value[timeDataPoints.value.length - 1]
+    result.push({
+      x: lastDataPoint.TIME,
+      y: result[result.length - 1].y
+    })
+  }
+  
+  console.log('Growth calculated (10-point moving average):', {
+    pointCount: result.length,
+    sampleValues: result.slice(0, 3),
+    lastValues: result.slice(-3)
+  })
+  
+  return result
+}
+
+// Calculate unemployment data (like legacy implementation)
+function calculateUnemployment(hasData: boolean): Array<{ x: number, y: number }> {
+  if (!hasData || !timeDataPoints.value.length) {
+    return []
+  }
+  
+  console.log('Calculating unemployment data:', {
+    totalPoints: timeDataPoints.value.length,
+    samplePoint: timeDataPoints.value[0]
+  })
+  
+  // Calculate unemployment directly: UNEMPLOYMENT * 10 (like legacy)
+  const result: Array<{ x: number, y: number }> = []
+  
+  for (let i = 0; i < timeDataPoints.value.length; i++) {
+    const point = timeDataPoints.value[i]
+    const unemploymentValue = (point.UNEMPLOYMENT || 0) * 10
+    
+    result.push({
+      x: i,
+      y: unemploymentValue
+    })
+  }
+  
+  console.log('Unemployment calculated (×10):', {
+    pointCount: result.length,
+    sampleValues: result.slice(0, 3),
+    lastValues: result.slice(-3)
+  })
+  
+  return result
+}
+
+// Calculate average wage data (like legacy implementation)
+function calculateAverageWage(hasData: boolean): Array<{ x: number, y: number }> {
+  if (!hasData || !timeDataPoints.value.length) {
+    return []
+  }
+  
+  console.log('Calculating average wage data:', {
+    totalPoints: timeDataPoints.value.length,
+    samplePoint: timeDataPoints.value[0]
+  })
+  
+  // Calculate average wage directly: WAGES / 1000 (like legacy)
+  const result: Array<{ x: number, y: number }> = []
+  
+  for (let i = 0; i < timeDataPoints.value.length; i++) {
+    const point = timeDataPoints.value[i]
+    const wageValue = (point.WAGES || 0) / 1000
+    
+    result.push({
+      x: i,
+      y: wageValue
+    })
+  }
+  
+  console.log('Average wage calculated (÷1000):', {
+    pointCount: result.length,
+    sampleValues: result.slice(0, 3),
+    lastValues: result.slice(-3)
+  })
+  
+  return result
+}
+
 // Economic Indicators Chart Functions (Interest Rate & Inflation)
 function createInterestRateChartConfig(): ChartConfiguration {
   const hasData = dataPoints.value.length > 0
@@ -839,6 +1014,60 @@ function createInterestRateChartConfig(): ChartConfiguration {
       data: inflationData,
       borderColor: 'rgb(255, 127, 0)',
       backgroundColor: 'rgba(255, 127, 0, 0.2)',
+      tension: 0.4,
+      fill: false,
+      pointRadius: 0
+    })
+  }
+  
+  if (seriesVisibility.value.growth) {
+    const growthData = calculateGrowth(hasData)
+    console.log('Adding growth data to chart:', {
+      enabled: seriesVisibility.value.growth,
+      dataPoints: growthData.length,
+      sampleData: growthData.slice(0, 3)
+    })
+    datasets.push({
+      label: 'Growth %',
+      data: growthData,
+      borderColor: 'rgb(34, 197, 94)',
+      backgroundColor: 'rgba(34, 197, 94, 0.2)',
+      tension: 0.4,
+      fill: false,
+      pointRadius: 0
+    })
+  }
+
+  if (seriesVisibility.value.unemployment) {
+    const unemploymentData = calculateUnemployment(hasData)
+    console.log('Adding unemployment data to chart:', {
+      enabled: seriesVisibility.value.unemployment,
+      dataPoints: unemploymentData.length,
+      sampleData: unemploymentData.slice(0, 3)
+    })
+    datasets.push({
+      label: 'Unemployment ×10',
+      data: unemploymentData,
+      borderColor: 'rgb(239, 68, 68)',
+      backgroundColor: 'rgba(239, 68, 68, 0.2)',
+      tension: 0.4,
+      fill: false,
+      pointRadius: 0
+    })
+  }
+
+  if (seriesVisibility.value.averageWage) {
+    const averageWageData = calculateAverageWage(hasData)
+    console.log('Adding average wage data to chart:', {
+      enabled: seriesVisibility.value.averageWage,
+      dataPoints: averageWageData.length,
+      sampleData: averageWageData.slice(0, 3)
+    })
+    datasets.push({
+      label: 'Average Wage ÷1000',
+      data: averageWageData,
+      borderColor: 'rgb(168, 85, 247)',
+      backgroundColor: 'rgba(168, 85, 247, 0.2)',
       tension: 0.4,
       fill: false,
       pointRadius: 0
