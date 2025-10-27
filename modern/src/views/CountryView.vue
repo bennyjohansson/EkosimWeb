@@ -56,6 +56,13 @@
           :selectedCountry="store.simulationState.selectedCountry" 
         />
       </div>
+
+      <!-- Interest Rate Parameter Control -->
+      <div class="chart-section">
+        <ParameterControl 
+          :selectedCountry="store.simulationState.selectedCountry" 
+        />
+      </div>
     </div>
 
     <div v-if="store.isLoading" class="loading">
@@ -71,6 +78,7 @@ import { useSimulationStore } from '@/stores/simulation'
 import CapitalDistributionChart from '@/components/CapitalDistributionChart.vue'
 import GDPChart from '@/components/GDPChart.vue'
 import EconomicIndicatorsChart from '@/components/EconomicIndicatorsChart.vue'
+import ParameterControl from '@/components/ParameterControl.vue'
 
 const store = useSimulationStore()
 
