@@ -50,7 +50,7 @@
       <div class="chart-section">
         <div class="chart-header">
           <h2>📊 Economic Indicators Timeline</h2>
-          <p class="chart-description">Key economic metrics over time (Interest Rate, Inflation, Growth)</p>
+          <p class="chart-description">Key economic metrics over time (Interest Rate, Price ×10, Inflation, Growth)</p>
         </div>
         <EconomicIndicatorsChart 
           :selectedCountry="store.simulationState.selectedCountry" 

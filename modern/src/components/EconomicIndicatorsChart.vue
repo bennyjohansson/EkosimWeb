@@ -30,6 +30,15 @@
           <label class="series-checkbox">
             <input 
               type="checkbox" 
+              v-model="seriesVisibility.price"
+              @change="updateChart"
+            />
+            <span class="series-color" style="background-color: rgb(59, 130, 246)"></span>
+            Price Level ×10
+          </label>
+          <label class="series-checkbox">
+            <input 
+              type="checkbox" 
               v-model="seriesVisibility.inflation"
               @change="updateChart"
             />
@@ -95,6 +104,10 @@
         <div class="info-item">
           <span class="label">Latest Interest Rate:</span>
           <span class="value">{{ latestInterestRate || 'N/A' }}</span>
+        </div>
+        <div class="info-item">
+          <span class="label">Latest Price ×10:</span>
+          <span class="value">{{ latestPrice || 'N/A' }}</span>
         </div>
       </div>
     </div>
@@ -180,6 +193,7 @@ let updateInterval: ReturnType<typeof setInterval> | null = null
 // Series visibility controls
 const seriesVisibility = ref({
   interestRate: true,
+  price: false,
   inflation: true,
   growth: true,
   unemployment: false,
@@ -199,9 +213,16 @@ const latestInterestRate = computed(() => {
   return latest.INTEREST_RATE ? `${(latest.INTEREST_RATE * 100).toFixed(2)}%` : 'N/A'
 })
 
+const latestPrice = computed(() => {
+  if (dataPoints.value.length === 0) return null
+  const latest = dataPoints.value[dataPoints.value.length - 1]
+  return latest.PRICE ? (latest.PRICE * 10).toFixed(2) : 'N/A'
+})
+
 const resetToDefaults = () => {
   seriesVisibility.value = {
     interestRate: true,
+    price: false,
     inflation: true,
     growth: true,
     unemployment: false,
@@ -218,6 +239,18 @@ function createInterestRateTimeSeries(hasData: boolean): Array<{ x: number, y: n
   return dataPoints.value.map(d => ({
     x: d.TIME,
     y: (d.INTEREST_RATE || 0) * 100 // Convert to percentage
+  }))
+}
+
+// Create price level time series from database time data
+function createPriceTimeSeries(hasData: boolean): Array<{ x: number, y: number }> {
+  if (!hasData || dataPoints.value.length === 0) {
+    return [{ x: 0, y: 10 }]
+  }
+
+  return dataPoints.value.map(d => ({
+    x: d.TIME,
+    y: (d.PRICE || 1) * 10 // Price level ×10
   }))
 }
 
@@ -357,6 +390,19 @@ function createChartConfig(): ChartConfiguration {
       data: interestRateData,
       borderColor: 'rgb(147, 51, 234)',
       backgroundColor: 'rgba(147, 51, 234, 0.2)',
+      tension: 0.4,
+      fill: false,
+      pointRadius: 0
+    })
+  }
+
+  if (seriesVisibility.value.price) {
+    const priceData = createPriceTimeSeries(hasData)
+    datasets.push({
+      label: 'Price Level ×10',
+      data: priceData,
+      borderColor: 'rgb(59, 130, 246)',
+      backgroundColor: 'rgba(59, 130, 246, 0.2)',
       tension: 0.4,
       fill: false,
       pointRadius: 0
