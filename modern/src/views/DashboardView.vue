@@ -21,9 +21,11 @@
       <div class="dashboard-card">
         <h2>⚡ Quick Actions</h2>
         <div class="action-buttons">
-          <button class="action-btn">View Companies</button>
-          <button class="action-btn">Check Bank Status</button>
-          <button class="action-btn">Admin Panel</button>
+          <router-link to="/country" class="action-btn">📊 Country View</router-link>
+          <router-link to="/company" class="action-btn">🏢 View Companies</router-link>
+          <router-link to="/bank" class="action-btn">🏦 Check Bank Status</router-link>
+          <router-link to="/admin" class="action-btn">🔧 Admin Panel</router-link>
+          <router-link to="/highscore" class="action-btn">🏆 High Score</router-link>
         </div>
       </div>
 
@@ -84,12 +86,15 @@
 }
 
 .action-btn {
+  display: inline-block;
   padding: 0.75rem;
   border: none;
   background: #667eea;
   color: white;
   border-radius: 4px;
   cursor: pointer;
+  text-decoration: none;
+  text-align: center;
   transition: background 0.2s;
 }
 
