@@ -19,6 +19,7 @@ import type {
   ParameterUpdate,
   CompanyData,
   CompanyParameter,
+  CompanyTimeSeriesData,
   MoneyDataPoint,
   TimeDataPoint,
   WorldTableEntry,
@@ -209,6 +210,27 @@ export class SimulationAPIService implements SimulationAPI {
     return this.client.get<CompanyData[]>(endpoint, params)
   }
 
+  async getCompanyList(country: CountryCode): Promise<ApiResponse<CompanyName[]>> {
+    // For now, return the hardcoded list from legacy analysis
+    // This could be enhanced later to fetch from an API endpoint
+    // Using country parameter for future extensibility
+    console.log(`Loading company list for country: ${country}`)
+    
+    const companies: CompanyName[] = [
+      'johansson_och_johansson',
+      'limpan_AB', 
+      'bempa_AB',
+      'bempa_CO',
+      'benny_enterprises',
+      'benny_inc'
+    ]
+    
+    return Promise.resolve({
+      message: 'success',
+      data: companies
+    })
+  }
+
   async updateCompanyParameter(
     country: CountryCode,
     companyName: CompanyName,
@@ -225,14 +247,14 @@ export class SimulationAPIService implements SimulationAPI {
     country: CountryCode,
     companyName: CompanyName,
     lastTimestamp: number
-  ): Promise<ApiResponse<CompanyData[]>> {
+  ): Promise<ApiResponse<CompanyTimeSeriesData[]>> {
     const endpoint = `${API_ENDPOINTS.COMPANY_UPDATES}/${country}`
     const params = { 
       myCompany: companyName,
       timestamp: lastTimestamp.toString()
     }
     
-    return this.client.get<CompanyData[]>(endpoint, params)
+    return this.client.get<CompanyTimeSeriesData[]>(endpoint, params)
   }
 
   // ===== TIME SERIES DATA =====

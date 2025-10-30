@@ -177,10 +177,36 @@ export interface CompanyData {
   DIVIDENDS?: number
   DEBT?: number
   EFFICIENCY?: number
+  // Additional fields from legacy analysis
+  WAGE_CONST?: number
+  PBR?: number  // Profit Back Ratio (reinvestment rate)
+  CAPACITY?: number
+  WAGE_CH?: number  // Wage change limit
+  PRODUCTION?: number
+  CAP_VS_EFF_SPLIT?: number  // Investment focus (0=Efficiency, 1=Capacity)
 }
 
 export interface CompanyParameter {
   PARAMETER: string
+  VALUE: string | number
+}
+
+// Company-specific types based on legacy analysis
+export type CompanyParameterType = 
+  | 'WAGE_CONST'      // Share of sales that goes to wages
+  | 'PBR'             // Profit Back Ratio (reinvestment rate)
+  | 'WAGE_CH'         // Wage change limit percentage
+  | 'CAP_VS_EFF_SPLIT' // Investment focus (0=Efficiency, 1=Capacity)
+
+export interface CompanyTimeSeriesData {
+  TIME_STAMP: number
+  CAPACITY: number
+  PRODUCTION: number
+  EMPLOYEES: number
+}
+
+export interface CompanyParameterUpdate {
+  PARAMETER: CompanyParameterType
   VALUE: string | number
 }
 
@@ -254,8 +280,9 @@ export interface SimulationAPI {
   
   // Company management  
   getCompany(country: CountryCode, companyName: CompanyName): Promise<ApiResponse<CompanyData[]>>
+  getCompanyList(country: CountryCode): Promise<ApiResponse<CompanyName[]>>
   updateCompanyParameter(country: CountryCode, companyName: CompanyName, parameter: CompanyParameter): Promise<ApiResponse<string>>
-  getCompanyUpdates(country: CountryCode, companyName: CompanyName, lastTimestamp: number): Promise<ApiResponse<CompanyData[]>>
+  getCompanyUpdates(country: CountryCode, companyName: CompanyName, lastTimestamp: number): Promise<ApiResponse<CompanyTimeSeriesData[]>>
   
   // Time series data
   getMoneyDataUpdates(country: CountryCode, lastTimestamp: number): Promise<ApiResponse<MoneyDataPoint[]>>
