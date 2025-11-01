@@ -88,10 +88,41 @@ class HTTPClient {
         )
       }
 
-      const data = await response.json()
+      // Determine how to parse the response based on content-type and URL
+      const contentType = response.headers.get('content-type') || ''
+      let data: any
       
-      // Validate response structure
-      if (!this.isValidApiResponse(data)) {
+      // For company parameter updates, expect plain text response
+      if (url.includes('/putCompanyParameter/')) {
+        const textData = await response.text()
+        
+        // Convert plain text response to expected ApiResponse format
+        data = {
+          message: 'success',
+          data: textData,
+          error: null
+        }
+      } else if (contentType.includes('application/json')) {
+        // Parse as JSON for other endpoints
+        data = await response.json()
+      } else {
+        // Try JSON first, fall back to text
+        try {
+          data = await response.json()
+        } catch (jsonError) {
+          const textData = await response.text()
+          
+          // This is an unexpected case - log it
+          throw new SimulationAPIError(
+            'UNEXPECTED_CONTENT_TYPE',
+            'Unexpected response content type',
+            { url, contentType, textData, jsonError }
+          )
+        }
+      }
+      
+      // Validate response structure (skip validation for company parameter endpoints)
+      if (!url.includes('/putCompanyParameter/') && !this.isValidApiResponse(data)) {
         throw new SimulationAPIError(
           'INVALID_RESPONSE',
           'Invalid API response format',
