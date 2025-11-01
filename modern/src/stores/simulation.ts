@@ -238,6 +238,12 @@ export const useSimulationStore = defineStore('simulation', () => {
    */
   async function loadMoneyDataUpdates() {
     try {
+      // Don't fetch if no country is selected
+      if (!currentCountry.value || currentCountry.value === '') {
+        console.warn('Cannot load money data: no country selected')
+        return
+      }
+
       const response = await simulationAPI.getMoneyDataUpdates(
         currentCountry.value,
         simulationState.value.lastMoneyTimestamp
@@ -263,6 +269,12 @@ export const useSimulationStore = defineStore('simulation', () => {
    */
   async function loadTimeDataUpdates() {
     try {
+      // Don't fetch if no country is selected
+      if (!currentCountry.value || currentCountry.value === '') {
+        console.warn('Cannot load time data: no country selected')
+        return
+      }
+
       const response = await simulationAPI.getTimeDataUpdates(
         currentCountry.value,
         simulationState.value.lastTimeTimestamp

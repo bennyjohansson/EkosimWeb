@@ -3,9 +3,6 @@
     <div class="chart-header">
       <h3>📈 Company Utilization Analysis</h3>
       <div class="chart-controls">
-        <button @click="loadData" :disabled="isLoading" class="btn btn-small">
-          {{ isLoading ? 'Loading...' : 'Refresh Data' }}
-        </button>
         <button @click="startAutoUpdate" :disabled="isAutoUpdating" class="btn btn-small">
           {{ isAutoUpdating ? 'Auto-updating...' : 'Start Auto-Update' }}
         </button>

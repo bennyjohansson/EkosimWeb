@@ -1,17 +1,7 @@
 <template>
   <div class="bank-chart">
-    <div class="c// Computed values
-const latestBankCapital = computed(() => {
-  if (dataPoints.value.length === 0) return 'N/A'
-  const latest = dataPoints.value[dataPoints.value.length - 1]
-  return ((latest.BANK_CAPITAL || 0) / 1000).toFixed(1) + 'K'
-})eader">
+    <div class="chart-header">
       <h3>🏦 Banking Metrics - Interest Rates</h3>
-      <div class="chart-controls">
-        <button @click="loadData" :disabled="isLoading" class="btn btn-small">
-          {{ isLoading ? 'Loading...' : 'Refresh Data' }}
-        </button>
-      </div>
     </div>
     
     <div class="chart-container">
