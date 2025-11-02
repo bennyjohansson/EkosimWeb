@@ -2,11 +2,6 @@
   <div class="bank-chart">
     <div class="chart-header">
       <h3>🏦 Banking Metrics - Interest Rates</h3>
-      <div class="chart-controls">
-        <button @click="loadData" :disabled="isLoading" class="btn btn-small">
-          {{ isLoading ? 'Loading...' : 'Refresh Data' }}
-        </button>
-      </div>
     </div>
     
     <div class="chart-container">

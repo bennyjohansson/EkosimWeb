@@ -22,6 +22,10 @@ import type {
   MoneyDataPoint,
   TimeDataPoint,
   CompanyData,
+  CompanyName,
+  CompanyTimeSeriesData,
+  CompanyParameterType,
+  CompanyParameterUpdate,
   SimulationError
 } from '@/types/simulation'
 
@@ -58,8 +62,17 @@ export const useSimulationStore = defineStore('simulation', () => {
   const companyData = ref<CompanyData[]>([])
   const bankData = ref<CompanyData[]>([])
 
+  // Company-specific state
+  const availableCompanies = ref<CompanyName[]>([])
+  const selectedCompany = ref<CompanyName>('')
+  const companyTimeSeriesData = ref<CompanyTimeSeriesData[]>([])
+  const companyParameters = ref<CompanyData[]>([])
+  const lastCompanyTimeSeriesTimestamp = ref(0)
+
   // Loading states for specific data
   const isLoadingBankData = ref(false)
+  const isLoadingCompanyData = ref(false)
+  const isLoadingCompanyList = ref(false)
 
   // Error handling
   const lastError = ref<SimulationError | null>(null)
@@ -67,6 +80,7 @@ export const useSimulationStore = defineStore('simulation', () => {
   // Polling intervals
   let moneyDataPolling: ReturnType<typeof setInterval> | null = null
   let timeDataPolling: ReturnType<typeof setInterval> | null = null
+  let companyDataPolling: ReturnType<typeof setInterval> | null = null
 
   // ===== COMPUTED GETTERS =====
 
@@ -92,6 +106,19 @@ export const useSimulationStore = defineStore('simulation', () => {
 
   const latestTimeData = computed(() => {
     return timeData.value[timeData.value.length - 1] || null
+  })
+
+  // Company-specific computed properties
+  const currentCompany = computed(() => {
+    return selectedCompany.value
+  })
+
+  const latestCompanyData = computed(() => {
+    return companyParameters.value[companyParameters.value.length - 1] || null
+  })
+
+  const latestCompanyTimeSeriesData = computed(() => {
+    return companyTimeSeriesData.value[companyTimeSeriesData.value.length - 1] || null
   })
 
   // ===== ACTIONS =====
@@ -211,6 +238,12 @@ export const useSimulationStore = defineStore('simulation', () => {
    */
   async function loadMoneyDataUpdates() {
     try {
+      // Don't fetch if no country is selected
+      if (!currentCountry.value || currentCountry.value === '') {
+        console.warn('Cannot load money data: no country selected')
+        return
+      }
+
       const response = await simulationAPI.getMoneyDataUpdates(
         currentCountry.value,
         simulationState.value.lastMoneyTimestamp
@@ -236,6 +269,12 @@ export const useSimulationStore = defineStore('simulation', () => {
    */
   async function loadTimeDataUpdates() {
     try {
+      // Don't fetch if no country is selected
+      if (!currentCountry.value || currentCountry.value === '') {
+        console.warn('Cannot load time data: no country selected')
+        return
+      }
+
       const response = await simulationAPI.getTimeDataUpdates(
         currentCountry.value,
         simulationState.value.lastTimeTimestamp
@@ -311,6 +350,158 @@ export const useSimulationStore = defineStore('simulation', () => {
     }
   }
 
+  // ===== COMPANY MANAGEMENT =====
+
+  /**
+   * Load available companies for current country
+   */
+  async function loadAvailableCompanies() {
+    if (isLoadingCompanyList.value) return
+
+    isLoadingCompanyList.value = true
+    clearError()
+
+    try {
+      const response = await withRetry(() =>
+        simulationAPI.getCompanyList(currentCountry.value)
+      )
+
+      if (response.message === 'success') {
+        availableCompanies.value = response.data
+        
+        // Set default company to first available if none selected
+        if (!selectedCompany.value && response.data.length > 0) {
+          selectedCompany.value = response.data[0]
+        }
+        
+        console.log('Available companies loaded:', response.data)
+      } else {
+        throw new Error(response.error || 'Failed to load company list')
+      }
+    } catch (error) {
+      setError('LOAD_COMPANIES_FAILED', parseAPIError(error))
+    } finally {
+      isLoadingCompanyList.value = false
+    }
+  }
+
+  /**
+   * Set selected company and reload data
+   */
+  async function setSelectedCompany(companyName: CompanyName) {
+    if (!availableCompanies.value.includes(companyName)) {
+      setError('INVALID_COMPANY', `Invalid company: ${companyName}`)
+      return
+    }
+
+    selectedCompany.value = companyName
+    
+    // Reset timestamps when switching companies
+    lastCompanyTimeSeriesTimestamp.value = 0
+    
+    // Clear existing data
+    companyTimeSeriesData.value = []
+    companyParameters.value = []
+    
+    // Reload data for new company
+    await loadCompanyData()
+    await loadCompanyTimeSeriesData()
+  }
+
+  /**
+   * Load company data (parameters) for current company
+   */
+  async function loadCompanyData() {
+    if (isLoadingCompanyData.value || !selectedCompany.value) return
+
+    isLoadingCompanyData.value = true
+    clearError()
+
+    try {
+      const response = await withRetry(() =>
+        simulationAPI.getCompany(currentCountry.value, selectedCompany.value)
+      )
+
+      if (response.message === 'success') {
+        companyParameters.value = response.data
+        console.log('Company data loaded:', response.data)
+      } else {
+        throw new Error(response.error || 'Failed to load company data')
+      }
+    } catch (error) {
+      setError('LOAD_COMPANY_DATA_FAILED', parseAPIError(error))
+    } finally {
+      isLoadingCompanyData.value = false
+    }
+  }
+
+  /**
+   * Load company time series data updates
+   */
+  async function loadCompanyTimeSeriesData() {
+    if (!selectedCompany.value) return
+
+    try {
+      const response = await simulationAPI.getCompanyUpdates(
+        currentCountry.value,
+        selectedCompany.value,
+        lastCompanyTimeSeriesTimestamp.value
+      )
+
+      if (response.message === 'success' && response.data.length > 0) {
+        // Append new data points
+        companyTimeSeriesData.value.push(...response.data)
+        
+        // Update timestamp for next request
+        const latestTimestamp = Math.max(
+          ...response.data.map(d => d.TIME_STAMP)
+        )
+        lastCompanyTimeSeriesTimestamp.value = latestTimestamp
+        
+        console.log('Company time series data loaded:', response.data.length, 'points')
+      }
+    } catch (error) {
+      console.warn('Failed to load company time series data:', parseAPIError(error))
+    }
+  }
+
+  /**
+   * Update company parameter
+   */
+  async function updateCompanyParameter(
+    parameterType: CompanyParameterType, 
+    value: number,
+    applyToAllCompanies: boolean = false
+  ) {
+    clearError()
+
+    try {
+      const targetCompany = applyToAllCompanies ? '*' : selectedCompany.value
+      
+      if (!targetCompany) {
+        throw new Error('No company selected')
+      }
+
+      const response = await withRetry(() =>
+        simulationAPI.updateCompanyParameter(currentCountry.value, targetCompany, {
+          PARAMETER: parameterType,
+          VALUE: value.toString()
+        })
+      )
+
+      if (response.message === 'success') {
+        // Reload company data to get updated values
+        await loadCompanyData()
+        console.log(`Company parameter ${parameterType} updated to ${value} for ${targetCompany}`)
+      } else {
+        throw new Error(response.error || 'Failed to update company parameter')
+      }
+    } catch (error) {
+      setError('UPDATE_COMPANY_PARAMETER_FAILED', parseAPIError(error))
+      throw error // Re-throw for component handling
+    }
+  }
+
   /**
    * Start real-time data polling
    */
@@ -333,6 +524,13 @@ export const useSimulationStore = defineStore('simulation', () => {
         loadTimeDataUpdates()
       }
     }, interval)
+
+    // Poll company time series data  
+    companyDataPolling = setInterval(() => {
+      if (isAuthenticated.value && selectedCompany.value) {
+        loadCompanyTimeSeriesData()
+      }
+    }, interval)
   }
 
   /**
@@ -352,6 +550,11 @@ export const useSimulationStore = defineStore('simulation', () => {
     if (timeDataPolling) {
       clearInterval(timeDataPolling)
       timeDataPolling = null
+    }
+
+    if (companyDataPolling) {
+      clearInterval(companyDataPolling)
+      companyDataPolling = null
     }
   }
 
@@ -374,6 +577,9 @@ export const useSimulationStore = defineStore('simulation', () => {
 
       // Load initial parameters
       await loadParameters()
+
+      // Load available companies and initial company data
+      await loadAvailableCompanies()
 
       // Load initial data
       await loadMoneyDataUpdates()
@@ -508,10 +714,18 @@ export const useSimulationStore = defineStore('simulation', () => {
     lastError: readonly(lastError),
     availableCountries: readonly(availableCountries),
 
+    // Company state
+    availableCompanies: readonly(availableCompanies),
+    selectedCompany: readonly(selectedCompany),
+    companyTimeSeriesData: readonly(companyTimeSeriesData),
+    companyParameters: readonly(companyParameters),
+
     // Loading states
     isLoading: readonly(isLoading),
     isLoadingParameters: readonly(isLoadingParameters),
     isLoadingBankData: readonly(isLoadingBankData),
+    isLoadingCompanyData: readonly(isLoadingCompanyData),
+    isLoadingCompanyList: readonly(isLoadingCompanyList),
     isPollingData: readonly(isPollingData),
 
     // Computed
@@ -522,6 +736,11 @@ export const useSimulationStore = defineStore('simulation', () => {
     latestMoneyData,
     latestTimeData,
 
+    // Company computed
+    currentCompany,
+    latestCompanyData,
+    latestCompanyTimeSeriesData,
+
     // Actions
     loadAvailableCountries,
     setCountry,
@@ -531,6 +750,14 @@ export const useSimulationStore = defineStore('simulation', () => {
     loadTimeDataUpdates,
     loadBankData,
     updateBankParameter,
+
+    // Company actions
+    loadAvailableCompanies,
+    setSelectedCompany,
+    loadCompanyData,
+    loadCompanyTimeSeriesData,
+    updateCompanyParameter,
+
     startDataPolling,
     stopDataPolling,
     initialize,

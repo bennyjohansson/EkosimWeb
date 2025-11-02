@@ -49,6 +49,7 @@ computed(() => {
 })
 </script>
 
+
 <style scoped>
 .math-formula {
   margin: 0.5rem 0;

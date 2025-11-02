@@ -1,7 +1,7 @@
 <template>
-  <div class="capital-chart">
+  <div class="company-production-chart">
     <div class="chart-header">
-      <h3>💰 Capital Distribution</h3>
+      <h3>🏭 Company Production Metrics</h3>
       <div class="chart-controls">
         <button @click="startAutoUpdate" :disabled="isAutoUpdating" class="btn btn-small">
           {{ isAutoUpdating ? 'Auto-updating...' : 'Start Auto-Update' }}
@@ -18,38 +18,29 @@
           <label class="series-checkbox">
             <input 
               type="checkbox" 
-              v-model="seriesVisibility.totalCapital"
+              v-model="seriesVisibility.capacity"
               @change="updateChart"
             />
-            <span class="series-color" style="background-color: rgb(75, 192, 192)"></span>
-            Total Capital
+            <span class="series-color" style="background-color: rgb(34, 197, 94)"></span>
+            Capacity
           </label>
           <label class="series-checkbox">
             <input 
               type="checkbox" 
-              v-model="seriesVisibility.consumerCapital"
+              v-model="seriesVisibility.production"
               @change="updateChart"
             />
-            <span class="series-color" style="background-color: rgb(255, 99, 132)"></span>
-            Consumer Capital
+            <span class="series-color" style="background-color: rgb(59, 130, 246)"></span>
+            Production
           </label>
           <label class="series-checkbox">
             <input 
               type="checkbox" 
-              v-model="seriesVisibility.bankCapital"
+              v-model="seriesVisibility.employees"
               @change="updateChart"
             />
-            <span class="series-color" style="background-color: rgb(54, 162, 235)"></span>
-            Bank Capital
-          </label>
-          <label class="series-checkbox">
-            <input 
-              type="checkbox" 
-              v-model="seriesVisibility.companyCapital"
-              @change="updateChart"
-            />
-            <span class="series-color" style="background-color: rgb(255, 206, 86)"></span>
-            Company Capital
+            <span class="series-color" style="background-color: rgb(168, 85, 247)"></span>
+            Employees ×1000
           </label>
         </div>
         
@@ -58,6 +49,25 @@
           <button @click="resetToDefaults" class="btn btn-reset">
             Reset to Defaults
           </button>
+        </div>
+        
+        <!-- Preset buttons -->
+        <div class="preset-controls">
+          <h4>Quick Presets:</h4>
+          <div class="preset-buttons">
+            <button @click="applyPreset('production')" class="btn btn-preset">
+              Production Focus
+            </button>
+            <button @click="applyPreset('capacity')" class="btn btn-preset">
+              Capacity Focus
+            </button>
+            <button @click="applyPreset('all')" class="btn btn-preset">
+              All Metrics
+            </button>
+            <button @click="applyPreset('minimal')" class="btn btn-preset">
+              Minimal View
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -77,12 +87,20 @@
           <span class="value">{{ latestTimestamp }}</span>
         </div>
         <div class="info-item">
-          <span class="label">Country:</span>
-          <span class="value">{{ selectedCountry }}</span>
+          <span class="label">Company:</span>
+          <span class="value">{{ selectedCompany }}</span>
         </div>
         <div class="info-item">
-          <span class="label">Last Total Capital:</span>
-          <span class="value">{{ latestMoneySupply || 'N/A' }}</span>
+          <span class="label">Latest Production:</span>
+          <span class="value">{{ latestProduction || 'N/A' }}</span>
+        </div>
+        <div class="info-item">
+          <span class="label">Latest Capacity:</span>
+          <span class="value">{{ latestCapacity || 'N/A' }}</span>
+        </div>
+        <div class="info-item">
+          <span class="label">Chart Status:</span>
+          <span class="value">{{ chart ? 'Initialized' : 'Not Initialized' }}</span>
         </div>
       </div>
     </div>
@@ -94,7 +112,7 @@
     <!-- Debug: Show raw data structure -->
     <div v-if="dataPoints.length > 0" class="debug-section">
       <details>
-        <summary>🔍 Debug: Raw Data Structure (click to expand)</summary>
+        <summary>🔍 Debug: Company Production Data (click to expand)</summary>
         <div class="debug-content">
           <h4>Latest Data Point:</h4>
           <pre>{{ JSON.stringify(dataPoints[dataPoints.length - 1], null, 2) }}</pre>
@@ -129,8 +147,8 @@ import {
   Legend,
   type ChartConfiguration
 } from 'chart.js'
-import { simulationAPI, parseAPIError } from '@/services/simulationAPI'
-import type { CountryCode, MoneyDataPoint } from '@/types/simulation'
+import { useSimulationStore } from '@/stores/simulation'
+import type { CountryCode, CompanyName, CompanyTimeSeriesData } from '@/types/simulation'
 
 // Register Chart.js components
 Chart.register(
@@ -147,109 +165,190 @@ Chart.register(
 // Props
 interface Props {
   selectedCountry: CountryCode
+  selectedCompany: CompanyName
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  selectedCountry: 'Bennyland'
+  selectedCountry: 'Bennyland',
+  selectedCompany: ''
 })
+
+// Store
+const store = useSimulationStore()
 
 // Template refs
 const chartCanvas = ref<HTMLCanvasElement>()
 
 // Reactive state
-const dataPoints = ref<MoneyDataPoint[]>([])
+const dataPoints = ref<CompanyTimeSeriesData[]>([])
 const isLoading = ref(false)
 const isAutoUpdating = ref(false)
 const error = ref<string>('')
-const lastTimestamp = ref(0)
 let chart: Chart | null = null
 let updateInterval: ReturnType<typeof setInterval> | null = null
 
 // Series visibility controls
 const seriesVisibility = ref({
-  totalCapital: true,
-  consumerCapital: true,
-  bankCapital: true,
-  companyCapital: true
+  capacity: true,
+  production: true,
+  employees: true
 })
+
+// localStorage functions for persistence
+const STORAGE_KEY = 'companyProductionChartConfig'
+
+const saveConfiguration = () => {
+  try {
+    const config = {
+      visibleSeries: { ...seriesVisibility.value },
+      lastUsed: new Date().toISOString()
+    }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(config))
+    console.log('Company chart configuration saved:', config)
+  } catch (error) {
+    console.warn('Failed to save company chart configuration:', error)
+  }
+}
+
+const loadConfiguration = () => {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY)
+    if (saved) {
+      const config = JSON.parse(saved)
+      if (config.visibleSeries) {
+        seriesVisibility.value = { ...config.visibleSeries }
+        console.log('Company chart configuration loaded:', config)
+        return true
+      }
+    }
+  } catch (error) {
+    console.warn('Failed to load company chart configuration:', error)
+  }
+  return false
+}
+
+const resetToDefaults = () => {
+  const defaults = {
+    capacity: true,
+    production: true,
+    employees: true
+  }
+  
+  seriesVisibility.value = { ...defaults }
+  
+  try {
+    localStorage.removeItem(STORAGE_KEY)
+    console.log('Company chart configuration reset to defaults')
+  } catch (error) {
+    console.warn('Failed to clear saved configuration:', error)
+  }
+}
+
+// Preset configurations
+const CHART_PRESETS = {
+  production: {
+    name: 'Production Focus',
+    description: 'Focus on production metrics',
+    config: {
+      capacity: false,
+      production: true,
+      employees: true
+    }
+  },
+  capacity: {
+    name: 'Capacity Focus', 
+    description: 'Focus on capacity metrics',
+    config: {
+      capacity: true,
+      production: false,
+      employees: false
+    }
+  },
+  all: {
+    name: 'All Metrics',
+    description: 'Show all data series',
+    config: {
+      capacity: true,
+      production: true,
+      employees: true
+    }
+  },
+  minimal: {
+    name: 'Minimal',
+    description: 'Only production',
+    config: {
+      capacity: false,
+      production: true,
+      employees: false
+    }
+  }
+}
+
+const applyPreset = (presetKey: keyof typeof CHART_PRESETS) => {
+  const preset = CHART_PRESETS[presetKey]
+  if (preset) {
+    seriesVisibility.value = { ...preset.config }
+    console.log(`Applied preset: ${preset.name}`)
+  }
+}
 
 // Computed properties
 const latestTimestamp = computed(() => {
   if (dataPoints.value.length === 0) return 'No data'
   const latest = dataPoints.value[dataPoints.value.length - 1]
-  return `Time: ${latest.TIME}`
+  return `Time: ${latest.TIME_STAMP}`
 })
 
-const latestMoneySupply = computed(() => {
+const latestProduction = computed(() => {
   if (dataPoints.value.length === 0) return null
   const latest = dataPoints.value[dataPoints.value.length - 1]
-  return latest.TOTAL_CAPITAL?.toLocaleString() || 'N/A'
+  return latest.PRODUCTION?.toLocaleString() || 'N/A'
 })
 
-const resetToDefaults = () => {
-  seriesVisibility.value = {
-    totalCapital: true,
-    consumerCapital: true,
-    bankCapital: true,
-    companyCapital: true
-  }
-}
+const latestCapacity = computed(() => {
+  if (dataPoints.value.length === 0) return null
+  const latest = dataPoints.value[dataPoints.value.length - 1]
+  return latest.CAPACITY?.toLocaleString() || 'N/A'
+})
 
 // Chart configuration
 function createChartConfig(): ChartConfiguration {
   const hasData = dataPoints.value.length > 0
-  const labels = hasData ? dataPoints.value.map(d => d.TIME.toString()) : ['0']
-  
-  const totalCapitalData = hasData ? dataPoints.value.map(d => ({ x: d.TIME, y: d.TOTAL_CAPITAL || 0 })) : [{ x: 0, y: 0 }]
-  const consumerCapitalData = hasData ? dataPoints.value.map(d => ({ x: d.TIME, y: d.CONSUMER_CAPITAL || 0 })) : [{ x: 0, y: 0 }]
-  const bankCapitalData = hasData ? dataPoints.value.map(d => ({ x: d.TIME, y: d.BANK_CAPITAL || 0 })) : [{ x: 0, y: 0 }]
-  const companyCapitalData = hasData ? dataPoints.value.map(d => ({ x: d.TIME, y: d.COMPANY_CAIPTAL || 0 })) : [{ x: 0, y: 0 }]
+  const labels = hasData ? dataPoints.value.map(d => d.TIME_STAMP.toString()) : ['0']
   
   // Build datasets array based on visibility settings
   const datasets = []
   
-  if (seriesVisibility.value.totalCapital) {
+  if (seriesVisibility.value.capacity && hasData) {
     datasets.push({
-      label: 'Total Capital',
-      data: totalCapitalData,
-      borderColor: 'rgb(75, 192, 192)',
-      backgroundColor: 'rgba(75, 192, 192, 0.2)',
+      label: 'Capacity',
+      data: dataPoints.value.map(d => ({ x: d.TIME_STAMP, y: d.CAPACITY || 0 })),
+      borderColor: 'rgb(34, 197, 94)',
+      backgroundColor: 'rgba(34, 197, 94, 0.2)',
       tension: 0.4,
       fill: false,
       pointRadius: 0
     })
   }
   
-  if (seriesVisibility.value.consumerCapital) {
+  if (seriesVisibility.value.production && hasData) {
     datasets.push({
-      label: 'Consumer Capital',
-      data: consumerCapitalData,
-      borderColor: 'rgb(255, 99, 132)',
-      backgroundColor: 'rgba(255, 99, 132, 0.2)',
+      label: 'Production',
+      data: dataPoints.value.map(d => ({ x: d.TIME_STAMP, y: d.PRODUCTION || 0 })),
+      borderColor: 'rgb(59, 130, 246)',
+      backgroundColor: 'rgba(59, 130, 246, 0.2)',
       tension: 0.4,
       fill: false,
       pointRadius: 0
     })
   }
   
-  if (seriesVisibility.value.bankCapital) {
+  if (seriesVisibility.value.employees && hasData) {
     datasets.push({
-      label: 'Bank Capital',
-      data: bankCapitalData,
-      borderColor: 'rgb(54, 162, 235)',
-      backgroundColor: 'rgba(54, 162, 235, 0.2)',
-      tension: 0.4,
-      fill: false,
-      pointRadius: 0
-    })
-  }
-  
-  if (seriesVisibility.value.companyCapital) {
-    datasets.push({
-      label: 'Company Capital',
-      data: companyCapitalData,
-      borderColor: 'rgb(255, 206, 86)',
-      backgroundColor: 'rgba(255, 206, 86, 0.2)',
+      label: 'Employees ×1000',
+      data: dataPoints.value.map(d => ({ x: d.TIME_STAMP, y: (d.EMPLOYEES || 0) * 1000 })),
+      borderColor: 'rgb(168, 85, 247)',
+      backgroundColor: 'rgba(168, 85, 247, 0.2)',
       tension: 0.4,
       fill: false,
       pointRadius: 0
@@ -274,7 +373,7 @@ function createChartConfig(): ChartConfiguration {
       plugins: {
         title: {
           display: true,
-          text: `Capital Distribution - ${props.selectedCountry}`,
+          text: `Company Production - ${props.selectedCompany} (${props.selectedCountry})`,
           font: {
             size: 16
           }
@@ -313,7 +412,7 @@ function createChartConfig(): ChartConfiguration {
           position: 'left' as const,
           title: {
             display: true,
-            text: 'Capital Amount'
+            text: 'Value'
           },
           beginAtZero: true
         }
@@ -327,13 +426,13 @@ async function initChart() {
   await nextTick()
   
   if (!chartCanvas.value) {
-    console.error('Capital chart canvas not available')
+    console.error('Company Production Chart canvas not available')
     error.value = 'Chart canvas element not found'
     return
   }
   
   if (dataPoints.value.length === 0) {
-    console.warn('No data points available for capital chart initialization')
+    console.warn('No data points available for company production chart initialization')
     error.value = 'No data available for chart'
     return
   }
@@ -354,54 +453,44 @@ async function initChart() {
     chart = new Chart(chartCanvas.value, config)
     chart.update()
     
-    console.log('Capital Chart created successfully')
+    console.log('Company Production Chart created successfully')
     
   } catch (err) {
-    console.error('Error during capital chart initialization:', err)
-    error.value = `Capital chart initialization failed: ${err instanceof Error ? err.message : String(err)}`
+    console.error('Error during company production chart initialization:', err)
+    error.value = `Company Production Chart initialization failed: ${err instanceof Error ? err.message : String(err)}`
   }
 }
 
-// Load data from API
+// Load data 
 async function loadData() {
-  if (isLoading.value) return
+  if (isLoading.value || !props.selectedCompany) return
   
   isLoading.value = true
   error.value = ''
   
   try {
-    const response = await simulationAPI.getMoneyDataUpdates(
-      props.selectedCountry,
-      lastTimestamp.value
-    )
+    // Use the store's company time series data
+    await store.loadCompanyTimeSeriesData()
     
-    if (response.message === 'success') {
-      if (response.data.length > 0) {
-        console.log('Capital data loaded:', {
-          count: response.data.length,
-          firstPoint: response.data[0],
-          hasCapital: response.data[0].TOTAL_CAPITAL !== undefined
-        })
-        
-        // Append new data points
-        dataPoints.value.push(...response.data)
-        
-        // Update last timestamp
-        const maxTime = Math.max(...response.data.map(d => d.TIME))
-        lastTimestamp.value = maxTime
-        
-        // Initialize chart if it doesn't exist, otherwise update it
-        if (!chart) {
-          await initChart()
-        } else {
-          updateChart()
-        }
-      }
+    // Get data from store
+    dataPoints.value = [...store.companyTimeSeriesData]
+    
+    console.log('Company production data loaded:', {
+      count: dataPoints.value.length,
+      company: props.selectedCompany,
+      firstPoint: dataPoints.value[0]
+    })
+    
+    // Initialize chart if it doesn't exist, otherwise update it
+    if (!chart) {
+      await initChart()
     } else {
-      throw new Error(response.error || 'Failed to load capital data')
+      updateChart()
     }
+    
   } catch (err) {
-    error.value = parseAPIError(err)
+    console.error('Failed to load company production data:', err)
+    error.value = `Failed to load company data: ${err instanceof Error ? err.message : String(err)}`
   } finally {
     isLoading.value = false
   }
@@ -410,20 +499,20 @@ async function loadData() {
 // Update chart with new data
 function updateChart() {
   if (!chart) {
-    console.warn('Capital Chart not initialized, cannot update')
+    console.warn('Company Production Chart not initialized, cannot update')
     return
   }
   
   try {
     const config = createChartConfig()
     chart.data = config.data
-    chart.options.plugins!.title!.text = `Capital Distribution - ${props.selectedCountry}`
+    chart.options.plugins!.title!.text = `Company Production - ${props.selectedCompany} (${props.selectedCountry})`
     chart.update('none')
     
-    console.log('Capital Chart updated successfully')
+    console.log('Company Production Chart updated successfully')
   } catch (err) {
-    console.error('Error updating capital chart:', err)
-    error.value = `Capital chart update failed: ${err instanceof Error ? err.message : String(err)}`
+    console.error('Error updating company production chart:', err)
+    error.value = `Company Production Chart update failed: ${err instanceof Error ? err.message : String(err)}`
   }
 }
 
@@ -434,7 +523,7 @@ function startAutoUpdate() {
   isAutoUpdating.value = true
   updateInterval = setInterval(() => {
     loadData()
-  }, 3000)
+  }, 2000) // Update every 2 seconds (matching legacy)
 }
 
 // Stop auto-updating
@@ -448,11 +537,22 @@ function stopAutoUpdate() {
 
 // Initialize on mount
 onMounted(async () => {
-  console.log('Capital Chart component mounted, loading data...')
-  await loadData()
-  // Start auto-update by default
-  startAutoUpdate()
+  console.log('Company Production Chart component mounted')
+  
+  // Load saved configuration
+  loadConfiguration()
+  
+  if (props.selectedCompany) {
+    await loadData()
+    // Start auto-update by default if we have a company
+    startAutoUpdate()
+  }
 })
+
+// Auto-save configuration when visibility changes
+watch(seriesVisibility, () => {
+  saveConfiguration()
+}, { deep: true })
 
 // Cleanup on unmount
 onUnmounted(() => {
@@ -462,20 +562,34 @@ onUnmounted(() => {
   }
 })
 
-// Watch for country changes
-watch(() => props.selectedCountry, async () => {
+// Watch for company/country changes
+watch(() => [props.selectedCountry, props.selectedCompany], async () => {
+  // Reset data when company/country changes
   dataPoints.value = []
-  lastTimestamp.value = 0
   
+  // Update chart and reload data
   if (chart) {
     updateChart()
   }
-  await loadData()
+  
+  if (props.selectedCompany) {
+    await loadData()
+  }
 })
+
+// Watch store data for real-time updates
+watch(() => store.companyTimeSeriesData, (newData) => {
+  if (newData.length > dataPoints.value.length) {
+    dataPoints.value = [...newData]
+    if (chart) {
+      updateChart()
+    }
+  }
+}, { deep: true })
 </script>
 
 <style scoped>
-.capital-chart {
+.company-production-chart {
   background: white;
   border-radius: 8px;
   padding: 1.5rem;
@@ -556,7 +670,7 @@ watch(() => props.selectedCountry, async () => {
   padding: 0.5rem;
   background: white;
   border-radius: 4px;
-  border-left: 3px solid #4bc0c0;
+  border-left: 3px solid #f59e0b;
 }
 
 .label {
@@ -622,7 +736,7 @@ watch(() => props.selectedCountry, async () => {
 }
 
 .field-tag {
-  background: #4bc0c0;
+  background: #f59e0b;
   color: white;
   padding: 0.25rem 0.5rem;
   border-radius: 12px;
@@ -630,7 +744,7 @@ watch(() => props.selectedCountry, async () => {
   font-family: 'Monaco', 'Consolas', monospace;
 }
 
-/* Series visibility controls */
+/* Series visibility controls - matching other chart components */
 .series-controls {
   margin: 1rem 0;
   padding: 1rem;
@@ -703,6 +817,49 @@ watch(() => props.selectedCountry, async () => {
   background-color: #d97706;
 }
 
+.btn-reset:active {
+  background-color: #b45309;
+}
+
+.preset-controls {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+.preset-controls h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.9rem;
+  color: #374151;
+  font-weight: 600;
+}
+
+.preset-buttons {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.btn-preset {
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: background-color 0.2s;
+  white-space: nowrap;
+}
+
+.btn-preset:hover {
+  background-color: #2563eb;
+}
+
+.btn-preset:active {
+  background-color: #1d4ed8;
+}
+
 @media (max-width: 768px) {
   .chart-header {
     flex-direction: column;
@@ -721,6 +878,14 @@ watch(() => props.selectedCountry, async () => {
   .series-checkboxes {
     flex-direction: column;
     gap: 0.5rem;
+  }
+  
+  .preset-buttons {
+    flex-direction: column;
+  }
+  
+  .btn-preset {
+    width: 100%;
   }
 }
 </style>

@@ -1,12 +1,16 @@
 <template>
   <div class="bank-view">
-    <h1>🏦 Bank Management</h1>
+    <!-- View Header -->
+    <div class="view-header">
+      <h1 class="view-title">🏦 Bank Management</h1>
+      <p class="view-subtitle">Monitor and control banking parameters, interest rates, and capital ratios</p>
+    </div>
     
     <!-- Country Selection -->
     <div class="country-selector">
-      <label for="country-select">Country: </label>
+      <label for="bank-country-select">Country: </label>
       <select 
-        id="country-select"
+        id="bank-country-select"
         :value="store.simulationState.selectedCountry"
         @change="handleCountryChange"
         class="country-select"
@@ -23,68 +27,147 @@
       </select>
     </div>
     
-    <div class="bank-compact-layout">
-      <!-- Compact Parameter Controls -->
-      <div class="controls-compact">
-        <div class="control-group-compact">
-          <span class="control-label">Market Rate</span>
-          <span class="current-value-compact">{{ marketInterestRate }}%</span>
-          <button 
-            @click="useMarketRate" 
-            class="btn-compact btn-secondary"
-            :disabled="isUpdating"
-          >
-            Use
-          </button>
-        </div>
-        
-        <div class="control-group-compact">
-          <span class="control-label">Target Rate</span>
-          <input 
-            v-model.number="newTargetInterestRate" 
-            type="number" 
-            class="control-input" 
-            step="0.1"
-            :placeholder="targetInterestRate"
-            :value="newTargetInterestRate || targetInterestRate"
+    <!-- Main Content Area -->
+    <div class="bank-content">
+      
+      <!-- Charts Section -->
+      <div class="charts-section">
+        <!-- Capital Distribution Chart -->
+        <div class="chart-section">
+          <div class="chart-header">
+            <h2>💰 Capital Distribution</h2>
+            <p class="chart-description">Capital distribution across economic sectors and banking system</p>
+          </div>
+          <CapitalDistributionChart 
+            :selectedCountry="store.simulationState.selectedCountry" 
           />
-          <span class="current-value-compact">{{ targetInterestRate }}%</span>
-          <button 
-            @click="updateTargetRate" 
-            class="btn-compact btn-primary"
-            :disabled="isUpdating || (!newTargetInterestRate && newTargetInterestRate !== 0)"
-          >
-            Set
-          </button>
         </div>
-        
-        <div class="control-group-compact">
-          <span class="control-label">Capital Ratio</span>
-          <input 
-            v-model.number="newCapitalRatio" 
-            type="number" 
-            class="control-input" 
-            step="0.1"
-            :placeholder="capitalRatio"
-            :value="newCapitalRatio || capitalRatio"
+
+        <!-- Economic Indicators Chart -->
+        <div class="chart-section">
+          <div class="chart-header">
+            <h2>📊 Economic Indicators Timeline</h2>
+            <p class="chart-description">Key economic metrics over time (Interest Rate, Price ×10, Inflation, Growth)</p>
+          </div>
+          <EconomicIndicatorsChart 
+            :selectedCountry="store.simulationState.selectedCountry" 
           />
-          <span class="current-value-compact">{{ capitalRatio }}%</span>
-          <button 
-            @click="updateCapitalRatio" 
-            class="btn-compact btn-primary"
-            :disabled="isUpdating || (!newCapitalRatio && newCapitalRatio !== 0)"
-          >
-            Set
-          </button>
+        </div>
+
+        <!-- Bank Capital Chart -->
+        <div class="chart-section">
+          <div class="chart-header">
+            <h2>🏦 Banking Capital & Metrics</h2>
+            <p class="chart-description">Bank capital ratios, reserves and financial stability indicators</p>
+          </div>
+          <BankChart 
+            :selectedCountry="store.simulationState.selectedCountry" 
+          />
+        </div>
+
+        <!-- Interest Rate Chart -->
+        <div class="chart-section">
+          <div class="chart-header">
+            <h2>📈 Interest Rate Analysis</h2>
+            <p class="chart-description">Market interest rates and monetary policy trends</p>
+          </div>
+          <BankChartInterestRate 
+            ref="interestRateChart"
+            :selectedCountry="store.simulationState.selectedCountry" 
+          />
         </div>
       </div>
 
-      <!-- Chart Section -->
-      <div class="chart-compact">
-        <h3>Bank Performance & Economic Data</h3>
-        <MoneyChart 
-          :selectedCountry="store.simulationState.selectedCountry" 
-        />
+      <!-- Parameter Controls Section -->
+      <div class="controls-section">
+        <div class="controls-header">
+          <h2>⚙️ Banking Parameters</h2>
+          <p class="controls-description">Configure interest rates and capital requirements</p>
+        </div>
+        
+        <div class="parameter-cards">
+          <div class="parameter-card">
+            <div class="parameter-header">
+              <h3>📊 Market Interest Rate</h3>
+              <p class="parameter-description">Current market-determined interest rate</p>
+            </div>
+            <div class="parameter-content">
+              <div class="current-value">
+                <span class="value">{{ marketInterestRate }}%</span>
+                <span class="label">Current Rate</span>
+              </div>
+              <button 
+                @click="useMarketRate" 
+                class="btn btn-secondary"
+                :disabled="isUpdating"
+              >
+                Use Market Rate
+              </button>
+            </div>
+          </div>
+
+          <div class="parameter-card">
+            <div class="parameter-header">
+              <h3>🎯 Target Interest Rate</h3>
+              <p class="parameter-description">Set custom target interest rate policy</p>
+            </div>
+            <div class="parameter-content">
+              <div class="current-value">
+                <span class="value">{{ targetInterestRate }}%</span>
+                <span class="label">Current Target</span>
+              </div>
+              <div class="input-group">
+                <input 
+                  v-model.number="newTargetInterestRate" 
+                  type="number" 
+                  class="parameter-input" 
+                  step="0.1"
+                  :placeholder="targetInterestRate"
+                  :value="newTargetInterestRate || targetInterestRate"
+                />
+                <span class="input-suffix">%</span>
+                <button 
+                  @click="updateTargetRate" 
+                  class="btn btn-primary"
+                  :disabled="isUpdating || (!newTargetInterestRate && newTargetInterestRate !== 0)"
+                >
+                  Set Rate
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="parameter-card">
+            <div class="parameter-header">
+              <h3>🏛️ Capital Reserve Ratio</h3>
+              <p class="parameter-description">Required capital as percentage of total assets</p>
+            </div>
+            <div class="parameter-content">
+              <div class="current-value">
+                <span class="value">{{ capitalRatio }}%</span>
+                <span class="label">Current Ratio</span>
+              </div>
+              <div class="input-group">
+                <input 
+                  v-model.number="newCapitalRatio" 
+                  type="number" 
+                  class="parameter-input" 
+                  step="0.1"
+                  :placeholder="capitalRatio"
+                  :value="newCapitalRatio || capitalRatio"
+                />
+                <span class="input-suffix">%</span>
+                <button 
+                  @click="updateCapitalRatio" 
+                  class="btn btn-primary"
+                  :disabled="isUpdating || (!newCapitalRatio && newCapitalRatio !== 0)"
+                >
+                  Set Ratio
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -92,16 +175,21 @@
       Loading bank data...
     </div>
     
-    <!-- Remove simulationError block as it does not exist in the store -->
   </div>
 </template>
 
 <script setup lang="ts">
 import { onMounted, onUnmounted, computed, ref, nextTick } from 'vue'
 import { useSimulationStore } from '@/stores/simulation'
-import MoneyChart from '@/components/MoneyChart.vue'
+import CapitalDistributionChart from '@/components/CapitalDistributionChart.vue'
+import EconomicIndicatorsChart from '@/components/EconomicIndicatorsChart.vue'
+import BankChart from '@/components/BankChart.vue'
+import BankChartInterestRate from '@/components/BankChartInterestRate.vue'
 
 const store = useSimulationStore()
+
+// Template refs
+const interestRateChart = ref(null)
 
 // Reactive variables for form inputs
 const newTargetInterestRate = ref<number | null>(null)
@@ -115,8 +203,19 @@ const targetInterestRate = computed(() => {
 })
 
 const marketInterestRate = computed(() => {
-  const param = store.parameters.find(p => p.PARAMETER === 'MarketInterestRate')
-  return param ? (parseFloat(String(param.VALUE)) * 100).toFixed(2) : '0.00'
+  // Use the exact same logic as BankChartInterestRate component
+  if (store.timeData.length === 0) return '0.00'
+  const latest = store.timeData[store.timeData.length - 1]
+  
+  // Debug logging
+  console.log('BankView - timeData length:', store.timeData.length)
+  console.log('BankView - latest timeData:', latest)
+  
+  // TimeDataPoint should have INTEREST_RATE field based on legacy code
+  const rate = (latest as any).INTEREST_RATE
+  console.log('BankView - INTEREST_RATE value:', rate)
+  
+  return (rate ? (rate * 100).toFixed(2) : '0.00')
 })
 
 const capitalRatio = computed(() => {
@@ -130,6 +229,7 @@ onMounted(async () => {
   await store.initialize()
   await store.loadBankData()
   await store.loadParameters()
+  await store.loadTimeDataUpdates()
 })
 
 // Cleanup chart on unmount (not needed anymore but keeping for clean structure)
@@ -212,212 +312,304 @@ const handleCountryChange = async (event: Event) => {
   padding: 1rem;
 }
 
+/* View Header */
+.view-header {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding: 2rem 1rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  color: white;
+}
+
+.view-title {
+  margin: 0 0 0.5rem 0;
+  font-size: 2.5rem;
+  font-weight: 700;
+}
+
+.view-subtitle {
+  margin: 0;
+  font-size: 1.1rem;
+  opacity: 0.9;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Country Selection */
 .country-selector {
-  margin-bottom: 1.5rem;
-  padding: 1rem;
-  background: #f8f9fa;
-  border-radius: 8px;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 1rem;
 }
 
 .country-selector label {
   font-weight: 600;
   color: #495057;
+  font-size: 1rem;
 }
 
 .country-select {
-  padding: 0.5rem;
-  border: 1px solid #ced4da;
-  border-radius: 4px;
+  padding: 0.75rem 1rem;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
   background: white;
   font-size: 1rem;
-  min-width: 150px;
+  min-width: 200px;
+  transition: border-color 0.2s;
+}
+
+.country-select:focus {
+  outline: none;
+  border-color: #667eea;
 }
 
 .country-select:disabled {
-  background: #e9ecef;
+  background: #f8f9fa;
   cursor: not-allowed;
 }
 
-.bank-compact-layout {
+/* Main Content */
+.bank-content {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 1.5rem;
-  max-width: 100%;
-  margin: 0 auto;
-  padding: 1rem;
-  overflow: hidden;
+  gap: 2rem;
 }
 
-.stats-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
-  background: white;
-  border-radius: 6px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  padding: 1rem;
-}
-
-.stat-item {
+/* Charts Section */
+.charts-section {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0; /* Remove gap since chart-section has margin-bottom */
 }
 
-.stat-label {
-  font-size: 0.85rem;
+.chart-section {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
+  margin-bottom: 2rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.chart-section:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.chart-header {
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.chart-header h2 {
+  margin: 0 0 0.5rem 0;
+  color: #2d3748;
+  font-size: 1.5rem;
   font-weight: 600;
-  color: #666;
+}
+
+.chart-description {
+  margin: 0;
+  color: #718096;
+  font-size: 0.95rem;
+  font-style: italic;
+}
+
+/* Controls Section */
+.controls-section {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+}
+
+.controls-header {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #f8f9fa;
+}
+
+.controls-header h2 {
+  margin: 0 0 0.5rem 0;
+  color: #2c3e50;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.controls-description {
+  margin: 0;
+  color: #6c757d;
+  font-size: 0.95rem;
+}
+
+/* Parameter Cards */
+.parameter-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 1.5rem;
+}
+
+.parameter-card {
+  background: #f8f9fa;
+  border: 2px solid #e9ecef;
+  border-radius: 10px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.parameter-card:hover {
+  border-color: #667eea;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.1);
+}
+
+.parameter-header {
+  margin-bottom: 1rem;
+}
+
+.parameter-header h3 {
+  margin: 0 0 0.5rem 0;
+  color: #2c3e50;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.parameter-description {
+  margin: 0;
+  color: #6c757d;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.parameter-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.current-value {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem;
+  background: white;
+  border-radius: 8px;
+  border: 2px solid #27ae60;
+}
+
+.current-value .value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #27ae60;
+  margin-bottom: 0.25rem;
+}
+
+.current-value .label {
+  font-size: 0.8rem;
+  color: #6c757d;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
-.stat-value {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #2c3e50;
-}
-
-.controls-compact {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1rem;
-  background: white;
-  border-radius: 6px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  padding: 1rem;
-  max-width: 100%;
-  overflow: hidden;
-}
-
-.control-group-compact {
+.input-group {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+}
+
+.parameter-input {
+  flex: 1;
   padding: 0.75rem;
-  border: 1px solid #e9ecef;
-  border-radius: 4px;
-  background: #f8f9fa;
-  flex-wrap: nowrap;
-  min-width: 0;
+  border: 2px solid #e9ecef;
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: border-color 0.2s;
 }
 
-.control-label {
-  min-width: 100px;
-  font-size: 0.9rem;
+.parameter-input:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.input-suffix {
   font-weight: 600;
-  color: #555;
-  flex-shrink: 0;
-}
-
-.control-input {
-  width: 80px;
-  flex-shrink: 0;
-  padding: 0.4rem 0.6rem;
-  border: 1px solid #ddd;
-  border-radius: 3px;
+  color: #6c757d;
   font-size: 0.9rem;
 }
 
-.current-value-compact {
-  min-width: 70px;
-  flex-shrink: 0;
-  text-align: center;
-  font-weight: 600;
-  color: #27ae60;
-  background: white;
-  padding: 0.3rem 0.5rem;
-  border-radius: 3px;
-  border: 1px solid #27ae60;
-  font-size: 0.85rem;
-}
-
-.btn-compact {
-  padding: 0.4rem 0.8rem;
+/* Buttons */
+.btn {
+  padding: 0.75rem 1.5rem;
   border: none;
-  border-radius: 3px;
+  border-radius: 6px;
   cursor: pointer;
   font-weight: 600;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   transition: all 0.2s;
-  min-width: 60px;
-  flex-shrink: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .btn-primary {
-  background-color: #3498db;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
 }
 
 .btn-primary:hover {
-  background-color: #2980b9;
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
 }
 
 .btn-primary:disabled {
-  background-color: #bdc3c7;
+  background: #bdc3c7;
   cursor: not-allowed;
   transform: none;
+  box-shadow: none;
 }
 
 .btn-secondary {
-  background-color: #95a5a6;
+  background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
   color: white;
 }
 
 .btn-secondary:hover {
-  background-color: #7f8c8d;
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(149, 165, 166, 0.3);
 }
 
 .btn-secondary:disabled {
-  background-color: #ecf0f1;
+  background: #ecf0f1;
   color: #bdc3c7;
   cursor: not-allowed;
   transform: none;
+  box-shadow: none;
 }
 
-.chart-compact {
-  background: white;
-  border-radius: 6px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  padding: 1rem;
-}
-
-.chart-compact h3 {
-  margin: 0 0 0.75rem 0;
-  color: #2c3e50;
-  font-size: 1.1rem;
-  text-align: center;
-  font-weight: 600;
-}
-
-.chart-wrapper {
-  height: 300px;
-  position: relative;
-}
-
+/* Loading */
 .loading {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 150px;
-  font-size: 1rem;
-  color: #666;
+  height: 200px;
+  font-size: 1.1rem;
+  color: #6c757d;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-.error {
-  color: #e74c3c;
-  text-align: center;
-  padding: 0.75rem;
-  background-color: #fdf2f2;
-  border: 1px solid #f5c6cb;
-  border-radius: 4px;
-  margin: 0.5rem 0;
-  font-size: 0.9rem;
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .parameter-cards {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 768px) {
@@ -425,59 +617,64 @@ const handleCountryChange = async (event: Event) => {
     padding: 0.5rem;
   }
   
-  .stats-row {
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 0.75rem;
-    padding: 0.75rem;
+  .view-header {
+    padding: 1.5rem 1rem;
+    margin-bottom: 1.5rem;
   }
   
-  .controls-compact {
-    grid-template-columns: 1fr;
-    gap: 0.75rem;
-    padding: 0.75rem;
+  .view-title {
+    font-size: 2rem;
   }
   
-  .control-group-compact {
+  .view-subtitle {
+    font-size: 1rem;
+  }
+  
+  .country-selector {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 1rem;
+  }
+  
+  .country-select {
+    width: 100%;
+    min-width: 0;
+  }
+  
+  .bank-content {
+    gap: 1.5rem;
+  }
+  
+  .parameter-cards {
+    gap: 1rem;
+  }
+  
+  .parameter-card {
+    padding: 1rem;
+  }
+  
+  .input-group {
     flex-wrap: wrap;
-    justify-content: flex-start;
-    gap: 0.4rem;
-    padding: 0.6rem;
   }
   
-  .control-label {
-    min-width: auto;
-    flex: 0 0 100%;
-    text-align: left;
-    margin-bottom: 0.25rem;
-  }
-  
-  .control-input {
-    width: 70px;
-    flex-shrink: 0;
-  }
-  
-  .current-value-compact {
-    min-width: 65px;
-    flex-shrink: 0;
-  }
-  
-  .btn-compact {
-    min-width: 55px;
-    flex-shrink: 0;
-  }
-  
-  .chart-wrapper {
-    height: 250px;
+  .parameter-input {
+    min-width: 100px;
   }
 }
 
 @media (max-width: 480px) {
-  .stats-row {
-    grid-template-columns: 1fr;
+  .view-title {
+    font-size: 1.75rem;
   }
   
-  .stat-value {
+  .current-value .value {
     font-size: 1.25rem;
+  }
+  
+  .btn {
+    padding: 0.6rem 1rem;
+    font-size: 0.85rem;
   }
 }
 </style>

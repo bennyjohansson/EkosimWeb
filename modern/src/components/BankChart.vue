@@ -5,9 +5,6 @@
     <div class="chart-header">
       <h3>🏦 Banking Metrics & Interest Rates</h3>
       <div class="chart-controls">
-        <button @click="loadData" :disabled="isLoading" class="btn btn-small">
-          {{ isLoading ? 'Loading...' : 'Refresh Data' }}
-        </button>
         <button @click="startAutoUpdate" :disabled="isAutoUpdating" class="btn btn-small">
           {{ isAutoUpdating ? 'Auto-updating...' : 'Start Auto-Update' }}
         </button>
@@ -23,21 +20,38 @@
           <label class="series-checkbox">
             <input 
               type="checkbox" 
-              v-model="seriesVisibility.interestRate"
+              v-model="seriesVisibility.totalCapital"
               @change="updateChart"
             />
             <span class="series-color" style="background-color: rgb(54, 162, 235)"></span>
-            Interest Rate %
+            Total Capital
           </label>
           <label class="series-checkbox">
             <input 
               type="checkbox" 
-              v-model="seriesVisibility.inflationRate"
+              v-model="seriesVisibility.consumerCapital"
               @change="updateChart"
-              disabled
             />
-            <span class="series-color" style="background-color: rgb(255, 193, 7)"></span>
-            Inflation Rate % (Coming Soon)
+            <span class="series-color" style="background-color: rgb(255, 99, 132)"></span>
+            Consumer Capital
+          </label>
+          <label class="series-checkbox">
+            <input 
+              type="checkbox" 
+              v-model="seriesVisibility.bankCapital"
+              @change="updateChart"
+            />
+            <span class="series-color" style="background-color: rgb(75, 192, 192)"></span>
+            Bank Capital
+          </label>
+          <label class="series-checkbox">
+            <input 
+              type="checkbox" 
+              v-model="seriesVisibility.companyCapital"
+              @change="updateChart"
+            />
+            <span class="series-color" style="background-color: rgb(255, 205, 86)"></span>
+            Company Capital
           </label>
         </div>
         
@@ -145,7 +159,7 @@ import {
   type ChartConfiguration
 } from 'chart.js'
 import { simulationAPI, parseAPIError } from '@/services/simulationAPI'
-import type { CountryCode, TimeDataPoint } from '@/types/simulation'
+import type { CountryCode, MoneyDataPoint } from '@/types/simulation'
 
 // Register Chart.js components
 Chart.register(
@@ -180,7 +194,7 @@ const props = withDefaults(defineProps<Props>(), {
 const chartCanvas = ref<HTMLCanvasElement>()
 
 // Reactive state
-const dataPoints = ref<TimeDataPoint[]>([])
+const dataPoints = ref<MoneyDataPoint[]>([])
 const isLoading = ref(false)
 const isAutoUpdating = ref(false)
 const error = ref<string>('')
@@ -190,14 +204,14 @@ let updateInterval: ReturnType<typeof setInterval> | null = null
 
 // Series visibility controls for banking metrics
 const seriesVisibility = ref({
-  interestRate: true,
-  inflationRate: false,  // We'll add this later
-  realRate: false,       // We'll add this later
-  gdpGrowth: false       // We'll add this later
+  totalCapital: true,
+  consumerCapital: false,
+  bankCapital: true,
+  companyCapital: false
 })
 
 // localStorage functions for persistence
-const STORAGE_KEY = 'moneyChartConfig'
+const STORAGE_KEY = 'bankChartConfig'
 
 const saveConfiguration = () => {
   try {
@@ -552,7 +566,7 @@ async function loadData() {
   error.value = ''
   
   try {
-    const response = await simulationAPI.getTimeDataUpdates(
+    const response = await simulationAPI.getMoneyDataUpdates(
       props.selectedCountry,
       lastTimestamp.value
     )
@@ -560,7 +574,7 @@ async function loadData() {
     if (response.message === 'success') {
       if (response.data.length > 0) {
         // Debug: Log the actual data structure
-        console.log('Raw Time API response data:', response.data)
+        console.log('Raw Money API response data:', response.data)
         console.log('First time data point:', response.data[0])
         console.log('Available time fields:', Object.keys(response.data[0] || {}))
         

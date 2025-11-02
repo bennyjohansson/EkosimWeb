@@ -1,7 +1,7 @@
 <template>
-  <div class="gdp-chart">
+  <div class="company-utilization-chart">
     <div class="chart-header">
-      <h3>📈 GDP & Investment Analysis</h3>
+      <h3>📈 Company Utilization Analysis</h3>
       <div class="chart-controls">
         <button @click="startAutoUpdate" :disabled="isAutoUpdating" class="btn btn-small">
           {{ isAutoUpdating ? 'Auto-updating...' : 'Start Auto-Update' }}
@@ -9,49 +9,6 @@
         <button @click="stopAutoUpdate" :disabled="!isAutoUpdating" class="btn btn-small">
           Stop Auto-Update
         </button>
-      </div>
-      
-      <!-- Series Visibility Controls -->
-      <div class="series-controls">
-        <h4>📊 Data Series</h4>
-        <div class="series-checkboxes">
-          <label class="series-checkbox">
-            <input 
-              type="checkbox" 
-              v-model="seriesVisibility.nominalGDP"
-              @change="updateChart"
-            />
-            <span class="series-color" style="background-color: rgb(34, 197, 94)"></span>
-            Nominal GDP
-          </label>
-          <label class="series-checkbox">
-            <input 
-              type="checkbox" 
-              v-model="seriesVisibility.realGDP"
-              @change="updateChart"
-            />
-            <span class="series-color" style="background-color: rgb(59, 130, 246)"></span>
-            Real GDP
-          </label>
-          <label class="series-checkbox">
-            <input 
-              type="checkbox" 
-              v-model="seriesVisibility.investment"
-              @change="updateChart"
-            />
-            <span class="series-color" style="background-color: rgb(168, 85, 247)"></span>
-            Investment ×10
-          </label>
-          <label class="series-checkbox">
-            <input 
-              type="checkbox" 
-              v-model="seriesVisibility.itemsProduced"
-              @change="updateChart"
-            />
-            <span class="series-color" style="background-color: rgb(245, 158, 11)"></span>
-            Items Produced
-          </label>
-        </div>
       </div>
     </div>
     
@@ -70,12 +27,20 @@
           <span class="value">{{ latestTimestamp }}</span>
         </div>
         <div class="info-item">
-          <span class="label">Country:</span>
-          <span class="value">{{ selectedCountry }}</span>
+          <span class="label">Company:</span>
+          <span class="value">{{ selectedCompany }}</span>
         </div>
         <div class="info-item">
-          <span class="label">Latest GDP:</span>
-          <span class="value">{{ latestGDP || 'N/A' }}</span>
+          <span class="label">Current Utilization:</span>
+          <span class="value">{{ currentUtilization }}</span>
+        </div>
+        <div class="info-item">
+          <span class="label">Average Utilization:</span>
+          <span class="value">{{ averageUtilization }}</span>
+        </div>
+        <div class="info-item">
+          <span class="label">Max Utilization:</span>
+          <span class="value">{{ maxUtilization }}</span>
         </div>
       </div>
     </div>
@@ -84,22 +49,22 @@
       <strong>Error:</strong> {{ error }}
     </div>
 
-    <!-- Debug: Show raw data structure -->
+    <!-- Debug: Show utilization calculation -->
     <div v-if="dataPoints.length > 0" class="debug-section">
       <details>
-        <summary>🔍 Debug: GDP Data Structure (click to expand)</summary>
+        <summary>🔍 Debug: Utilization Calculation (click to expand)</summary>
         <div class="debug-content">
-          <h4>Latest Data Point:</h4>
-          <pre>{{ JSON.stringify(dataPoints[dataPoints.length - 1], null, 2) }}</pre>
+          <h4>Latest Calculation:</h4>
+          <pre>{{ utilizationDebugInfo }}</pre>
           
-          <h4>Available Fields:</h4>
-          <div class="field-list">
+          <h4>Recent Utilization Values:</h4>
+          <div class="utilization-list">
             <span 
-              v-for="field in Object.keys(dataPoints[dataPoints.length - 1] || {})" 
-              :key="field"
-              class="field-tag"
+              v-for="(util, index) in recentUtilizations" 
+              :key="index"
+              class="utilization-value"
             >
-              {{ field }}
+              {{ util }}%
             </span>
           </div>
         </div>
@@ -120,10 +85,11 @@ import {
   Title,
   Tooltip,
   Legend,
+  Filler,
   type ChartConfiguration
 } from 'chart.js'
-import { simulationAPI, parseAPIError } from '@/services/simulationAPI'
-import type { CountryCode, TimeDataPoint } from '@/types/simulation'
+import { useSimulationStore } from '@/stores/simulation'
+import type { CountryCode, CompanyName, CompanyTimeSeriesData } from '@/types/simulation'
 
 // Register Chart.js components
 Chart.register(
@@ -134,109 +100,112 @@ Chart.register(
   PointElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
+  Filler
 )
 
 // Props
 interface Props {
   selectedCountry: CountryCode
+  selectedCompany: CompanyName
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  selectedCountry: 'Bennyland'
+  selectedCountry: 'Bennyland',
+  selectedCompany: ''
 })
+
+// Store
+const store = useSimulationStore()
 
 // Template refs
 const chartCanvas = ref<HTMLCanvasElement>()
 
 // Reactive state
-const dataPoints = ref<TimeDataPoint[]>([])
+const dataPoints = ref<CompanyTimeSeriesData[]>([])
 const isLoading = ref(false)
 const isAutoUpdating = ref(false)
 const error = ref<string>('')
-const lastTimestamp = ref(0)
 let chart: Chart | null = null
 let updateInterval: ReturnType<typeof setInterval> | null = null
-
-// Series visibility controls
-const seriesVisibility = ref({
-  nominalGDP: true,
-  realGDP: true,
-  investment: true,
-  itemsProduced: false
-})
 
 // Computed properties
 const latestTimestamp = computed(() => {
   if (dataPoints.value.length === 0) return 'No data'
   const latest = dataPoints.value[dataPoints.value.length - 1]
-  return `Time: ${latest.TIME}`
+  return `Time: ${latest.TIME_STAMP}`
 })
 
-const latestGDP = computed(() => {
-  if (dataPoints.value.length === 0) return null
+const utilizationData = computed(() => {
+  return dataPoints.value.map(d => {
+    const capacity = d.CAPACITY || 0
+    const production = d.PRODUCTION || 0
+    
+    if (capacity === 0) return 0
+    return (production / capacity) * 100 // Convert to percentage
+  })
+})
+
+const currentUtilization = computed(() => {
+  if (utilizationData.value.length === 0) return 'N/A'
+  const latest = utilizationData.value[utilizationData.value.length - 1]
+  return `${latest.toFixed(1)}%`
+})
+
+const averageUtilization = computed(() => {
+  if (utilizationData.value.length === 0) return 'N/A'
+  const sum = utilizationData.value.reduce((acc, val) => acc + val, 0)
+  const avg = sum / utilizationData.value.length
+  return `${avg.toFixed(1)}%`
+})
+
+const maxUtilization = computed(() => {
+  if (utilizationData.value.length === 0) return 'N/A'
+  const max = Math.max(...utilizationData.value)
+  return `${max.toFixed(1)}%`
+})
+
+const utilizationDebugInfo = computed(() => {
+  if (dataPoints.value.length === 0) return 'No data'
+  
   const latest = dataPoints.value[dataPoints.value.length - 1]
-  return latest.GDP_NOMINAL?.toLocaleString() || 'N/A'
+  const capacity = latest.CAPACITY || 0
+  const production = latest.PRODUCTION || 0
+  const utilization = capacity === 0 ? 0 : (production / capacity) * 100
+  
+  return {
+    timestamp: latest.TIME_STAMP,
+    production: production,
+    capacity: capacity,
+    calculation: `${production} / ${capacity} = ${utilization.toFixed(3)}%`,
+    utilization: `${utilization.toFixed(1)}%`
+  }
+})
+
+const recentUtilizations = computed(() => {
+  return utilizationData.value.slice(-10).map(u => u.toFixed(1))
 })
 
 // Chart configuration
 function createChartConfig(): ChartConfiguration {
   const hasData = dataPoints.value.length > 0
-  const labels = hasData ? dataPoints.value.map(d => d.TIME.toString()) : ['0']
+  const labels = hasData ? dataPoints.value.map(d => d.TIME_STAMP.toString()) : ['0']
   
-  // Build datasets array based on visibility settings
   const datasets = []
   
-  if (seriesVisibility.value.nominalGDP && hasData) {
+  if (hasData) {
     datasets.push({
-      label: 'Nominal GDP',
-      data: dataPoints.value.map(d => ({ x: d.TIME, y: d.GDP_NOMINAL || 0 })),
-      borderColor: 'rgb(34, 197, 94)',
-      backgroundColor: 'rgba(34, 197, 94, 0.2)',
-      tension: 0.4,
-      fill: false,
-      pointRadius: 0
-    })
-  }
-  
-  if (seriesVisibility.value.realGDP && hasData) {
-    // Calculate Real GDP: Nominal GDP * (Price at time 1) / (Current Price)
-    const basePrice = dataPoints.value.length > 1 ? dataPoints.value[1].PRICE || 1 : 1
-    datasets.push({
-      label: 'Real GDP',
-      data: dataPoints.value.map(d => ({
-        x: d.TIME,
-        y: d.GDP_NOMINAL && d.PRICE ? (d.GDP_NOMINAL * basePrice / d.PRICE) : 0
+      label: 'Utilization %',
+      data: dataPoints.value.map((d, index) => ({ 
+        x: d.TIME_STAMP, 
+        y: utilizationData.value[index] 
       })),
       borderColor: 'rgb(59, 130, 246)',
       backgroundColor: 'rgba(59, 130, 246, 0.2)',
       tension: 0.4,
-      fill: false,
-      pointRadius: 0
-    })
-  }
-  
-  if (seriesVisibility.value.investment && hasData) {
-    datasets.push({
-      label: 'Investment ×10',
-      data: dataPoints.value.map(d => ({ x: d.TIME, y: (d.INVESTMENTS || 0) * 10 })),
-      borderColor: 'rgb(168, 85, 247)',
-      backgroundColor: 'rgba(168, 85, 247, 0.2)',
-      tension: 0.4,
-      fill: false,
-      pointRadius: 0
-    })
-  }
-  
-  if (seriesVisibility.value.itemsProduced && hasData) {
-    datasets.push({
-      label: 'Items Produced',
-      data: dataPoints.value.map(d => ({ x: d.TIME, y: d.GDP_ITEMS || 0 })),
-      borderColor: 'rgb(245, 158, 11)',
-      backgroundColor: 'rgba(245, 158, 11, 0.2)',
-      tension: 0.4,
-      fill: false,
-      pointRadius: 0
+      fill: true, // Fill area under curve for utilization
+      pointRadius: 1,
+      borderWidth: 2
     })
   }
 
@@ -258,7 +227,7 @@ function createChartConfig(): ChartConfiguration {
       plugins: {
         title: {
           display: true,
-          text: `GDP & Investment Analysis - ${props.selectedCountry}`,
+          text: `Company Utilization - ${props.selectedCompany} (${props.selectedCountry})`,
           font: {
             size: 16
           }
@@ -271,14 +240,8 @@ function createChartConfig(): ChartConfiguration {
         tooltip: {
           callbacks: {
             label: function(context) {
-              let label = context.dataset.label || '';
-              if (label) {
-                label += ': ';
-              }
-              if (context.parsed.y !== null) {
-                label += context.parsed.y.toLocaleString();
-              }
-              return label;
+              const value = context.parsed.y
+              return `Utilization: ${value.toFixed(1)}%`
             }
           }
         }
@@ -297,9 +260,23 @@ function createChartConfig(): ChartConfiguration {
           position: 'left' as const,
           title: {
             display: true,
-            text: 'Value'
+            text: 'Utilization (%)'
           },
-          beginAtZero: true
+          beginAtZero: true,
+          max: 100, // Cap at 100% utilization
+          grid: {
+            color: function(context) {
+              // Highlight 100% line
+              if (context.tick.value === 100) {
+                return 'rgba(239, 68, 68, 0.5)' // Red line at 100%
+              }
+              // Highlight optimal range (70-90%)
+              if (context.tick.value === 70 || context.tick.value === 90) {
+                return 'rgba(34, 197, 94, 0.3)' // Green lines at optimal range
+              }
+              return 'rgba(0, 0, 0, 0.1)'
+            }
+          }
         }
       }
     }
@@ -311,13 +288,13 @@ async function initChart() {
   await nextTick()
   
   if (!chartCanvas.value) {
-    console.error('GDP Chart canvas not available')
+    console.error('Company Utilization Chart canvas not available')
     error.value = 'Chart canvas element not found'
     return
   }
   
   if (dataPoints.value.length === 0) {
-    console.warn('No data points available for GDP chart initialization')
+    console.warn('No data points available for company utilization chart initialization')
     error.value = 'No data available for chart'
     return
   }
@@ -338,54 +315,44 @@ async function initChart() {
     chart = new Chart(chartCanvas.value, config)
     chart.update()
     
-    console.log('GDP Chart created successfully')
+    console.log('Company Utilization Chart created successfully')
     
   } catch (err) {
-    console.error('Error during GDP chart initialization:', err)
-    error.value = `GDP Chart initialization failed: ${err instanceof Error ? err.message : String(err)}`
+    console.error('Error during company utilization chart initialization:', err)
+    error.value = `Company Utilization Chart initialization failed: ${err instanceof Error ? err.message : String(err)}`
   }
 }
 
-// Load data from API
+// Load data 
 async function loadData() {
-  if (isLoading.value) return
+  if (isLoading.value || !props.selectedCompany) return
   
   isLoading.value = true
   error.value = ''
   
   try {
-    const response = await simulationAPI.getTimeDataUpdates(
-      props.selectedCountry,
-      lastTimestamp.value
-    )
+    // Use the store's company time series data
+    await store.loadCompanyTimeSeriesData()
     
-    if (response.message === 'success') {
-      if (response.data.length > 0) {
-        console.log('GDP data loaded:', {
-          count: response.data.length,
-          firstPoint: response.data[0],
-          hasGDP: response.data[0].GDP_NOMINAL !== undefined
-        })
-        
-        // Append new data points
-        dataPoints.value.push(...response.data)
-        
-        // Update last timestamp
-        const maxTime = Math.max(...response.data.map(d => d.TIME))
-        lastTimestamp.value = maxTime
-        
-        // Initialize chart if it doesn't exist, otherwise update it
-        if (!chart) {
-          await initChart()
-        } else {
-          updateChart()
-        }
-      }
+    // Get data from store
+    dataPoints.value = [...store.companyTimeSeriesData]
+    
+    console.log('Company utilization data loaded:', {
+      count: dataPoints.value.length,
+      company: props.selectedCompany,
+      currentUtilization: currentUtilization.value
+    })
+    
+    // Initialize chart if it doesn't exist, otherwise update it
+    if (!chart) {
+      await initChart()
     } else {
-      throw new Error(response.error || 'Failed to load GDP data')
+      updateChart()
     }
+    
   } catch (err) {
-    error.value = parseAPIError(err)
+    console.error('Failed to load company utilization data:', err)
+    error.value = `Failed to load company data: ${err instanceof Error ? err.message : String(err)}`
   } finally {
     isLoading.value = false
   }
@@ -394,20 +361,20 @@ async function loadData() {
 // Update chart with new data
 function updateChart() {
   if (!chart) {
-    console.warn('GDP Chart not initialized, cannot update')
+    console.warn('Company Utilization Chart not initialized, cannot update')
     return
   }
   
   try {
     const config = createChartConfig()
     chart.data = config.data
-    chart.options.plugins!.title!.text = `GDP & Investment Analysis - ${props.selectedCountry}`
+    chart.options.plugins!.title!.text = `Company Utilization - ${props.selectedCompany} (${props.selectedCountry})`
     chart.update('none')
     
-    console.log('GDP Chart updated successfully')
+    console.log('Company Utilization Chart updated successfully')
   } catch (err) {
-    console.error('Error updating GDP chart:', err)
-    error.value = `GDP Chart update failed: ${err instanceof Error ? err.message : String(err)}`
+    console.error('Error updating company utilization chart:', err)
+    error.value = `Company Utilization Chart update failed: ${err instanceof Error ? err.message : String(err)}`
   }
 }
 
@@ -418,7 +385,7 @@ function startAutoUpdate() {
   isAutoUpdating.value = true
   updateInterval = setInterval(() => {
     loadData()
-  }, 3000) // Update every 3 seconds
+  }, 2000) // Update every 2 seconds (matching legacy)
 }
 
 // Stop auto-updating
@@ -432,10 +399,13 @@ function stopAutoUpdate() {
 
 // Initialize on mount
 onMounted(async () => {
-  console.log('GDP Chart component mounted, loading data...')
-  await loadData()
-  // Start auto-update by default
-  startAutoUpdate()
+  console.log('Company Utilization Chart component mounted')
+  
+  if (props.selectedCompany) {
+    await loadData()
+    // Start auto-update by default if we have a company
+    startAutoUpdate()
+  }
 })
 
 // Cleanup on unmount
@@ -446,22 +416,34 @@ onUnmounted(() => {
   }
 })
 
-// Watch for country changes
-watch(() => props.selectedCountry, async () => {
-  // Reset data when country changes
+// Watch for company/country changes
+watch(() => [props.selectedCountry, props.selectedCompany], async () => {
+  // Reset data when company/country changes
   dataPoints.value = []
-  lastTimestamp.value = 0
   
-  // Update chart title and reload data
+  // Update chart and reload data
   if (chart) {
     updateChart()
   }
-  await loadData()
+  
+  if (props.selectedCompany) {
+    await loadData()
+  }
 })
+
+// Watch store data for real-time updates
+watch(() => store.companyTimeSeriesData, (newData) => {
+  if (newData.length > dataPoints.value.length) {
+    dataPoints.value = [...newData]
+    if (chart) {
+      updateChart()
+    }
+  }
+}, { deep: true })
 </script>
 
 <style scoped>
-.gdp-chart {
+.company-utilization-chart {
   background: white;
   border-radius: 8px;
   padding: 1.5rem;
@@ -512,7 +494,7 @@ watch(() => props.selectedCountry, async () => {
 .chart-container {
   position: relative;
   width: 100%;
-  height: 400px;
+  height: 300px;
   margin: 1rem 0;
 }
 
@@ -542,7 +524,7 @@ watch(() => props.selectedCountry, async () => {
   padding: 0.5rem;
   background: white;
   border-radius: 4px;
-  border-left: 3px solid #34d399;
+  border-left: 3px solid #3b82f6;
 }
 
 .label {
@@ -601,71 +583,19 @@ watch(() => props.selectedCountry, async () => {
   margin: 0.5rem 0;
 }
 
-.field-list {
+.utilization-list {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
 }
 
-.field-tag {
-  background: #34d399;
+.utilization-value {
+  background: #3b82f6;
   color: white;
   padding: 0.25rem 0.5rem;
   border-radius: 12px;
   font-size: 0.8rem;
   font-family: 'Monaco', 'Consolas', monospace;
-}
-
-/* Series visibility controls */
-.series-controls {
-  margin: 1rem 0;
-  padding: 1rem;
-  background: #f1f5f9;
-  border-radius: 6px;
-  border: 1px solid #e2e8f0;
-}
-
-.series-controls h4 {
-  margin: 0 0 0.75rem 0;
-  font-size: 1rem;
-  color: #334155;
-  font-weight: 600;
-}
-
-.series-checkboxes {
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
-.series-checkbox {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  cursor: pointer;
-  padding: 0.5rem;
-  border-radius: 4px;
-  transition: background-color 0.2s;
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: #475569;
-}
-
-.series-checkbox:hover {
-  background-color: #e2e8f0;
-}
-
-.series-checkbox input[type="checkbox"] {
-  margin: 0;
-  cursor: pointer;
-}
-
-.series-color {
-  width: 12px;
-  height: 12px;
-  border-radius: 2px;
-  display: inline-block;
-  border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 @media (max-width: 768px) {
@@ -683,9 +613,8 @@ watch(() => props.selectedCountry, async () => {
     grid-template-columns: 1fr;
   }
   
-  .series-checkboxes {
-    flex-direction: column;
-    gap: 0.5rem;
+  .chart-container {
+    height: 250px;
   }
 }
 </style>
