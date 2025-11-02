@@ -1,0 +1,15 @@
+{
+    "git.ignoreLimitWarning": true,
+    "files.exclude": {
+        "**/node_modules": true,
+        "**/.git": false
+    },
+    "git.enableSmartCommit": true,
+    "git.confirmSync": false,
+    "github.copilot.enable": {
+        "*": true,
+        "plaintext": false,
+        "markdown": true,
+        "scminput": false
+    }
+}
