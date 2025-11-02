@@ -1,0 +1,22 @@
+{
+	"folders": [
+		{
+			"name": "EkoWeb",
+			"path": "."
+		}
+	],
+	"settings": {
+		"git.ignoreLimitWarning": true,
+		"files.exclude": {
+			"**/node_modules": true,
+			"**/.git": false
+		}
+	},
+	"extensions": {
+		"recommendations": [
+			"Vue.volar",
+			"GitHub.copilot",
+			"GitHub.copilot-chat"
+		]
+	}
+}
