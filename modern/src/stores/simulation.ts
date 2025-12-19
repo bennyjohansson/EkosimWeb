@@ -163,11 +163,14 @@ export const useSimulationStore = defineStore('simulation', () => {
     simulationState.value.lastMoneyTimestamp = 0
     simulationState.value.lastTimeTimestamp = 0
     simulationState.value.lastCompanyTimestamp = 0
+    lastCompanyTimeSeriesTimestamp.value = 0
     
     // Clear existing data
     moneyData.value = []
     timeData.value = []
     companyData.value = []
+    companyTimeSeriesData.value = []
+    companyParameters.value = []
     
     // Reload parameters for new country
     await loadParameters()
@@ -250,6 +253,19 @@ export const useSimulationStore = defineStore('simulation', () => {
       )
 
       if (response.message === 'success' && response.data.length > 0) {
+        // Check if simulation has restarted (new data has lower timestamps than existing)
+        const newMinTimestamp = Math.min(...response.data.map(d => d.TIME))
+        const existingMaxTimestamp = moneyData.value.length > 0 
+          ? Math.max(...moneyData.value.map(d => d.TIME))
+          : -1
+        
+        // If new data starts before existing data ends, simulation likely restarted
+        if (existingMaxTimestamp > 0 && newMinTimestamp <= existingMaxTimestamp) {
+          console.log('Simulation restart detected for money data, clearing data. New min:', newMinTimestamp, 'Existing max:', existingMaxTimestamp)
+          moneyData.value = []
+          simulationState.value.lastMoneyTimestamp = 0
+        }
+        
         // Append new data points
         moneyData.value.push(...response.data)
         
@@ -281,6 +297,19 @@ export const useSimulationStore = defineStore('simulation', () => {
       )
 
       if (response.message === 'success' && response.data.length > 0) {
+        // Check if simulation has restarted (new data has lower timestamps than existing)
+        const newMinTimestamp = Math.min(...response.data.map(d => d.TIME))
+        const existingMaxTimestamp = timeData.value.length > 0 
+          ? Math.max(...timeData.value.map(d => d.TIME))
+          : -1
+        
+        // If new data starts before existing data ends, simulation likely restarted
+        if (existingMaxTimestamp > 0 && newMinTimestamp <= existingMaxTimestamp) {
+          console.log('Simulation restart detected for time data, clearing data. New min:', newMinTimestamp, 'Existing max:', existingMaxTimestamp)
+          timeData.value = []
+          simulationState.value.lastTimeTimestamp = 0
+        }
+        
         // Append new data points
         timeData.value.push(...response.data)
         
@@ -449,6 +478,19 @@ export const useSimulationStore = defineStore('simulation', () => {
       )
 
       if (response.message === 'success' && response.data.length > 0) {
+        // Check if simulation has restarted (new data has lower timestamps than existing)
+        const newMinTimestamp = Math.min(...response.data.map(d => d.TIME_STAMP))
+        const existingMaxTimestamp = companyTimeSeriesData.value.length > 0 
+          ? Math.max(...companyTimeSeriesData.value.map(d => d.TIME_STAMP))
+          : -1
+        
+        // If new data starts before existing data ends, simulation likely restarted
+        if (existingMaxTimestamp > 0 && newMinTimestamp <= existingMaxTimestamp) {
+          console.log('Simulation restart detected for company data, clearing data. New min:', newMinTimestamp, 'Existing max:', existingMaxTimestamp)
+          companyTimeSeriesData.value = []
+          lastCompanyTimeSeriesTimestamp.value = 0
+        }
+        
         // Append new data points
         companyTimeSeriesData.value.push(...response.data)
         
