@@ -58,7 +58,7 @@
               @change="updateChart"
             />
             <span class="series-color" style="background-color: rgb(239, 68, 68)"></span>
-            Unemployment ×10
+            Unemployment %
           </label>
           <label class="series-checkbox">
             <input 
@@ -66,7 +66,7 @@
               v-model="seriesVisibility.averageWage"
               @change="updateChart"
             />
-            <span class="series-color" style="background-color: rgb(168, 85, 247)"></span>
+            <span class="series-color" style="background-color: rgb(6, 182, 212)"></span>
             Average Wage ÷1000
           </label>
         </div>
@@ -356,7 +356,7 @@ function calculateUnemployment(hasData: boolean): Array<{ x: number, y: number }
   
   return dataPoints.value.map((point, i) => ({
     x: i,
-    y: (point.UNEMPLOYMENT || 0) * 10
+    y: (point.UNEMPLOYMENT || 0) * 100
   }))
 }
 
@@ -435,7 +435,7 @@ function createChartConfig(): ChartConfiguration {
   if (seriesVisibility.value.unemployment) {
     const unemploymentData = calculateUnemployment(hasData)
     datasets.push({
-      label: 'Unemployment ×10',
+      label: 'Unemployment %',
       data: unemploymentData,
       borderColor: 'rgb(239, 68, 68)',
       backgroundColor: 'rgba(239, 68, 68, 0.2)',
@@ -450,8 +450,8 @@ function createChartConfig(): ChartConfiguration {
     datasets.push({
       label: 'Average Wage ÷1000',
       data: averageWageData,
-      borderColor: 'rgb(168, 85, 247)',
-      backgroundColor: 'rgba(168, 85, 247, 0.2)',
+      borderColor: 'rgb(6, 182, 212)',
+      backgroundColor: 'rgba(6, 182, 212, 0.2)',
       tension: 0.4,
       fill: false,
       pointRadius: 0

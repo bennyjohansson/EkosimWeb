@@ -21,7 +21,7 @@
               v-model="seriesVisibility.totalCapital"
               @change="updateChart"
             />
-            <span class="series-color" style="background-color: rgb(75, 192, 192)"></span>
+            <span class="series-color" style="background-color: rgb(30, 64, 175)"></span>
             Total Capital
           </label>
           <label class="series-checkbox">
@@ -30,7 +30,7 @@
               v-model="seriesVisibility.consumerCapital"
               @change="updateChart"
             />
-            <span class="series-color" style="background-color: rgb(255, 99, 132)"></span>
+            <span class="series-color" style="background-color: rgb(147, 51, 234)"></span>
             Consumer Capital
           </label>
           <label class="series-checkbox">
@@ -39,7 +39,7 @@
               v-model="seriesVisibility.bankCapital"
               @change="updateChart"
             />
-            <span class="series-color" style="background-color: rgb(54, 162, 235)"></span>
+            <span class="series-color" style="background-color: rgb(6, 182, 212)"></span>
             Bank Capital
           </label>
           <label class="series-checkbox">
@@ -50,6 +50,24 @@
             />
             <span class="series-color" style="background-color: rgb(255, 206, 86)"></span>
             Company Capital
+          </label>
+          <label class="series-checkbox">
+            <input 
+              type="checkbox" 
+              v-model="seriesVisibility.consumerDebts"
+              @change="updateChart"
+            />
+            <span class="series-color" style="background-color: rgb(239, 68, 68)"></span>
+            Consumer Debts
+          </label>
+          <label class="series-checkbox">
+            <input 
+              type="checkbox" 
+              v-model="seriesVisibility.consumerDeposits"
+              @change="updateChart"
+            />
+            <span class="series-color" style="background-color: rgb(34, 197, 94)"></span>
+            Consumer Deposits
           </label>
         </div>
         
@@ -170,7 +188,9 @@ const seriesVisibility = ref({
   totalCapital: true,
   consumerCapital: true,
   bankCapital: true,
-  companyCapital: true
+  companyCapital: true,
+  consumerDebts: false,
+  consumerDeposits: false
 })
 
 // Computed properties
@@ -191,7 +211,9 @@ const resetToDefaults = () => {
     totalCapital: true,
     consumerCapital: true,
     bankCapital: true,
-    companyCapital: true
+    companyCapital: true,
+    consumerDebts: false,
+    consumerDeposits: false
   }
 }
 
@@ -204,6 +226,8 @@ function createChartConfig(): ChartConfiguration {
   const consumerCapitalData = hasData ? dataPoints.value.map(d => ({ x: d.TIME, y: d.CONSUMER_CAPITAL || 0 })) : [{ x: 0, y: 0 }]
   const bankCapitalData = hasData ? dataPoints.value.map(d => ({ x: d.TIME, y: d.BANK_CAPITAL || 0 })) : [{ x: 0, y: 0 }]
   const companyCapitalData = hasData ? dataPoints.value.map(d => ({ x: d.TIME, y: d.COMPANY_CAIPTAL || 0 })) : [{ x: 0, y: 0 }]
+  const consumerDebtsData = hasData ? dataPoints.value.map(d => ({ x: d.TIME, y: d.CONSUMER_DEBTS || 0 })) : [{ x: 0, y: 0 }]
+  const consumerDepositsData = hasData ? dataPoints.value.map(d => ({ x: d.TIME, y: d.CONSUMER_DEPOSITS || 0 })) : [{ x: 0, y: 0 }]
   
   // Build datasets array based on visibility settings
   const datasets = []
@@ -212,8 +236,8 @@ function createChartConfig(): ChartConfiguration {
     datasets.push({
       label: 'Total Capital',
       data: totalCapitalData,
-      borderColor: 'rgb(75, 192, 192)',
-      backgroundColor: 'rgba(75, 192, 192, 0.2)',
+      borderColor: 'rgb(30, 64, 175)',
+      backgroundColor: 'rgba(30, 64, 175, 0.2)',
       tension: 0.4,
       fill: false,
       pointRadius: 0
@@ -224,8 +248,8 @@ function createChartConfig(): ChartConfiguration {
     datasets.push({
       label: 'Consumer Capital',
       data: consumerCapitalData,
-      borderColor: 'rgb(255, 99, 132)',
-      backgroundColor: 'rgba(255, 99, 132, 0.2)',
+      borderColor: 'rgb(147, 51, 234)',
+      backgroundColor: 'rgba(147, 51, 234, 0.2)',
       tension: 0.4,
       fill: false,
       pointRadius: 0
@@ -236,8 +260,8 @@ function createChartConfig(): ChartConfiguration {
     datasets.push({
       label: 'Bank Capital',
       data: bankCapitalData,
-      borderColor: 'rgb(54, 162, 235)',
-      backgroundColor: 'rgba(54, 162, 235, 0.2)',
+      borderColor: 'rgb(6, 182, 212)',
+      backgroundColor: 'rgba(6, 182, 212, 0.2)',
       tension: 0.4,
       fill: false,
       pointRadius: 0
@@ -250,6 +274,30 @@ function createChartConfig(): ChartConfiguration {
       data: companyCapitalData,
       borderColor: 'rgb(255, 206, 86)',
       backgroundColor: 'rgba(255, 206, 86, 0.2)',
+      tension: 0.4,
+      fill: false,
+      pointRadius: 0
+    })
+  }
+  
+  if (seriesVisibility.value.consumerDebts) {
+    datasets.push({
+      label: 'Consumer Debts',
+      data: consumerDebtsData,
+      borderColor: 'rgb(239, 68, 68)',
+      backgroundColor: 'rgba(239, 68, 68, 0.2)',
+      tension: 0.4,
+      fill: false,
+      pointRadius: 0
+    })
+  }
+  
+  if (seriesVisibility.value.consumerDeposits) {
+    datasets.push({
+      label: 'Consumer Deposits',
+      data: consumerDepositsData,
+      borderColor: 'rgb(34, 197, 94)',
+      backgroundColor: 'rgba(34, 197, 94, 0.2)',
       tension: 0.4,
       fill: false,
       pointRadius: 0
