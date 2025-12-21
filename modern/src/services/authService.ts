@@ -19,7 +19,7 @@ export class AuthService {
 
   constructor(config?: Partial<AuthConfig>) {
     this.config = {
-      baseURL: 'http://localhost:8080', // Development server
+      baseURL: '', // Use relative URLs to leverage Vite proxy 
       apiPath: '/api/auth',
       tokenKey: 'ekosim_auth_token',
       userKey: 'ekosim_auth_user',
