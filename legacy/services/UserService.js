@@ -7,11 +7,22 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
 const UserDatabase = require('../database/UserDatabase');
+const PostgreSQLUserDatabase = require('../database/PostgreSQLUserDatabase');
+const databaseConfig = require('../config/database');
 
 class UserService {
   constructor(authConfig) {
     this.authConfig = authConfig;
-    this.userDb = new UserDatabase(authConfig.database.path);
+    
+    // Initialize database adapter based on configuration
+    if (databaseConfig.type === 'postgresql') {
+      console.log('🐘 Using PostgreSQL database');
+      this.userDb = new PostgreSQLUserDatabase(databaseConfig.postgresql);
+    } else {
+      console.log('🗃️ Using SQLite database');
+      this.userDb = new UserDatabase(authConfig.database.path);
+    }
+    
     this.initialized = false;
   }
 
@@ -59,101 +70,116 @@ class UserService {
       throw new Error('Invalid role. Must be one of: ' + validRoles.join(', '));
     }
 
-    return new Promise((resolve, reject) => {
-      const db = this.userDb.getConnection();
+    // Hash password
+    const passwordHash = bcrypt.hashSync(password, this.authConfig.providers.local.bcryptRounds);
+    const userId = uuidv4();
 
-      db.serialize(() => {
-        // Check if user already exists
-        db.get(
-          `SELECT id FROM users WHERE email = ? AND tenant_id = ?`,
-          [email, tenantId],
-          (err, existingUser) => {
-            if (err) {
-              db.close();
-              reject(new Error('Database error during user check'));
-              return;
-            }
-
-            if (existingUser) {
-              db.close();
-              reject(new Error('User with this email already exists'));
-              return;
-            }
-
-            // Hash password
-            const passwordHash = bcrypt.hashSync(password, this.authConfig.providers.local.bcryptRounds);
-            const userId = uuidv4();
-
-            // Create user with role and assigned country
-            db.run(
-              `INSERT INTO users (id, username, email, password_hash, level, role, assigned_country, tenant_id, created_at)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))`,
-              [userId, username, email, passwordHash, level, role, assignedCountry, tenantId],
-              function(err) {
-                if (err) {
-                  db.close();
-                  reject(new Error('Failed to create user: ' + err.message));
-                  return;
-                }
-
-                // Get the created user with new fields
-                db.get(
-                  `SELECT id, username, email, level, role, assigned_country, created_at FROM users WHERE id = ?`,
-                  [userId],
-                  (err, user) => {
-                    if (err || !user) {
-                      db.close();
-                      reject(new Error('Failed to retrieve created user'));
-                      return;
-                    }
-
-                    // If country was assigned, also create user_countries entry
-                    if (assignedCountry) {
-                      const countryEntryId = uuidv4();
-                      db.run(
-                        `INSERT INTO user_countries (id, user_id, country_code, assigned_at) VALUES (?, ?, ?, datetime('now'))`,
-                        [countryEntryId, userId, assignedCountry],
-                        (err) => {
-                          db.close();
-                          
-                          if (err) {
-                            console.warn('Failed to create country assignment:', err.message);
-                          }
-
-                          console.log(`✅ User registered: ${email} ${assignedCountry ? `(assigned to ${assignedCountry})` : ''}`);
-                          resolve({
-                            id: user.id,
-                            username: user.username,
-                            email: user.email,
-                            level: user.level,
-                            role: user.role,
-                            assignedCountry: user.assigned_country,
-                            createdAt: user.created_at
-                          });
-                        }
-                      );
-                    } else {
-                      db.close();
-                      
-                      console.log(`✅ User registered: ${email} (no country assigned)`);
-                      resolve({
-                        id: user.id,
-                        username: user.username,
-                        email: user.email,
-                        level: user.level,
-                        role: user.role,
-                        assignedCountry: user.assigned_country,
-                        createdAt: user.created_at
-                      });
-                    }
-                  }
-                );
-              }
-            );
-          }
-        );
+    // Use PostgreSQL adapter if available, otherwise fall back to SQLite
+    if (databaseConfig.type === 'postgresql') {
+      return await this.userDb.createUser({
+        id: userId,
+        username,
+        email,
+        passwordHash,
+        level,
+        role,
+        assignedCountry,
+        tenantId
       });
-    });
+    } else {
+      // Keep existing SQLite implementation for backward compatibility
+      return new Promise((resolve, reject) => {
+        const db = this.userDb.getConnection();
+
+        db.serialize(() => {
+          // Check if user already exists
+          db.get(
+            `SELECT id FROM users WHERE email = ? AND tenant_id = ?`,
+            [email, tenantId],
+            (err, existingUser) => {
+              if (err) {
+                db.close();
+                reject(new Error('Database error during user check'));
+                return;
+              }
+
+              if (existingUser) {
+                db.close();
+                reject(new Error('User with this email already exists'));
+                return;
+              }
+
+              // Create user with role and assigned country
+              db.run(
+                `INSERT INTO users (id, username, email, password_hash, level, role, assigned_country, tenant_id, created_at)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))`,
+                [userId, username, email, passwordHash, level, role, assignedCountry, tenantId],
+                function(err) {
+                  if (err) {
+                    db.close();
+                    reject(new Error('Failed to create user: ' + err.message));
+                    return;
+                  }
+
+                  // Get the created user with new fields
+                  db.get(
+                    `SELECT id, username, email, level, role, assigned_country, created_at FROM users WHERE id = ?`,
+                    [userId],
+                    (err, user) => {
+                      if (err || !user) {
+                        db.close();
+                        reject(new Error('Failed to retrieve created user'));
+                        return;
+                      }
+
+                      // If country was assigned, also create user_countries entry
+                      if (assignedCountry) {
+                        const countryEntryId = uuidv4();
+                        db.run(
+                          `INSERT INTO user_countries (id, user_id, country_code, assigned_at) VALUES (?, ?, ?, datetime('now'))`,
+                          [countryEntryId, userId, assignedCountry],
+                          (err) => {
+                            db.close();
+                            
+                            if (err) {
+                              console.warn('Failed to create country assignment:', err.message);
+                            }
+
+                            console.log(`✅ User registered: ${email} ${assignedCountry ? `(assigned to ${assignedCountry})` : ''}`);
+                            resolve({
+                              id: user.id,
+                              username: user.username,
+                              email: user.email,
+                              level: user.level,
+                              role: user.role,
+                              assignedCountry: user.assigned_country,
+                              createdAt: user.created_at
+                            });
+                          }
+                        );
+                      } else {
+                        db.close();
+                        
+                        console.log(`✅ User registered: ${email} (no country assigned)`);
+                        resolve({
+                          id: user.id,
+                          username: user.username,
+                          email: user.email,
+                          level: user.level,
+                          role: user.role,
+                          assignedCountry: user.assigned_country,
+                          createdAt: user.created_at
+                        });
+                      }
+                    }
+                  );
+                }
+              );
+            }
+          );
+        });
+      });
+    }
   }
 
   /**
@@ -164,61 +190,96 @@ class UserService {
       throw new Error('Email and password are required');
     }
 
-    return new Promise((resolve, reject) => {
-      const db = this.userDb.getConnection();
+    if (databaseConfig.type === 'postgresql') {
+      // PostgreSQL implementation
+      const user = await this.userDb.getUserByEmail(email, tenantId);
+      
+      if (!user) {
+        throw new Error('Invalid email or password');
+      }
 
-      db.get(
-        `SELECT id, username, email, password_hash, level, role, assigned_country, created_at, last_login_at 
-         FROM users 
-         WHERE email = ? AND tenant_id = ? AND is_active = 1`,
-        [email, tenantId],
-        (err, user) => {
-          if (err) {
-            db.close();
-            reject(new Error('Database error during authentication'));
-            return;
-          }
+      // Verify password
+      if (!bcrypt.compareSync(password, user.password_hash)) {
+        throw new Error('Invalid email or password');
+      }
 
-          if (!user) {
-            db.close();
-            reject(new Error('Invalid email or password'));
-            return;
-          }
+      // Update last login time
+      try {
+        await this.userDb.updateLastLogin(user.id);
+      } catch (err) {
+        console.warn('Failed to update last login time:', err.message);
+      }
 
-          // Verify password
-          if (!bcrypt.compareSync(password, user.password_hash)) {
-            db.close();
-            reject(new Error('Invalid email or password'));
-            return;
-          }
+      console.log(`✅ User authenticated: ${email}`);
+      return {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        level: user.level,
+        role: user.role,
+        assignedCountry: user.assigned_country,
+        createdAt: user.created_at,
+        lastLoginAt: new Date().toISOString()
+      };
+      
+    } else {
+      // SQLite implementation (backward compatibility)
+      return new Promise((resolve, reject) => {
+        const db = this.userDb.getConnection();
 
-          // Update last login time
-          db.run(
-            `UPDATE users SET last_login_at = datetime('now') WHERE id = ?`,
-            [user.id],
-            (err) => {
+        db.get(
+          `SELECT id, username, email, password_hash, level, role, assigned_country, created_at, last_login_at 
+           FROM users 
+           WHERE email = ? AND tenant_id = ? AND is_active = 1`,
+          [email, tenantId],
+          (err, user) => {
+            if (err) {
               db.close();
-              
-              if (err) {
-                console.warn('Failed to update last login time:', err.message);
-              }
-
-              console.log(`✅ User authenticated: ${email}`);
-              resolve({
-                id: user.id,
-                username: user.username,
-                email: user.email,
-                level: user.level,
-                role: user.role,
-                assignedCountry: user.assigned_country,
-                createdAt: user.created_at,
-                lastLoginAt: new Date().toISOString()
-              });
+              reject(new Error('Database error during authentication'));
+              return;
             }
-          );
-        }
-      );
-    });
+
+            if (!user) {
+              db.close();
+              reject(new Error('Invalid email or password'));
+              return;
+            }
+
+            // Verify password
+            if (!bcrypt.compareSync(password, user.password_hash)) {
+              db.close();
+              reject(new Error('Invalid email or password'));
+              return;
+            }
+
+            // Update last login time
+            db.run(
+              `UPDATE users SET last_login_at = datetime('now') WHERE id = ?`,
+              [user.id],
+              (err) => {
+                db.close();
+                
+                if (err) {
+                  console.warn('Failed to update last login time:', err.message);
+                }
+
+                console.log(`✅ User authenticated: ${email}`);
+                resolve({
+                  id: user.id,
+                  username: user.username,
+                  email: user.email,
+                  level: user.level,
+                  role: user.role,
+                  assignedCountry: user.assigned_country,
+                  createdAt: user.created_at,
+                  lastLoginAt: new Date().toISOString()
+                });
+              }
+            );
+          }
+        );
+      });
+    }
   }
 
   /**
@@ -253,38 +314,44 @@ class UserService {
    * Get user by ID
    */
   async getUserById(userId, tenantId = 'default') {
-    return new Promise((resolve, reject) => {
-      const db = this.userDb.getConnection();
+    if (databaseConfig.type === 'postgresql') {
+      // PostgreSQL implementation
+      return await this.userDb.getUserById(userId, tenantId);
+    } else {
+      // SQLite implementation (backward compatibility)
+      return new Promise((resolve, reject) => {
+        const db = this.userDb.getConnection();
 
-      db.get(
-        `SELECT id, username, email, level, created_at, last_login_at 
-         FROM users 
-         WHERE id = ? AND tenant_id = ? AND is_active = 1`,
-        [userId, tenantId],
-        (err, user) => {
-          db.close();
-          
-          if (err) {
-            reject(new Error('Database error'));
-            return;
+        db.get(
+          `SELECT id, username, email, level, created_at, last_login_at 
+           FROM users 
+           WHERE id = ? AND tenant_id = ? AND is_active = 1`,
+          [userId, tenantId],
+          (err, user) => {
+            db.close();
+            
+            if (err) {
+              reject(new Error('Database error'));
+              return;
+            }
+
+            if (!user) {
+              reject(new Error('User not found'));
+              return;
+            }
+
+            resolve({
+              id: user.id,
+              username: user.username,
+              email: user.email,
+              level: user.level,
+              createdAt: user.created_at,
+              lastLoginAt: user.last_login_at
+            });
           }
-
-          if (!user) {
-            reject(new Error('User not found'));
-            return;
-          }
-
-          resolve({
-            id: user.id,
-            username: user.username,
-            email: user.email,
-            level: user.level,
-            createdAt: user.created_at,
-            lastLoginAt: user.last_login_at
-          });
-        }
-      );
-    });
+        );
+      });
+    }
   }
 
   /**
@@ -354,72 +421,78 @@ class UserService {
    * Get countries accessible by a user
    */
   async getUserCountries(userId) {
-    return new Promise((resolve, reject) => {
-      const db = this.userDb.getConnection();
+    if (databaseConfig.type === 'postgresql') {
+      // PostgreSQL implementation
+      return await this.userDb.getUserCountries(userId);
+    } else {
+      // SQLite implementation (backward compatibility)
+      return new Promise((resolve, reject) => {
+        const db = this.userDb.getConnection();
 
-      // First check if user is admin/test (can access all countries)
-      db.get(
-        `SELECT role, assigned_country FROM users WHERE id = ? AND is_active = 1`,
-        [userId],
-        (err, user) => {
-          if (err) {
-            db.close();
-            reject(new Error('Database error getting user role'));
-            return;
-          }
-
-          if (!user) {
-            db.close();
-            reject(new Error('User not found'));
-            return;
-          }
-
-          // Admin and test users can access all countries
-          if (user.role === 'admin' || user.role === 'test') {
-            db.close();
-            resolve({
-              canAccessAllCountries: true,
-              countries: [],
-              role: user.role
-            });
-            return;
-          }
-
-          // Regular users: get their assigned countries
-          db.all(
-            `SELECT country_code, access_level FROM user_countries 
-             WHERE user_id = ? AND is_active = 1`,
-            [userId],
-            (err, countries) => {
+        // First check if user is admin/test (can access all countries)
+        db.get(
+          `SELECT role, assigned_country FROM users WHERE id = ? AND is_active = 1`,
+          [userId],
+          (err, user) => {
+            if (err) {
               db.close();
-
-              if (err) {
-                reject(new Error('Database error getting user countries'));
-                return;
-              }
-
-              // If no countries in user_countries table, fall back to assigned_country
-              if (countries.length === 0 && user.assigned_country) {
-                resolve({
-                  canAccessAllCountries: false,
-                  countries: [{ country_code: user.assigned_country, access_level: 'full' }],
-                  role: user.role
-                });
-              } else {
-                resolve({
-                  canAccessAllCountries: false,
-                  countries: countries.map(c => ({
-                    country_code: c.country_code,
-                    access_level: c.access_level
-                  })),
-                  role: user.role
-                });
-              }
+              reject(new Error('Database error getting user role'));
+              return;
             }
-          );
-        }
-      );
-    });
+
+            if (!user) {
+              db.close();
+              reject(new Error('User not found'));
+              return;
+            }
+
+            // Admin and test users can access all countries
+            if (user.role === 'admin' || user.role === 'test') {
+              db.close();
+              resolve({
+                canAccessAllCountries: true,
+                countries: [],
+                role: user.role
+              });
+              return;
+            }
+
+            // Regular users: get their assigned countries
+            db.all(
+              `SELECT country_code, access_level FROM user_countries 
+               WHERE user_id = ? AND is_active = 1`,
+              [userId],
+              (err, countries) => {
+                db.close();
+
+                if (err) {
+                  reject(new Error('Database error getting user countries'));
+                  return;
+                }
+
+                // If no countries in user_countries table, fall back to assigned_country
+                if (countries.length === 0 && user.assigned_country) {
+                  resolve({
+                    canAccessAllCountries: false,
+                    countries: [{ country_code: user.assigned_country, access_level: 'full' }],
+                    role: user.role
+                  });
+                } else {
+                  resolve({
+                    canAccessAllCountries: false,
+                    countries: countries.map(c => ({
+                      country_code: c.country_code,
+                      access_level: c.access_level
+                    })),
+                    role: user.role
+                  });
+                }
+              }
+            );
+          }
+        );
+      });
+    }
   }
 
   /**
@@ -457,33 +530,39 @@ class UserService {
    * Assign country to user (admin only)
    */
   async assignCountryToUser(userId, countryCode, assignedBy, accessLevel = 'full') {
-    return new Promise((resolve, reject) => {
-      const db = this.userDb.getConnection();
-      const assignmentId = uuidv4();
+    if (databaseConfig.type === 'postgresql') {
+      // PostgreSQL implementation
+      return await this.userDb.assignCountryToUser(userId, countryCode, assignedBy, accessLevel);
+    } else {
+      // SQLite implementation (backward compatibility)
+      return new Promise((resolve, reject) => {
+        const db = this.userDb.getConnection();
+        const assignmentId = uuidv4();
 
-      db.run(
-        `INSERT OR REPLACE INTO user_countries (id, user_id, country_code, access_level, assigned_by, assigned_at)
-         VALUES (?, ?, ?, ?, ?, datetime('now'))`,
-        [assignmentId, userId, countryCode, accessLevel, assignedBy],
-        function(err) {
-          db.close();
-          
-          if (err) {
-            reject(new Error('Failed to assign country: ' + err.message));
-            return;
+        db.run(
+          `INSERT OR REPLACE INTO user_countries (id, user_id, country_code, access_level, assigned_by, assigned_at)
+           VALUES (?, ?, ?, ?, ?, datetime('now'))`,
+          [assignmentId, userId, countryCode, accessLevel, assignedBy],
+          function(err) {
+            db.close();
+            
+            if (err) {
+              reject(new Error('Failed to assign country: ' + err.message));
+              return;
+            }
+
+            console.log(`✅ Country ${countryCode} assigned to user ${userId}`);
+            resolve({
+              id: assignmentId,
+              userId,
+              countryCode,
+              accessLevel,
+              assignedBy
+            });
           }
-
-          console.log(`✅ Country ${countryCode} assigned to user ${userId}`);
-          resolve({
-            id: assignmentId,
-            userId,
-            countryCode,
-            accessLevel,
-            assignedBy
-          });
-        }
-      );
-    });
+        );
+      });
+    }
   }
 
   /**

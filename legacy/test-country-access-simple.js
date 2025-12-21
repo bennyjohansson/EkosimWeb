@@ -18,7 +18,7 @@ async function testCountryAccess() {
     await userService.initialize();
 
     // Get our test user's ID
-    const testUser = await userService.userDb.getUserByEmail('api_new@example.com');
+    const testUser = await userService.userDb.getUserByEmail('demo@ekosim.local');
     if (!testUser) {
       console.error('❌ Test user not found');
       process.exit(1);
