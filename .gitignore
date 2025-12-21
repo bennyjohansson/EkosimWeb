@@ -122,3 +122,8 @@ dist
 
 # VS Code workspace settings
 .vscode/
+
+# Backup files
+*.backup
+*.bak
+*.tmp

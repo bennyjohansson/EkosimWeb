@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  ekosim-frontend:
+    build:
+      context: ../EkoWeb
+      dockerfile: dockerfiles/frontend.Dockerfile
+    ports:
+      - "3000:80"
+    networks:
+      - ekosim-network
+    depends_on:
+      - ekosim-api
+
+  ekosim-api:
+    build:
+      context: ../EkoWeb
+      dockerfile: dockerfiles/api.Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+    volumes:
+      # Map database directory (read-only for container)
+      - ../ekosim/myDB:/app/ekosim/myDB:ro
+    networks:
+      - ekosim-network
+
+networks:
+  ekosim-network:
+    driver: bridge
