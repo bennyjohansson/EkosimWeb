@@ -594,15 +594,27 @@ app.get('/ekosim/getHighScore/', (req, res, next) => {
     }
 
     //8080
-    app.listen(8080, function () {
+    const PORT = process.env.PORT || 8080;
+    
+    // Health check endpoint for Docker
+    app.get('/health', (req, res) => {
+        res.status(200).json({ 
+            status: 'healthy', 
+            timestamp: new Date().toISOString(),
+            port: PORT 
+        });
+    });
+
+    app.listen(PORT, function () {
 
 
-        console.log('Forst API running on port 8080');
+        console.log(`Forst API running on port ${PORT}`);
         console.log('🔐 Authentication endpoints available:');
         console.log('  POST /api/auth/register - Register new user');
         console.log('  POST /api/auth/login - User login');
         console.log('  GET  /api/auth/profile - Get user profile (protected)');
         console.log('  PUT  /api/auth/profile - Update profile (protected)');
         console.log('  POST /api/auth/verify - Verify JWT token');
+        console.log('  GET  /health - Health check endpoint');
         //console.log(port);
     });

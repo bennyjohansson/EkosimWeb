@@ -51,7 +51,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, reactive } from 'vue'
+import { ref, watch, reactive } from 'vue'
 import { useSimulationStore } from '@/stores/simulation'
 import type { EconomicParameterType } from '@/types/simulation'
 

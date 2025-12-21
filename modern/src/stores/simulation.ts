@@ -25,7 +25,6 @@ import type {
   CompanyName,
   CompanyTimeSeriesData,
   CompanyParameterType,
-  CompanyParameterUpdate,
   SimulationError
 } from '@/types/simulation'
 

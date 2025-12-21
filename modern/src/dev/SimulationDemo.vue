@@ -12,7 +12,7 @@
         @change="handleCountryChange"
         class="form-select"
       >
-        <option v-for="country in COUNTRIES" :key="country" :value="country">
+        <option v-for="country in store.availableCountries" :key="country" :value="country">
           {{ country }}
         </option>
       </select>
@@ -160,7 +160,6 @@ import type {
   EconomicParameter, 
   ParameterUpdate 
 } from '@/types/simulation'
-import { COUNTRIES } from '@/types/simulation'
 
 // Store
 const store = useSimulationStore()

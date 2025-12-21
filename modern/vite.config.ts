@@ -13,23 +13,23 @@ export default defineConfig({
   server: {
     port: 3000,
     proxy: {
-      // Proxy API calls to the legacy backend
+      // Proxy API calls to the Node.js API server (NOT the C++ backend)
       '/ekosim': {
-        target: 'http://localhost:8080',
+        target: 'http://ekosim-api:3001',
         changeOrigin: true,
       },
-      // Proxy authentication API calls
+      // Proxy authentication API calls to Node.js API server  
       '/api': {
-        target: 'http://localhost:8080',
+        target: 'http://ekosim-api:3001',
         changeOrigin: true,
       },
-      // Proxy any other backend routes
+      // Proxy any other backend routes to Node.js API server
       '/getWorldTable': {
-        target: 'http://localhost:8080',
+        target: 'http://ekosim-api:3001',
         changeOrigin: true,
       },
       '/getHighScore': {
-        target: 'http://localhost:8080', 
+        target: 'http://ekosim-api:3001', 
         changeOrigin: true,
       },
     },
