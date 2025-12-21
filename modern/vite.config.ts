@@ -2,6 +2,14 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { resolve } from 'path'
 
+// Auto-detect environment: container vs local development
+const isContainer = process.env.DOCKER_ENV === 'true'
+const apiTarget = isContainer 
+  ? 'http://ekosim-api:3001'    // Container networking
+  : 'http://localhost:8080'     // Local development
+
+console.log(`🔧 Vite proxy target: ${apiTarget} (container: ${isContainer})`)
+
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [vue()],
@@ -13,23 +21,23 @@ export default defineConfig({
   server: {
     port: 3000,
     proxy: {
-      // Proxy API calls to the Node.js API server (NOT the C++ backend)
+      // Proxy API calls with auto-detection
       '/ekosim': {
-        target: 'http://ekosim-api:3001',
+        target: apiTarget,
         changeOrigin: true,
       },
-      // Proxy authentication API calls to Node.js API server  
+      // Proxy authentication API calls
       '/api': {
-        target: 'http://ekosim-api:3001',
+        target: apiTarget,
         changeOrigin: true,
       },
-      // Proxy any other backend routes to Node.js API server
+      // Proxy any other backend routes
       '/getWorldTable': {
-        target: 'http://ekosim-api:3001',
+        target: apiTarget,
         changeOrigin: true,
       },
       '/getHighScore': {
-        target: 'http://ekosim-api:3001', 
+        target: apiTarget,
         changeOrigin: true,
       },
     },
