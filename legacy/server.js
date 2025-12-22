@@ -1,8 +1,15 @@
+// Load environment configuration FIRST, before any other requires
+require('dotenv').config({ path: '../.env', override: true });
+
 var express = require('express');
 var app = express();
 let DBFunctions = require('./DBConnection')
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
+
+// Simulation service for database operations
+const SimulationService = require('./services/SimulationService');
+const simulationService = new SimulationService();
 
 // Validation function to check if a country is valid
 function isValidCountry(countryName) {
@@ -18,7 +25,6 @@ function isValidCountry(countryName) {
 }
 
 // Load environment configuration for authentication
-require('dotenv').config();
 const AuthRoutes = require('./routes/auth');
 const { authConfig, validateAuthConfig } = require('./config/auth.js');
 const AuthMiddleware = require('./middleware/AuthMiddleware');
@@ -452,44 +458,48 @@ app.get('/ekosim/companytable/update/:myCountry', (req, res, next) => {
 
 });
 
-app.get('/ekosim/worldtable/', (req, res, next) => {
+app.get('/ekosim/worldtable/', async (req, res, next) => {
+    console.log("🌍 WORLD TABLE REQUEST - Using new SimulationService");
 
-    //var lastTime = [req.datab.lastTimestamp];
-    //console.log(lastTime)
-
-    myTable = getWorldTable('WORLD_TABLE');
-
-    var mytableJSON = myTable.then((result) => {
-        //console.log(result[31]) // "Some User token"
-        //return result[31];
-        return res.json({
+    try {
+        const worldTableData = await simulationService.getWorldTable('WORLD_TABLE');
+        
+        res.json({
             "message": "success",
-            "data": result
-        })
-    });
-
-
-    //console.log(mytableJSON)
-
+            "data": worldTableData
+        });
+        
+        console.log(`✅ World table data sent: ${worldTableData.length} records`);
+        
+    } catch (error) {
+        console.error('❌ Failed to get world table data:', error.message);
+        res.status(500).json({
+            "message": "error",
+            "error": "Failed to retrieve world table data"
+        });
+    }
 });
 
-app.get('/ekosim/getHighScore/', (req, res, next) => {
+app.get('/ekosim/getHighScore/', async (req, res, next) => {
+    console.log("📈 HIGH SCORE REQUEST - Using new SimulationService");
 
-    //var lastTime = [req.datab.lastTimestamp];
-    console.log("HALLÅ ELLER I SERVER HIGH SCORE")
-
-    myTable = getWorldTable('HIGH_SCORE');
-
-    var mytableJSON = myTable.then((result) => {
-        //console.log(result[31]) // "Some User token"
-        //return result[31];
-        return res.json({
+    try {
+        const highScoreData = await simulationService.getHighScore();
+        
+        res.json({
             "message": "success",
-            "data": result
-        })
-    });
-    console.log(mytableJSON)
-
+            "data": highScoreData
+        });
+        
+        console.log(`✅ Highscore data sent: ${highScoreData.length} records`);
+        
+    } catch (error) {
+        console.error('❌ Failed to get highscore data:', error.message);
+        res.status(500).json({
+            "message": "error",
+            "error": "Failed to retrieve highscore data"
+        });
+    }
 });
 
 
