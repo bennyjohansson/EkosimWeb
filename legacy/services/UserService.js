@@ -74,6 +74,9 @@ class UserService {
     const passwordHash = bcrypt.hashSync(password, this.authConfig.providers.local.bcryptRounds);
     const userId = uuidv4();
 
+    // Auto-assign default country if none specified
+    const defaultCountry = assignedCountry || 'Bennyland';
+
     // Use PostgreSQL adapter if available, otherwise fall back to SQLite
     if (databaseConfig.type === 'postgresql') {
       return await this.userDb.createUser({
@@ -83,7 +86,7 @@ class UserService {
         passwordHash,
         level,
         role,
-        assignedCountry,
+        assignedCountry: defaultCountry,
         tenantId
       });
     } else {
@@ -113,7 +116,7 @@ class UserService {
               db.run(
                 `INSERT INTO users (id, username, email, password_hash, level, role, assigned_country, tenant_id, created_at)
                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))`,
-                [userId, username, email, passwordHash, level, role, assignedCountry, tenantId],
+                [userId, username, email, passwordHash, level, role, defaultCountry, tenantId],
                 function(err) {
                   if (err) {
                     db.close();
@@ -133,11 +136,11 @@ class UserService {
                       }
 
                       // If country was assigned, also create user_countries entry
-                      if (assignedCountry) {
+                      if (defaultCountry) {
                         const countryEntryId = uuidv4();
                         db.run(
                           `INSERT INTO user_countries (id, user_id, country_code, assigned_at) VALUES (?, ?, ?, datetime('now'))`,
-                          [countryEntryId, userId, assignedCountry],
+                          [countryEntryId, userId, defaultCountry],
                           (err) => {
                             db.close();
                             

@@ -42,26 +42,6 @@
               placeholder="Enter your password"
             />
           </div>
-
-          <!-- Registration-only fields -->
-          <div v-if="isRegistering" class="form-group">
-            <label for="country">Assigned Country</label>
-            <select
-              id="country"
-              v-model="selectedCountry"
-              class="form-input"
-              required
-            >
-              <option value="" disabled>Select your country</option>
-              <option 
-                v-for="country in availableCountries" 
-                :key="country" 
-                :value="country"
-              >
-                {{ country }}
-              </option>
-            </select>
-          </div>
           
           <button 
             type="submit" 
@@ -110,7 +90,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useSimulationStore } from '@/stores/simulation'
 
@@ -122,11 +102,9 @@ const isRegistering = ref(false)
 const email = ref('modern1758657141@example.com')
 const password = ref('password123')
 const username = ref('')
-const selectedCountry = ref('')
 const isLoading = ref(false)
 const error = ref('')
 const successMessage = ref('')
-const availableCountries = ref<string[]>([])
 
 // Toggle between login and registration
 const toggleMode = () => {
@@ -139,23 +117,10 @@ const toggleMode = () => {
     email.value = ''
     password.value = ''
     username.value = ''
-    selectedCountry.value = ''
   } else {
     // Reset to demo values for login
     email.value = 'modern1758657141@example.com'
     password.value = 'password123'
-  }
-}
-
-// Load available countries
-const loadCountries = async () => {
-  try {
-    await store.loadAvailableCountries()
-    availableCountries.value = [...store.availableCountries]
-  } catch (error) {
-    console.error('Failed to load countries:', error)
-    // Fallback countries
-    availableCountries.value = ['Bennyland', 'Saraland', 'Wernerland']
   }
 }
 
@@ -170,7 +135,8 @@ async function handleLogin() {
     
     setTimeout(() => {
       const redirect = router.currentRoute.value.query.redirect as string
-      router.push(redirect || '/bank')
+      // Redirect to dashboard first, then user can select country
+      router.push(redirect || '/dashboard')
     }, 1000)
     
   } catch (err: any) {
@@ -186,7 +152,7 @@ const handleRegister = async () => {
   error.value = ''
   
   try {
-    // Register user via API
+    // Register user via API (without country assignment)
     const response = await fetch('/api/auth/register', {
       method: 'POST',
       headers: {
@@ -197,8 +163,8 @@ const handleRegister = async () => {
         email: email.value,
         password: password.value,
         level: 'beginner',
-        role: 'user',
-        assignedCountry: selectedCountry.value
+        role: 'user'
+        // Note: assignedCountry removed - user will select later
       })
     })
     
@@ -210,7 +176,8 @@ const handleRegister = async () => {
       // Auto-login after successful registration
       setTimeout(async () => {
         await store.login(email.value, password.value)
-        router.push('/bank')
+        // Redirect to dashboard where user can select a country
+        router.push('/dashboard')
       }, 1500)
       
     } else {
@@ -236,13 +203,8 @@ function handleDemoLogin() {
   }
   
   const redirect = router.currentRoute.value.query.redirect as string
-  router.push(redirect || '/bank')
+  router.push(redirect || '/dashboard')
 }
-
-// Initialize
-onMounted(() => {
-  loadCountries()
-})
 </script>
 
 <style scoped>
