@@ -1,5 +1,8 @@
 // Load environment configuration FIRST, before any other requires
-require('dotenv').config({ path: '../.env', override: true });
+// Load in priority order: local .env -> Infrastructure .env -> parent .env
+require('dotenv').config({ path: '.env' }); // Local legacy/.env
+require('dotenv').config({ path: '../../EkoSim-Infrastructure/.env' }); // Shared Infrastructure config
+require('dotenv').config({ path: '../.env', override: false }); // Parent EkoWeb/.env (if exists)
 
 var express = require('express');
 var app = express();
@@ -20,7 +23,7 @@ function isValidCountry(countryName) {
         /admin/i,     // Contains "admin"
         /users/i      // Contains "users"
     ];
-    
+
     return !invalidPatterns.some(pattern => pattern.test(countryName));
 }
 
@@ -52,26 +55,26 @@ app.use(bodyParser.urlencoded({ extended: false }));
 const isProduction = process.env.NODE_ENV === 'production';
 if (isProduction) {
     console.log('🚀 Production mode: Serving Vue app from /modern/dist');
-    
+
     // Serve static assets from Vue build
     app.use(express.static(path.join(__dirname, '../modern/dist')));
-    
+
     // For any non-API routes, serve the Vue app (SPA routing)
     app.get('*', (req, res, next) => {
         // Skip API routes - let them be handled by existing endpoints
-        if (req.path.startsWith('/ekosim') || 
-            req.path.startsWith('/api') || 
-            req.path.startsWith('/getWorldTable') || 
+        if (req.path.startsWith('/ekosim') ||
+            req.path.startsWith('/api') ||
+            req.path.startsWith('/getWorldTable') ||
             req.path.startsWith('/getHighScore')) {
             return next();
         }
-        
+
         // Serve Vue app for all other routes
         res.sendFile(path.join(__dirname, '../modern/dist/index.html'));
     });
 } else {
     console.log('🔧 Development mode: Vue app served by Vite proxy');
-    
+
     // Original static file serving for development
     app.use(express.static('.'));
 }
@@ -95,151 +98,151 @@ app.use(function (req, res, next) {
     next();
 });
 
-app.put('/ekosim/put/:myCountry', 
+app.put('/ekosim/put/:myCountry',
     authMiddleware ? authMiddleware.verifyToken() : (req, res, next) => next(),
     authMiddleware ? authMiddleware.requireCountryAccess() : (req, res, next) => next(),
     authMiddleware ? authMiddleware.requireWriteAccess() : (req, res, next) => next(),
     function (req, res) {
 
-    var ParameterID = req.body.PARAMETER;
-    var value = req.body.VALUE;
+        var ParameterID = req.body.PARAMETER;
+        var value = req.body.VALUE;
 
-    var myPath = '../../ekosim/myDB/';
-    var myCountry = req.params.myCountry; // //
-    var myDatabase = myPath.concat(myCountry);
-    myDatabase = myDatabase.concat('.db');
+        var myPath = '../../ekosim/myDB/';
+        var myCountry = req.params.myCountry; // //
+        var myDatabase = myPath.concat(myCountry);
+        myDatabase = myDatabase.concat('.db');
 
-    //console.log(value);
-    //console.log(ParameterID);
+        //console.log(value);
+        //console.log(ParameterID);
 
 
-    if (!value || value === "") {
-        res.status(500).send({ error: "Provide value" });
-    }
-    else {
-        var idFound = false;
+        if (!value || value === "") {
+            res.status(500).send({ error: "Provide value" });
+        }
+        else {
+            var idFound = false;
 
-    }
+        }
 
-    DBFunctions.insertFunction(myDatabase, ParameterID, value)
-    res.send('Parameter ' + ParameterID + ' probably updated to value ' + value);
+        DBFunctions.insertFunction(myDatabase, ParameterID, value)
+        res.send('Parameter ' + ParameterID + ' probably updated to value ' + value);
 
-});
+    });
 
-app.put('/ekosim/putCompanyParameter/:myCountry', 
+app.put('/ekosim/putCompanyParameter/:myCountry',
     authMiddleware ? authMiddleware.verifyToken() : (req, res, next) => next(),
     authMiddleware ? authMiddleware.requireCountryAccess() : (req, res, next) => next(),
     authMiddleware ? authMiddleware.requireWriteAccess() : (req, res, next) => next(),
     function (req, res) {
 
-    var ParameterID = req.body.PARAMETER;
-    var value = req.body.VALUE;
+        var ParameterID = req.body.PARAMETER;
+        var value = req.body.VALUE;
 
-    var myPath = '../../ekosim/myDB/';
-    var myCountry = req.params.myCountry; // //
-    var myDatabase = myPath.concat(myCountry);
-    myDatabase = myDatabase.concat('.db');
+        var myPath = '../../ekosim/myDB/';
+        var myCountry = req.params.myCountry; // //
+        var myDatabase = myPath.concat(myCountry);
+        myDatabase = myDatabase.concat('.db');
 
-    var myCompany = req.query.myCompany;
-
-
-    //console.log(value);
-    //console.log(ParameterID);
+        var myCompany = req.query.myCompany;
 
 
-    if (!value || value === "") {
-        res.status(500).send({ error: "Provide value" });
-    }
-    else {
-        var idFound = false;
-
-    }
-
-    DBFunctions.insertCompanyParameter(myDatabase, myCompany, ParameterID, value)
-    res.send('Parameter ' + ParameterID + ' probably updated to value ' + value);
-
-});
+        //console.log(value);
+        //console.log(ParameterID);
 
 
+        if (!value || value === "") {
+            res.status(500).send({ error: "Provide value" });
+        }
+        else {
+            var idFound = false;
 
-app.get('/ekosim/read/:myCountry', 
+        }
+
+        DBFunctions.insertCompanyParameter(myDatabase, myCompany, ParameterID, value)
+        res.send('Parameter ' + ParameterID + ' probably updated to value ' + value);
+
+    });
+
+
+
+app.get('/ekosim/read/:myCountry',
     authMiddleware ? authMiddleware.optionalAuth() : (req, res, next) => next(),
     (req, res, next) => {
-    var myCountry = req.params.myCountry;
-    
-    // Check access if user is authenticated
-    if (req.user && authMiddleware) {
-        authMiddleware.userService.checkUserCountryAccess(req.user.id, myCountry)
-            .then(access => {
-                if (!access.hasAccess) {
-                    return res.status(403).json({
+        var myCountry = req.params.myCountry;
+
+        // Check access if user is authenticated
+        if (req.user && authMiddleware) {
+            authMiddleware.userService.checkUserCountryAccess(req.user.id, myCountry)
+                .then(access => {
+                    if (!access.hasAccess) {
+                        return res.status(403).json({
+                            "message": "error",
+                            "error": `Access denied to country: ${myCountry}`
+                        });
+                    }
+                    // Continue with request
+                    next();
+                })
+                .catch(error => {
+                    console.error('Country access check failed:', error);
+                    return res.status(500).json({
                         "message": "error",
-                        "error": `Access denied to country: ${myCountry}`
+                        "error": "Failed to verify country access"
                     });
-                }
-                // Continue with request
-                next();
-            })
-            .catch(error => {
-                console.error('Country access check failed:', error);
-                return res.status(500).json({
-                    "message": "error", 
-                    "error": "Failed to verify country access"
                 });
-            });
-    } else {
-        // No authentication, allow but log the request
-        console.log(`📖 Unauthenticated read access to ${myCountry}`);
-        next();
-    }
-}, (req, res) => {
-
-    var myPath = '../../ekosim/myDB/';
-    var myCountry = req.params.myCountry; // //
-    var myDatabase = myPath.concat(myCountry);
-    myDatabase = myDatabase.concat('.db');
-
-    var params = [req.query.parameterID];
-
-    //let db = new sqlite3.Database('/home/ec2-user/ekosimProject/myDB/ekosimDB.db', sqlite3.OPEN_READONLY, (err) => {
-    let db = new sqlite3.Database(myDatabase, sqlite3.OPEN_READONLY, (err) => {
-
-        //./app/app.js
-        if (err) {
-            console.error(err.message);
+        } else {
+            // No authentication, allow but log the request
+            console.log(`📖 Unauthenticated read access to ${myCountry}`);
+            next();
         }
-        console.log('Connected to the ekosim database.');
-    });
+    }, (req, res) => {
 
-    var sql = "select * from PARAMETERS WHERE PARAMETER = ?"// InterestRateMethod TargetInterestRate
-    //params = [];
-    //console.log(sql);
-    //console.log(params);
-    db.get(sql, params, (err, row) => {
-        if (err) {
-            res.status(400).json({ "error": err.message });
-            return;
-        }
-        res.json({
-            "message": "success",
-            "data": row
-        })
-    });
+        var myPath = '../../ekosim/myDB/';
+        var myCountry = req.params.myCountry; // //
+        var myDatabase = myPath.concat(myCountry);
+        myDatabase = myDatabase.concat('.db');
 
-    //Closing the database
-    db.close((err) => {
-        if (err) {
-            console.error(err.message);
-        }
-        console.log('Close the database connection.');
-    });
+        var params = [req.query.parameterID];
 
-});
+        //let db = new sqlite3.Database('/home/ec2-user/ekosimProject/myDB/ekosimDB.db', sqlite3.OPEN_READONLY, (err) => {
+        let db = new sqlite3.Database(myDatabase, sqlite3.OPEN_READONLY, (err) => {
+
+            //./app/app.js
+            if (err) {
+                console.error(err.message);
+            }
+            console.log('Connected to the ekosim database.');
+        });
+
+        var sql = "select * from PARAMETERS WHERE PARAMETER = ?"// InterestRateMethod TargetInterestRate
+        //params = [];
+        //console.log(sql);
+        //console.log(params);
+        db.get(sql, params, (err, row) => {
+            if (err) {
+                res.status(400).json({ "error": err.message });
+                return;
+            }
+            res.json({
+                "message": "success",
+                "data": row
+            })
+        });
+
+        //Closing the database
+        db.close((err) => {
+            if (err) {
+                console.error(err.message);
+            }
+            console.log('Close the database connection.');
+        });
+
+    });
 
 app.get('/ekosim/getAllParameters/:myCountry', (req, res, next) => {
 
     var myCountry = req.params.myCountry;
-    
+
     // Validate country before processing
     if (!isValidCountry(myCountry)) {
         console.error(`Invalid country rejected: ${myCountry}`);
@@ -249,7 +252,7 @@ app.get('/ekosim/getAllParameters/:myCountry', (req, res, next) => {
             "error": `Invalid country: ${myCountry}`
         });
     }
-    
+
     var myPath = '../../ekosim/myDB/';
     var myDatabase = myPath.concat(myCountry);
     myDatabase = myDatabase.concat('.db');
@@ -259,7 +262,7 @@ app.get('/ekosim/getAllParameters/:myCountry', (req, res, next) => {
     // Validate that the country exists and has a valid database
     const fs = require('fs');
     const path = require('path');
-    
+
     if (!fs.existsSync(myDatabase)) {
         console.error(`Database not found: ${myDatabase}`);
         return res.json({
@@ -283,7 +286,7 @@ app.get('/ekosim/getAllParameters/:myCountry', (req, res, next) => {
     }).catch((error) => {
         console.error(`Error getting parameters for ${myCountry}:`, error);
         return res.json({
-            "message": "error", 
+            "message": "error",
             "data": [],
             "error": `No PARAMETERS table found for ${myCountry}`
         });
@@ -298,7 +301,7 @@ app.get('/ekosim/getAllParameters/:myCountry', (req, res, next) => {
 app.get('/ekosim/getCompany/:myCountry', (req, res, next) => {
 
     var myCountry = req.params.myCountry;
-    
+
     // Validate country before processing
     if (!isValidCountry(myCountry)) {
         console.error(`Invalid country rejected: ${myCountry}`);
@@ -339,7 +342,7 @@ app.get('/ekosim/getCompany/:myCountry', (req, res, next) => {
     }).catch((error) => {
         console.error(`Error getting company data for ${myCountry}:`, error);
         return res.json({
-            "message": "error", 
+            "message": "error",
             "data": [],
             "error": `No COMPANY_TABLE found for ${myCountry}`
         });
@@ -351,7 +354,7 @@ app.get('/ekosim/getCompany/:myCountry', (req, res, next) => {
 app.get('/ekosim/moneytable/update/:myCountry', (req, res, next) => {
 
     var myCountry = req.params.myCountry;
-    
+
     // Validate country before processing
     if (!isValidCountry(myCountry)) {
         console.error(`Invalid country rejected: ${myCountry}`);
@@ -396,7 +399,7 @@ app.get('/ekosim/moneytable/update/:myCountry', (req, res, next) => {
     }).catch((error) => {
         console.error(`Error getting money data for ${myCountry}:`, error);
         return res.json({
-            "message": "error", 
+            "message": "error",
             "data": [],
             "error": `No MONEY_DATA table found for ${myCountry}`
         });
@@ -463,14 +466,14 @@ app.get('/ekosim/worldtable/', async (req, res, next) => {
 
     try {
         const worldTableData = await simulationService.getWorldTable('WORLD_TABLE');
-        
+
         res.json({
             "message": "success",
             "data": worldTableData
         });
-        
+
         console.log(`✅ World table data sent: ${worldTableData.length} records`);
-        
+
     } catch (error) {
         console.error('❌ Failed to get world table data:', error.message);
         res.status(500).json({
@@ -485,14 +488,14 @@ app.get('/ekosim/getHighScore/', async (req, res, next) => {
 
     try {
         const highScoreData = await simulationService.getHighScore();
-        
+
         res.json({
             "message": "success",
             "data": highScoreData
         });
-        
+
         console.log(`✅ Highscore data sent: ${highScoreData.length} records`);
-        
+
     } catch (error) {
         console.error('❌ Failed to get highscore data:', error.message);
         res.status(500).json({
@@ -503,128 +506,128 @@ app.get('/ekosim/getHighScore/', async (req, res, next) => {
 });
 
 
-    app.get('/ekosim/paramtest/', (req, res) => {
-        console.log(req.query.paramA);
+app.get('/ekosim/paramtest/', (req, res) => {
+    console.log(req.query.paramA);
 
-        if (typeof req.query.paramA !== 'undefined' && typeof req.query.paramB !== 'undefined') {
-            let paramA = req.query.paramA;
-            let paramB = req.query.paramB;
-            //do something with paramA and paramB
-            console.log(paramA);
-            console.log(paramB);
-            res.send('Parameters identified: ' + paramA + ' and ' + paramB);
-        }
-        else {
-            console.log("Cant get parmeters");
-            res.status(500).send({ error: "Cant get parmeters" });
+    if (typeof req.query.paramA !== 'undefined' && typeof req.query.paramB !== 'undefined') {
+        let paramA = req.query.paramA;
+        let paramB = req.query.paramB;
+        //do something with paramA and paramB
+        console.log(paramA);
+        console.log(paramB);
+        res.send('Parameters identified: ' + paramA + ' and ' + paramB);
+    }
+    else {
+        console.log("Cant get parmeters");
+        res.status(500).send({ error: "Cant get parmeters" });
 
-        }
-
-
-    });
-
-
-
-
-
-    /*const port = process.env.port || 3000;
-    app.listen(3000, function () {
-    
-    
-        console.log('Forst API running on port 3000');
-    });
-    */
-
-    app.get("/", (req, res, next) => {
-        console.log(__dirname + '/index.html');
-        res.sendFile(__dirname + '/index.html');
-        //res.json(["Tony","Lisa","Michael","Ginger","Food"]);
-
-    });
-
-
-    // Get all available countries/cities by scanning database files
-    app.get('/ekosim/getAvailableCountries', (req, res) => {
-        const fs = require('fs');
-        const path = require('path');
-        
-        try {
-            const dbPath = '../../ekosim/myDB/';  // Match other endpoints
-            const dbDir = path.resolve(__dirname, dbPath);
-            
-            // Check if directory exists
-            if (!fs.existsSync(dbDir)) {
-                console.error('Database directory not found:', dbDir);
-                return res.status(500).json({
-                    message: "error",
-                    error: "Database directory not found"
-                });
-            }
-            
-            // Read all files in the directory first
-            const files = fs.readdirSync(dbDir);
-            
-            // Filter to get only valid country database files
-            const dbFiles = files.filter(file => 
-                file.endsWith('.db') && 
-                !file.startsWith('.') && 
-                !file.includes('users.db') && // Exclude user authentication database
-                !file.toLowerCase().includes('world') && // Exclude world class instances (e.g., Bennyworld)
-                !file.toLowerCase().startsWith('global') && // Exclude global databases
-                file.length > 3 && // Ensure it's not just ".db"
-                fs.statSync(path.join(dbDir, file)).size > 0 // Exclude empty files
-            );
-            
-            // Extract country names (remove .db extension)
-            const countries = dbFiles.map(file => file.replace('.db', ''));
-            
-            console.log('Available countries found:', countries);
-            
-            res.json({
-                message: "success",
-                data: countries
-            });
-            
-        } catch (error) {
-            console.error('Error reading database directory:', error);
-            res.status(500).json({
-                message: "error", 
-                error: error.message
-            });
-        }
-    });
-
-    // Mount authentication routes
-    try {
-        const authRoutes = new AuthRoutes(authConfig);
-        app.use('/api/auth', authRoutes.getRouter());
-        console.log('✅ Authentication routes mounted at /api/auth');
-    } catch (error) {
-        console.error('❌ Failed to mount authentication routes:', error.message);
     }
 
-    //8080
-    const PORT = process.env.PORT || 8080;
-    
-    // Health check endpoint for Docker
-    app.get('/health', (req, res) => {
-        res.status(200).json({ 
-            status: 'healthy', 
-            timestamp: new Date().toISOString(),
-            port: PORT 
+
+});
+
+
+
+
+
+/*const port = process.env.port || 3000;
+app.listen(3000, function () {
+ 
+ 
+    console.log('Forst API running on port 3000');
+});
+*/
+
+app.get("/", (req, res, next) => {
+    console.log(__dirname + '/index.html');
+    res.sendFile(__dirname + '/index.html');
+    //res.json(["Tony","Lisa","Michael","Ginger","Food"]);
+
+});
+
+
+// Get all available countries/cities by scanning database files
+app.get('/ekosim/getAvailableCountries', (req, res) => {
+    const fs = require('fs');
+    const path = require('path');
+
+    try {
+        const dbPath = '../../ekosim/myDB/';  // Match other endpoints
+        const dbDir = path.resolve(__dirname, dbPath);
+
+        // Check if directory exists
+        if (!fs.existsSync(dbDir)) {
+            console.error('Database directory not found:', dbDir);
+            return res.status(500).json({
+                message: "error",
+                error: "Database directory not found"
+            });
+        }
+
+        // Read all files in the directory first
+        const files = fs.readdirSync(dbDir);
+
+        // Filter to get only valid country database files
+        const dbFiles = files.filter(file =>
+            file.endsWith('.db') &&
+            !file.startsWith('.') &&
+            !file.includes('users.db') && // Exclude user authentication database
+            !file.toLowerCase().includes('world') && // Exclude world class instances (e.g., Bennyworld)
+            !file.toLowerCase().startsWith('global') && // Exclude global databases
+            file.length > 3 && // Ensure it's not just ".db"
+            fs.statSync(path.join(dbDir, file)).size > 0 // Exclude empty files
+        );
+
+        // Extract country names (remove .db extension)
+        const countries = dbFiles.map(file => file.replace('.db', ''));
+
+        console.log('Available countries found:', countries);
+
+        res.json({
+            message: "success",
+            data: countries
         });
+
+    } catch (error) {
+        console.error('Error reading database directory:', error);
+        res.status(500).json({
+            message: "error",
+            error: error.message
+        });
+    }
+});
+
+// Mount authentication routes
+try {
+    const authRoutes = new AuthRoutes(authConfig);
+    app.use('/api/auth', authRoutes.getRouter());
+    console.log('✅ Authentication routes mounted at /api/auth');
+} catch (error) {
+    console.error('❌ Failed to mount authentication routes:', error.message);
+}
+
+//8080
+const PORT = process.env.PORT || 8080;
+
+// Health check endpoint for Docker
+app.get('/health', (req, res) => {
+    res.status(200).json({
+        status: 'healthy',
+        timestamp: new Date().toISOString(),
+        port: PORT
     });
+});
 
-    app.listen(PORT, function () {
+app.listen(PORT, function () {
 
 
-        console.log(`Forst API running on port ${PORT}`);
-        console.log('🔐 Authentication endpoints available:');
-        console.log('  POST /api/auth/register - Register new user');
-        console.log('  POST /api/auth/login - User login');
-        console.log('  GET  /api/auth/profile - Get user profile (protected)');
-        console.log('  PUT  /api/auth/profile - Update profile (protected)');
-        console.log('  POST /api/auth/verify - Verify JWT token');
-        console.log('  GET  /health - Health check endpoint');
-        //console.log(port);
-    });
+    console.log(`Forst API running on port ${PORT}`);
+    console.log('🔐 Authentication endpoints available:');
+    console.log('  POST /api/auth/register - Register new user');
+    console.log('  POST /api/auth/login - User login');
+    console.log('  GET  /api/auth/profile - Get user profile (protected)');
+    console.log('  PUT  /api/auth/profile - Update profile (protected)');
+    console.log('  POST /api/auth/verify - Verify JWT token');
+    console.log('  GET  /health - Health check endpoint');
+    //console.log(port);
+});
