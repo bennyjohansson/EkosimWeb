@@ -410,28 +410,39 @@ app.get('/ekosim/moneytable/update/:myCountry', (req, res, next) => {
 
 });
 
-app.get('/ekosim/timetable/update/:myCountry', (req, res, next) => {
+app.get('/ekosim/timetable/update/:myCountry', async (req, res, next) => {
+    console.log("📊 TIME DATA REQUEST - Using SimulationService");
 
-    var myPath = '../../ekosim/myDB/';
-    var myCountry = req.params.myCountry; //'../../ekosim/myDB/Bennyland.db' //
-    var myDatabase = myPath.concat(myCountry);
-    myDatabase = myDatabase.concat('.db');
+    try {
+        const cityName = req.params.myCountry;
+        const lastTime = parseInt(req.query.timestamp) || 0;
 
-    var lastTime = req.query.timestamp;
-    myTable = getMoneyTableUpdate(lastTime, myDatabase, 'TIME_DATA');
+        // Validate country name
+        if (!isValidCountry(cityName)) {
+            console.error(`Invalid country rejected: ${cityName}`);
+            return res.json({
+                "message": "error",
+                "data": [],
+                "error": `Invalid country: ${cityName}`
+            });
+        }
 
-    var mytableJSON = myTable.then((result) => {
-        //console.log(result[31]) // "Some User token"
-        //return result[31];
-        return res.json({
+        const timeData = await simulationService.getTimeData(cityName, lastTime);
+
+        res.json({
             "message": "success",
-            "data": result
-        })
-    });
+            "data": timeData
+        });
 
+        console.log(`✅ Time data sent for ${cityName}: ${timeData.length} records`);
 
-    //console.log(mytableJSON)
-
+    } catch (error) {
+        console.error('❌ Failed to get time data:', error.message);
+        res.status(500).json({
+            "message": "error",
+            "error": `Failed to retrieve time data: ${error.message}`
+        });
+    }
 });
 
 app.get('/ekosim/companytable/update/:myCountry', (req, res, next) => {

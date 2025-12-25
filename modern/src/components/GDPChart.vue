@@ -155,6 +155,7 @@ const isLoading = ref(false)
 const isAutoUpdating = ref(false)
 const error = ref<string>('')
 const lastTimestamp = ref(0)
+const isInitialLoad = ref(true)
 let chart: Chart | null = null
 let updateInterval: ReturnType<typeof setInterval> | null = null
 
@@ -367,8 +368,17 @@ async function loadData() {
           hasGDP: response.data[0].GDP_NOMINAL !== undefined
         })
         
-        // Append new data points
-        dataPoints.value.push(...response.data)
+        // On initial load with all historical data, only keep recent data (last 100 cycles)
+        if (isInitialLoad.value && response.data.length > 100) {
+          const recentData = response.data.slice(-100)
+          dataPoints.value = recentData
+          console.log('GDP Chart: Filtered to last 100 cycles on initial load')
+        } else {
+          // Append new data points for incremental updates
+          dataPoints.value.push(...response.data)
+        }
+        
+        isInitialLoad.value = false
         
         // Update last timestamp
         const maxTime = Math.max(...response.data.map(d => d.TIME))
