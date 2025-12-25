@@ -180,6 +180,7 @@ const isLoading = ref(false)
 const isAutoUpdating = ref(false)
 const error = ref<string>('')
 const lastTimestamp = ref(0)
+const isInitialLoad = ref(true)
 let chart: Chart | null = null
 let updateInterval: ReturnType<typeof setInterval> | null = null
 
@@ -428,11 +429,23 @@ async function loadData() {
         console.log('Capital data loaded:', {
           count: response.data.length,
           firstPoint: response.data[0],
-          hasCapital: response.data[0].TOTAL_CAPITAL !== undefined
+          hasCapital: response.data[0].TOTAL_CAPITAL !== undefined,
+          isInitial: isInitialLoad.value
         })
         
-        // Append new data points
-        dataPoints.value.push(...response.data)
+        // On initial load, filter to show only last 100 cycles to avoid displaying full history
+        if (isInitialLoad.value && response.data.length > 100) {
+          const recentData = response.data.slice(-100)
+          dataPoints.value = recentData
+          console.log(`Filtered initial capital data from ${response.data.length} to ${recentData.length} records (last 100 cycles)`)
+          isInitialLoad.value = false
+        } else {
+          // Append new data points for subsequent updates
+          dataPoints.value.push(...response.data)
+          if (isInitialLoad.value) {
+            isInitialLoad.value = false
+          }
+        }
         
         // Update last timestamp
         const maxTime = Math.max(...response.data.map(d => d.TIME))

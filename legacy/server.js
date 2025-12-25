@@ -351,63 +351,42 @@ app.get('/ekosim/getCompany/:myCountry', (req, res, next) => {
 
 
 
-app.get('/ekosim/moneytable/update/:myCountry', (req, res, next) => {
+app.get('/ekosim/moneytable/update/:myCountry', async (req, res, next) => {
+    console.log("💰 MONEY DATA REQUEST - Using SimulationService");
 
-    var myCountry = req.params.myCountry;
+    try {
+        const cityName = req.params.myCountry;
+        const lastTime = parseInt(req.query.timestamp) || 0;
 
-    // Validate country before processing
-    if (!isValidCountry(myCountry)) {
-        console.error(`Invalid country rejected: ${myCountry}`);
-        return res.json({
-            "message": "error",
-            "data": [],
-            "error": `Invalid country: ${myCountry}`
-        });
-    }
+        // Validate country name
+        if (!isValidCountry(cityName)) {
+            console.error(`Invalid country rejected: ${cityName}`);
+            return res.json({
+                "message": "error",
+                "data": [],
+                "error": `Invalid country: ${cityName}`
+            });
+        }
 
-    var myPath = '../../ekosim/myDB/';
-    var myDatabase = myPath.concat(myCountry);
-    myDatabase = myDatabase.concat('.db');
+        // Use SimulationService to get money data from PostgreSQL
+        const data = await simulationService.getMoneyData(cityName, lastTime);
 
-    //myDatabase = '../../ekosim/myDB/Bennyland.db';
+        console.log(`💰 Retrieved money data for ${cityName}: ${data.length} records since time ${lastTime}`);
+        console.log(`✅ Money data sent for ${cityName}: ${data.length} records`);
 
-    var lastTime = req.query.timestamp;
-
-    // Validate that the database exists
-    const fs = require('fs');
-    if (!fs.existsSync(myDatabase)) {
-        console.error(`Database not found: ${myDatabase}`);
-        return res.json({
-            "message": "error",
-            "data": [],
-            "error": `Country ${myCountry} not found`
-        });
-    }
-
-    console.log(lastTime)
-    console.log(myDatabase);
-    myTable = getMoneyTableUpdate(lastTime, myDatabase, 'MONEY_DATA');
-
-
-    var mytableJSON = myTable.then((result) => {
-        //console.log(result[31]) // "Some User token"
-        //return result[31];
         return res.json({
             "message": "success",
-            "data": result
-        })
-    }).catch((error) => {
-        console.error(`Error getting money data for ${myCountry}:`, error);
+            "data": data
+        });
+
+    } catch (error) {
+        console.error(`❌ Error getting money data:`, error);
         return res.json({
             "message": "error",
             "data": [],
-            "error": `No MONEY_DATA table found for ${myCountry}`
+            "error": `Failed to get money data: ${error.message}`
         });
-    });
-
-
-    //console.log(mytableJSON)
-
+    }
 });
 
 app.get('/ekosim/timetable/update/:myCountry', async (req, res, next) => {

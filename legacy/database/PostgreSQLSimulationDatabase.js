@@ -208,7 +208,20 @@ class PostgreSQLSimulationDatabase {
 
       if (lastTime > 0) {
         query = `
-          SELECT *
+          SELECT 
+            time as "TIME",
+            bank_capital as "BANK_CAPITAL",
+            bank_loans as "BANK_LOANS",
+            bank_deposits as "BANK_DEPOSITS",
+            bank_liquidity as "BANK_LIQUIDITY",
+            consumer_capital as "CONSUMER_CAPITAL",
+            consumer_deposits as "CONSUMER_DEPOSITS",
+            consumer_debts as "CONSUMER_DEBTS",
+            company_debts as "COMPANY_DEBTS",
+            company_capital as "COMPANY_CAPITAL",
+            market_capital as "MARKET_CAPITAL",
+            city_capital as "CITY_CAPITAL",
+            total_capital as "TOTAL_CAPITAL"
           FROM money_data
           WHERE city_name = $1 AND time > $2
           ORDER BY time ASC
@@ -216,7 +229,20 @@ class PostgreSQLSimulationDatabase {
         params = [cityName, lastTime];
       } else {
         query = `
-          SELECT *
+          SELECT 
+            time as "TIME",
+            bank_capital as "BANK_CAPITAL",
+            bank_loans as "BANK_LOANS",
+            bank_deposits as "BANK_DEPOSITS",
+            bank_liquidity as "BANK_LIQUIDITY",
+            consumer_capital as "CONSUMER_CAPITAL",
+            consumer_deposits as "CONSUMER_DEPOSITS",
+            consumer_debts as "CONSUMER_DEBTS",
+            company_debts as "COMPANY_DEBTS",
+            company_capital as "COMPANY_CAPITAL",
+            market_capital as "MARKET_CAPITAL",
+            city_capital as "CITY_CAPITAL",
+            total_capital as "TOTAL_CAPITAL"
           FROM money_data
           WHERE city_name = $1
           ORDER BY time ASC
