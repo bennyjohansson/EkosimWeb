@@ -400,10 +400,15 @@ function createChartConfig(): ChartConfiguration {
       },
       scales: {
         x: {
+          type: 'linear' as const,
           display: true,
           title: {
             display: true,
             text: 'Time'
+          },
+          min: 0,
+          ticks: {
+            stepSize: 10
           }
         },
         y: {

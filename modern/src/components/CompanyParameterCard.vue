@@ -307,6 +307,27 @@ watch(() => store.companyParameters, () => {
   resetParameterValues()
 }, { deep: true })
 
+// Watch for currentCompanyData changes (more specific)
+watch(() => currentCompanyData.value, (newData) => {
+  if (newData) {
+    resetParameterValues()
+  }
+}, { immediate: true })
+
+// Watch for availableCompanies to become populated (handles async loading)
+watch(() => store.availableCompanies, async (companies) => {
+  console.log('availableCompanies watcher triggered, companies:', companies)
+  
+  // Only auto-select if we don't have a selected company yet
+  if (!selectedCompany.value && Array.isArray(companies) && companies.length > 0) {
+    console.log('Auto-selecting first company from watcher:', companies[0])
+    selectedCompany.value = companies[0]
+    await store.setSelectedCompany(companies[0])
+    await store.loadCompanyData()
+    resetParameterValues()
+  }
+}, { immediate: true })
+
 // Methods
 const handleCompanyChange = async (event: Event) => {
   const target = event.target as HTMLSelectElement
@@ -358,15 +379,27 @@ const updateParameter = async (paramKey: CompanyParameterType) => {
 }
 
 const resetParameterValues = () => {
+  console.log('resetParameterValues called, currentCompanyData:', currentCompanyData.value)
+  
   if (!currentCompanyData.value) {
+    console.warn('No current company data available, skipping parameter reset')
     return
   }
+  
+  console.log('Setting parameter values from company data')
   
   // Reset all parameter values to current company data
   parameterValues.WAGE_CONST = parseFloat(getCurrentValue('WAGE_CONST'))
   parameterValues.PBR = parseFloat(getCurrentValue('PBR'))
   parameterValues.WAGE_CH = parseFloat(getCurrentValue('WAGE_CH'))
   parameterValues.CAP_VS_EFF_SPLIT = parseFloat(getCurrentValue('CAP_VS_EFF_SPLIT'))
+  
+  console.log('Parameter values set:', {
+    WAGE_CONST: parameterValues.WAGE_CONST,
+    PBR: parameterValues.PBR,
+    WAGE_CH: parameterValues.WAGE_CH,
+    CAP_VS_EFF_SPLIT: parameterValues.CAP_VS_EFF_SPLIT
+  })
 }
 
 const resetParameterValue = (paramKey: CompanyParameterType) => {
@@ -390,28 +423,13 @@ const clearMessage = () => {
 
 // Initialize component
 onMounted(async () => {
+  console.log('CompanyParameterCard mounted')
   isLoading.value = true
   
   try {
-    // Load available companies
+    // Load available companies - the watcher will handle selection
     await store.loadAvailableCompanies()
-    
-    // Set initial company selection
-    if (store.selectedCompany) {
-      selectedCompany.value = store.selectedCompany
-    } else if (store.availableCompanies.length > 0) {
-      const firstCompany = store.availableCompanies[0]
-      selectedCompany.value = firstCompany
-      await store.setSelectedCompany(firstCompany)
-    }
-    
-    // Load company data
-    if (selectedCompany.value) {
-      await store.loadCompanyData()
-    }
-    
-    resetParameterValues()
-    
+    console.log('Available companies load initiated')
   } catch (error) {
     console.error('Failed to initialize company parameter card:', error)
     showMessage('Failed to load company data', 'error')
