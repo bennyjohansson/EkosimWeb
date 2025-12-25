@@ -275,18 +275,54 @@ class PostgreSQLSimulationDatabase {
 
       if (lastTime > 0) {
         query = `
-        SELECT *
+          SELECT 
+            time_stamp as "TIME_STAMP",
+            capital as "CAPITAL",
+            stock as "STOCK",
+            capacity as "CAPACITY",
+            debts as "DEBTS",
+            pcskill as "PCSKILL",
+            pcmot as "PCMOT",
+            wage_const as "WAGE_CONST",
+            wage_ch as "WAGE_CH",
+            invest as "INVEST",
+            pbr as "PBR",
+            decay as "DECAY",
+            prod_parm as "PROD_PARM",
+            prod_fcn as "PROD_FCN",
+            production as "PRODUCTION",
+            employees as "EMPLOYEES",
+            item_efficiency as "ITEM_EFFICIENCY",
+            cap_vs_eff_split as "CAP_VS_EFF_SPLIT"
           FROM company_data
-          WHERE city_name = $1 AND company_name = $2 AND time > $3
-          ORDER BY time ASC
-          `;
+          WHERE city_name = $1 AND company_name = $2 AND time_stamp > $3
+          ORDER BY time_stamp ASC
+        `;
         params = [cityName, companyName, lastTime];
       } else {
         query = `
-        SELECT *
+          SELECT 
+            time_stamp as "TIME_STAMP",
+            capital as "CAPITAL",
+            stock as "STOCK",
+            capacity as "CAPACITY",
+            debts as "DEBTS",
+            pcskill as "PCSKILL",
+            pcmot as "PCMOT",
+            wage_const as "WAGE_CONST",
+            wage_ch as "WAGE_CH",
+            invest as "INVEST",
+            pbr as "PBR",
+            decay as "DECAY",
+            prod_parm as "PROD_PARM",
+            prod_fcn as "PROD_FCN",
+            production as "PRODUCTION",
+            employees as "EMPLOYEES",
+            item_efficiency as "ITEM_EFFICIENCY",
+            cap_vs_eff_split as "CAP_VS_EFF_SPLIT"
           FROM company_data
           WHERE city_name = $1 AND company_name = $2
-          ORDER BY time ASC
+          ORDER BY time_stamp ASC
         `;
         params = [cityName, companyName];
       }
