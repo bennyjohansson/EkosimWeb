@@ -136,7 +136,7 @@ app.put('/ekosim/putCompanyParameter/:myCountry',
     authMiddleware ? authMiddleware.verifyToken() : (req, res, next) => next(),
     authMiddleware ? authMiddleware.requireCountryAccess() : (req, res, next) => next(),
     authMiddleware ? authMiddleware.requireWriteAccess() : (req, res, next) => next(),
-    function (req, res) {
+    async function (req, res) {
 
         var ParameterID = req.body.PARAMETER;
         var value = req.body.VALUE;
@@ -161,8 +161,11 @@ app.put('/ekosim/putCompanyParameter/:myCountry',
 
         }
 
-        DBFunctions.insertCompanyParameter(myDatabase, myCompany, ParameterID, value)
-        res.send('Parameter ' + ParameterID + ' probably updated to value ' + value);
+        // Update both SQLite (for web charts) and PostgreSQL (for simulation)
+        DBFunctions.insertCompanyParameter(myDatabase, myCompany, ParameterID, value);
+        await DBFunctions.insertCompanyParameterPG(myCountry, myCompany, ParameterID, value);
+        
+        res.send('Company parameter ' + ParameterID + ' updated to value ' + value + ' for ' + myCompany + ' in both SQLite and PostgreSQL');
 
     });
 
@@ -285,55 +288,40 @@ app.get('/ekosim/getAllParameters/:myCountry', async (req, res, next) => {
 });
 
 
-app.get('/ekosim/getCompany/:myCountry', (req, res, next) => {
+app.get('/ekosim/getCompany/:myCountry', async (req, res, next) => {
+    console.log("🏢 GET COMPANY REQUEST - Using SimulationService");
 
-    var myCountry = req.params.myCountry;
+    try {
+        const cityName = req.params.myCountry;
+        const companyName = req.query.myCompany || null;
 
-    // Validate country before processing
-    if (!isValidCountry(myCountry)) {
-        console.error(`Invalid country rejected: ${myCountry}`);
-        return res.json({
-            "message": "error",
-            "data": [],
-            "error": `Invalid country: ${myCountry}`
-        });
-    }
+        // Validate country before processing
+        if (!isValidCountry(cityName)) {
+            console.error(`Invalid country rejected: ${cityName}`);
+            return res.json({
+                "message": "error",
+                "data": [],
+                "error": `Invalid country: ${cityName}`
+            });
+        }
 
-    var myPath = '../../ekosim/myDB/';
-    var myDatabase = myPath.concat(myCountry);
-    myDatabase = myDatabase.concat('.db');
+        console.log(`Fetching company data for ${companyName || 'all companies'} in ${cityName}`);
+        const companyData = await simulationService.getCompany(cityName, companyName);
 
-    var Company = req.query.myCompany;
-
-    // Validate that the database exists
-    const fs = require('fs');
-    if (!fs.existsSync(myDatabase)) {
-        console.error(`Database not found: ${myDatabase}`);
-        return res.json({
-            "message": "error",
-            "data": [],
-            "error": `Country ${myCountry} not found`
-        });
-    }
-
-    myTable = getCompanyTable(myDatabase, 'COMPANY_TABLE', Company);
-
-    //let db = new sqlite3.Database('/home/ec2-user/ekosimProject/myDB/ekosimDB.db', sqlite3.OPEN_READONLY, (err) => {
-    var mytableJSON = myTable.then((result) => {
-        //console.log(result[31]) // "Some User token"
-        //return result[31];
-        return res.json({
+        res.json({
             "message": "success",
-            "data": result
-        })
-    }).catch((error) => {
-        console.error(`Error getting company data for ${myCountry}:`, error);
-        return res.json({
-            "message": "error",
-            "data": [],
-            "error": `No COMPANY_TABLE found for ${myCountry}`
+            "data": companyData
         });
-    });
+
+        console.log(`✅ Company data sent: ${companyData.length} records`);
+
+    } catch (error) {
+        console.error('❌ Failed to get company data:', error.message);
+        res.status(500).json({
+            "message": "error",
+            "error": `Failed to retrieve company data: ${error.message}`
+        });
+    }
 });
 
 
@@ -411,31 +399,50 @@ app.get('/ekosim/timetable/update/:myCountry', async (req, res, next) => {
     }
 });
 
-app.get('/ekosim/companytable/update/:myCountry', (req, res, next) => {
+app.get('/ekosim/companytable/update/:myCountry', async (req, res, next) => {
+    console.log("🏢 COMPANY TABLE UPDATE REQUEST - Using SimulationService");
 
-    var myPath = '../../ekosim/myDB/';
-    var myCountry = req.params.myCountry; //'../../ekosim/myDB/Bennyland.db' //
-    var myDatabase = myPath.concat(myCountry);
-    myDatabase = myDatabase.concat('.db');
+    try {
+        const cityName = req.params.myCountry;
+        const lastTime = parseInt(req.query.timestamp) || 0;
+        const companyName = req.query.myCompany;
 
-    var lastTime = req.query.timestamp;
-    var myCompany = req.query.myCompany;
-    console.log(myCompany);
-    console.log(lastTime);
-    myTable = getCompanyTableUpdate(lastTime, myDatabase, myCompany, 'COMPANY_TABLE');
+        // Validate inputs
+        if (!isValidCountry(cityName)) {
+            console.error(`Invalid country rejected: ${cityName}`);
+            return res.json({
+                "message": "error",
+                "data": [],
+                "error": `Invalid country: ${cityName}`
+            });
+        }
 
-    var mytableJSON = myTable.then((result) => {
-        //console.log(result[31]) // "Some User token"
-        //return result[31];
-        return res.json({
+        if (!companyName) {
+            console.error('Missing company name');
+            return res.json({
+                "message": "error",
+                "data": [],
+                "error": "Company name is required"
+            });
+        }
+
+        console.log(`Fetching company updates for ${companyName} in ${cityName} since time ${lastTime}`);
+        const companyData = await simulationService.getCompanyUpdates(cityName, companyName, lastTime);
+
+        res.json({
             "message": "success",
-            "data": result
-        })
-    });
+            "data": companyData
+        });
 
+        console.log(`✅ Company data sent for ${companyName}: ${companyData.length} records`);
 
-    //console.log(mytableJSON)
-
+    } catch (error) {
+        console.error('❌ Failed to get company table data:', error.message);
+        res.status(500).json({
+            "message": "error",
+            "error": `Failed to retrieve company table data: ${error.message}`
+        });
+    }
 });
 
 app.get('/ekosim/worldtable/', async (req, res, next) => {

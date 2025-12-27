@@ -247,6 +247,79 @@ getCompanyTable = function (myDatabase, table, company) { //database, table
 }
 
 
+/**
+ * Insert or update company parameter in PostgreSQL
+ * @param {string} cityName - Name of city/country
+ * @param {string} companyName - Name of company (or '*' for all companies)
+ * @param {string} parameter - Parameter name (column in company_data table)
+ * @param {string|number} value - New value for the parameter
+ */
+async function insertCompanyParameterPG(cityName, companyName, parameter, value) {
+    const client = await pgPool.connect();
+    
+    try {
+        // Map frontend parameter names to database column names if needed
+        const columnMap = {
+            'CAPITAL': 'capital',
+            'STOCK': 'stock',
+            'CAPACITY': 'capacity',
+            'DEBTS': 'debts',
+            'PCSKILL': 'pcskill',
+            'PCMOT': 'pcmot',
+            'WAGE_CONST': 'wage_const',
+            'WAGE_CH': 'wage_ch',
+            'INVEST': 'invest',
+            'PBR': 'pbr',
+            'DECAY': 'decay',
+            'PROD_PARM': 'prod_parm',
+            'PROD_FCN': 'prod_fcn',
+            'PRODUCTION': 'production',
+            'EMPLOYEES': 'employees',
+            'ITEM_EFFICIENCY': 'item_efficiency',
+            'CAP_VS_EFF_SPLIT': 'cap_vs_eff_split'
+        };
+        
+        const columnName = columnMap[parameter] || parameter.toLowerCase();
+        const numericValue = parseFloat(value);
+        
+        if (companyName === '*') {
+            // Update all companies for this city
+            const query = `
+                UPDATE company_data 
+                SET ${columnName} = $1
+                WHERE city_name = $2 
+                  AND time_stamp = (
+                      SELECT MAX(time_stamp) 
+                      FROM company_data 
+                      WHERE city_name = $2
+                  )
+            `;
+            const result = await client.query(query, [numericValue, cityName]);
+            console.log(`✅ Updated ${parameter} to ${value} for all companies in ${cityName} (${result.rowCount} rows)`);
+        } else {
+            // Update specific company
+            const query = `
+                UPDATE company_data 
+                SET ${columnName} = $1
+                WHERE city_name = $2 
+                  AND company_name = $3
+                  AND time_stamp = (
+                      SELECT MAX(time_stamp) 
+                      FROM company_data 
+                      WHERE city_name = $2 AND company_name = $3
+                  )
+            `;
+            const result = await client.query(query, [numericValue, cityName, companyName]);
+            console.log(`✅ Updated ${parameter} to ${value} for company ${companyName} in ${cityName} (${result.rowCount} rows)`);
+        }
+    } catch (error) {
+        console.error('❌ Error updating company parameter in PostgreSQL:', error.message);
+        throw error;
+    } finally {
+        client.release();
+    }
+}
+
 var insertFunction = function (myDatabase, parameter, value) {
     //'./myDB/Bennyland.db'
     console.log(myDatabase);
@@ -385,5 +458,6 @@ module.exports = {
     //myTestSQL: myTestSQL,
     insertFunction: insertFunction,
     insertCompanyParameter: insertCompanyParameter,
-    insertParameterPG: insertParameterPG
+    insertParameterPG: insertParameterPG,
+    insertCompanyParameterPG: insertCompanyParameterPG
 };

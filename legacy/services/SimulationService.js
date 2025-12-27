@@ -145,6 +145,40 @@ class SimulationService {
   }
 
   /**
+   * Get company data (latest records)
+   */
+  async getCompany(cityName, companyName = null) {
+    await this.initialize();
+
+    try {
+      const data = await this.simulationDb.getCompany(cityName, companyName);
+      console.log(`🏢 Retrieved ${data.length} company records for ${companyName || 'all companies'} in ${cityName}`);
+      return data;
+
+    } catch (error) {
+      console.error(`Failed to get company data for ${cityName}:`, error.message);
+      throw new Error(`Could not retrieve company data for ${cityName}`);
+    }
+  }
+
+  /**
+   * Get company data updates since timestamp
+   */
+  async getCompanyUpdates(cityName, companyName, lastTime) {
+    await this.initialize();
+
+    try {
+      const data = await this.simulationDb.getCompanyUpdates(cityName, companyName, lastTime);
+      console.log(`🏢 Retrieved ${data.length} company updates for ${companyName} in ${cityName} since time ${lastTime}`);
+      return data;
+
+    } catch (error) {
+      console.error(`Failed to get company updates for ${companyName} in ${cityName}:`, error.message);
+      throw new Error(`Could not retrieve company updates for ${companyName}`);
+    }
+  }
+
+  /**
    * Get company data for a specific company
    */
   async getCompanyData(cityName, companyName, lastTime = 0) {

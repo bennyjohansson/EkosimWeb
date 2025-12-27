@@ -402,6 +402,139 @@ class PostgreSQLSimulationDatabase {
   }
 
   /**
+   * Get latest company data for a specific company (matches SQLite COMPANY_TABLE format)
+   * @param {string} cityName - The city/country name
+   * @param {string} companyName - The company name (or null for all companies)
+   */
+  async getCompany(cityName, companyName = null) {
+    const client = await this.pool.connect();
+
+    try {
+      let query;
+      let params;
+
+      if (companyName) {
+        // Get latest data for specific company
+        query = `
+          SELECT 
+            ROW_NUMBER() OVER (ORDER BY time_stamp DESC) as key,
+            id as "ID",
+            time_stamp as "TIME_STAMP",
+            company_name as "NAME",
+            capital as "CAPITAL",
+            stock as "STOCK",
+            capacity as "CAPACITY",
+            debts as "DEBTS",
+            pcskill as "PCSKILL",
+            pcmot as "PCMOT",
+            wage_const as "WAGE_CONST",
+            wage_ch as "WAGE_CH",
+            invest as "INVEST",
+            pbr as "PBR",
+            decay as "DECAY",
+            prod_parm as "PROD_PARM",
+            prod_fcn as "PROD_FCN",
+            production as "PRODUCTION",
+            employees as "EMPLOYEES",
+            item_efficiency as "ITEM_EFFICIENCY",
+            cap_vs_eff_split as "CAP_VS_EFF_SPLIT"
+          FROM company_data
+          WHERE city_name = $1 AND company_name = $2
+          ORDER BY time_stamp DESC
+        `;
+        params = [cityName, companyName];
+      } else {
+        // Get latest data for all companies
+        query = `
+          SELECT DISTINCT ON (company_name)
+            ROW_NUMBER() OVER (ORDER BY company_name) as key,
+            id as "ID",
+            time_stamp as "TIME_STAMP",
+            company_name as "NAME",
+            capital as "CAPITAL",
+            stock as "STOCK",
+            capacity as "CAPACITY",
+            debts as "DEBTS",
+            pcskill as "PCSKILL",
+            pcmot as "PCMOT",
+            wage_const as "WAGE_CONST",
+            wage_ch as "WAGE_CH",
+            invest as "INVEST",
+            pbr as "PBR",
+            decay as "DECAY",
+            prod_parm as "PROD_PARM",
+            prod_fcn as "PROD_FCN",
+            production as "PRODUCTION",
+            employees as "EMPLOYEES",
+            item_efficiency as "ITEM_EFFICIENCY",
+            cap_vs_eff_split as "CAP_VS_EFF_SPLIT"
+          FROM company_data
+          WHERE city_name = $1
+          ORDER BY company_name, time_stamp DESC
+        `;
+        params = [cityName];
+      }
+
+      const result = await client.query(query, params);
+
+      console.log(`🏢 Retrieved ${result.rows.length} company records for ${companyName || 'all companies'} in ${cityName}`);
+      return result.rows;
+
+    } finally {
+      client.release();
+    }
+  }
+
+  /**
+   * Get company data updates since a timestamp
+   * @param {string} cityName - The city/country name
+   * @param {string} companyName - The company name
+   * @param {number} lastTime - The last timestamp received
+   */
+  async getCompanyUpdates(cityName, companyName, lastTime) {
+    const client = await this.pool.connect();
+
+    try {
+      const query = `
+        SELECT 
+          ROW_NUMBER() OVER (ORDER BY time_stamp ASC) as key,
+          id as "ID",
+          time_stamp as "TIME_STAMP",
+          company_name as "NAME",
+          capital as "CAPITAL",
+          stock as "STOCK",
+          capacity as "CAPACITY",
+          debts as "DEBTS",
+          pcskill as "PCSKILL",
+          pcmot as "PCMOT",
+          wage_const as "WAGE_CONST",
+          wage_ch as "WAGE_CH",
+          invest as "INVEST",
+          pbr as "PBR",
+          decay as "DECAY",
+          prod_parm as "PROD_PARM",
+          prod_fcn as "PROD_FCN",
+          production as "PRODUCTION",
+          employees as "EMPLOYEES",
+          item_efficiency as "ITEM_EFFICIENCY",
+          cap_vs_eff_split as "CAP_VS_EFF_SPLIT"
+        FROM company_data
+        WHERE city_name = $1 AND company_name = $2 AND time_stamp > $3
+        ORDER BY time_stamp ASC
+      `;
+      const params = [cityName, companyName, lastTime];
+
+      const result = await client.query(query, params);
+
+      console.log(`🏢 Retrieved ${result.rows.length} company updates for ${companyName} in ${cityName} since time ${lastTime}`);
+      return result.rows;
+
+    } finally {
+      client.release();
+    }
+  }
+
+  /**
    * Close database connections
    */
   async close() {
