@@ -198,106 +198,90 @@ app.get('/ekosim/read/:myCountry',
             console.log(`📖 Unauthenticated read access to ${myCountry}`);
             next();
         }
-    }, (req, res) => {
+    }, async (req, res) => {
+        console.log("📋 PARAMETER READ REQUEST - Using SimulationService (PostgreSQL)");
 
-        var myPath = '../../ekosim/myDB/';
-        var myCountry = req.params.myCountry; // //
-        var myDatabase = myPath.concat(myCountry);
-        myDatabase = myDatabase.concat('.db');
+        try {
+            const cityName = req.params.myCountry;
+            const parameterID = req.query.parameterID;
 
-        var params = [req.query.parameterID];
-
-        //let db = new sqlite3.Database('/home/ec2-user/ekosimProject/myDB/ekosimDB.db', sqlite3.OPEN_READONLY, (err) => {
-        let db = new sqlite3.Database(myDatabase, sqlite3.OPEN_READONLY, (err) => {
-
-            //./app/app.js
-            if (err) {
-                console.error(err.message);
+            // Validate country name
+            if (!isValidCountry(cityName)) {
+                console.error(`Invalid country rejected: ${cityName}`);
+                return res.json({
+                    "message": "error",
+                    "error": `Invalid country: ${cityName}`
+                });
             }
-            console.log('Connected to the ekosim database.');
-        });
 
-        var sql = "select * from PARAMETERS WHERE PARAMETER = ?"// InterestRateMethod TargetInterestRate
-        //params = [];
-        //console.log(sql);
-        //console.log(params);
-        db.get(sql, params, (err, row) => {
-            if (err) {
-                res.status(400).json({ "error": err.message });
-                return;
+            if (!parameterID) {
+                return res.status(400).json({
+                    "message": "error",
+                    "error": "Missing parameterID query parameter"
+                });
             }
-            res.json({
+
+            // Use SimulationService to get parameter from PostgreSQL
+            const data = await simulationService.getParameter(cityName, parameterID);
+
+            if (!data) {
+                return res.json({
+                    "message": "success",
+                    "data": null,
+                    "info": `Parameter ${parameterID} not found for ${cityName}`
+                });
+            }
+
+            console.log(`✅ Parameter ${parameterID} retrieved for ${cityName}: ${data.VALUE}`);
+
+            return res.json({
                 "message": "success",
-                "data": row
-            })
-        });
+                "data": data
+            });
 
-        //Closing the database
-        db.close((err) => {
-            if (err) {
-                console.error(err.message);
-            }
-            console.log('Close the database connection.');
-        });
-
+        } catch (error) {
+            console.error(`❌ Error getting parameter:`, error);
+            return res.json({
+                "message": "error",
+                "error": `Failed to get parameter: ${error.message}`
+            });
+        }
     });
 
-app.get('/ekosim/getAllParameters/:myCountry', (req, res, next) => {
+app.get('/ekosim/getAllParameters/:myCountry', async (req, res, next) => {
+    console.log("📋 GET ALL PARAMETERS REQUEST - Using SimulationService (PostgreSQL)");
 
-    var myCountry = req.params.myCountry;
+    try {
+        const myCountry = req.params.myCountry;
 
-    // Validate country before processing
-    if (!isValidCountry(myCountry)) {
-        console.error(`Invalid country rejected: ${myCountry}`);
-        return res.json({
-            "message": "error",
-            "data": [],
-            "error": `Invalid country: ${myCountry}`
-        });
-    }
+        // Validate country before processing
+        if (!isValidCountry(myCountry)) {
+            console.error(`Invalid country rejected: ${myCountry}`);
+            return res.json({
+                "message": "error",
+                "data": [],
+                "error": `Invalid country: ${myCountry}`
+            });
+        }
 
-    var myPath = '../../ekosim/myDB/';
-    var myDatabase = myPath.concat(myCountry);
-    myDatabase = myDatabase.concat('.db');
+        // Use SimulationService to get all parameters from PostgreSQL
+        const data = await simulationService.getAllParameters(myCountry);
 
-    //myDatabase = '../../ekosim/myDB/Bennyland.db';
+        console.log(`✅ All parameters retrieved for ${myCountry}: ${data.length} parameters`);
 
-    // Validate that the country exists and has a valid database
-    const fs = require('fs');
-    const path = require('path');
-
-    if (!fs.existsSync(myDatabase)) {
-        console.error(`Database not found: ${myDatabase}`);
-        return res.json({
-            "message": "error",
-            "data": [],
-            "error": `Country ${myCountry} not found`
-        });
-    }
-
-    console.log(myDatabase);
-    myTable = getTable(myDatabase, 'PARAMETERS');
-
-
-    var mytableJSON = myTable.then((result) => {
-        //console.log(result[31]) // "Some User token"
-        //return result[31];
         return res.json({
             "message": "success",
-            "data": result
-        })
-    }).catch((error) => {
-        console.error(`Error getting parameters for ${myCountry}:`, error);
+            "data": data
+        });
+
+    } catch (error) {
+        console.error(`❌ Error getting parameters for ${myCountry}:`, error);
         return res.json({
             "message": "error",
             "data": [],
-            "error": `No PARAMETERS table found for ${myCountry}`
+            "error": `Failed to get parameters: ${error.message}`
         });
-    });
-
-
-    //console.log(mytableJSON)
-
+    }
 });
 
 

@@ -338,6 +338,70 @@ class PostgreSQLSimulationDatabase {
   }
 
   /**
+   * Get a single parameter value for a city
+   * @param {string} cityName - The city/country name
+   * @param {string} parameterName - The parameter name
+   */
+  async getParameter(cityName, parameterName) {
+    const client = await this.pool.connect();
+
+    try {
+      const query = `
+        SELECT 
+          id as "ID",
+          parameter as "PARAMETER",
+          value as "VALUE"
+        FROM parameters
+        WHERE city_name = $1 AND parameter = $2
+      `;
+      const params = [cityName, parameterName];
+
+      const result = await client.query(query, params);
+
+      if (result.rows.length === 0) {
+        console.log(`⚠️ Parameter ${parameterName} not found for ${cityName}`);
+        return null;
+      }
+
+      console.log(`📋 Retrieved parameter ${parameterName} for ${cityName}: ${result.rows[0].VALUE}`);
+      return result.rows[0];
+
+    } finally {
+      client.release();
+    }
+  }
+
+  /**
+   * Get all parameters for a city
+   * @param {string} cityName - The city/country name
+   */
+  async getAllParameters(cityName) {
+    const client = await this.pool.connect();
+
+    try {
+      const query = `
+        SELECT 
+          ROW_NUMBER() OVER (ORDER BY parameter) as key,
+          id as "ID",
+          parameter as "PARAMETER",
+          value as "VALUE"
+        FROM parameters
+        WHERE city_name = $1
+        ORDER BY parameter
+      `;
+      const params = [cityName];
+
+      const result = await client.query(query, params);
+
+      console.log(`📋 Retrieved ${result.rows.length} parameters for ${cityName}`);
+      return result.rows;
+
+    } finally {
+      client.release();
+    }
+  }
+
+  /**
    * Close database connections
    */
   async close() {

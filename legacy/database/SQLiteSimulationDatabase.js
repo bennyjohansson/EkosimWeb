@@ -84,6 +84,66 @@ class SQLiteSimulationDatabase {
   }
 
   /**
+   * Get a single parameter value for a city (SQLite version)
+   */
+  async getParameter(cityName, parameterName) {
+    return new Promise((resolve, reject) => {
+      const myDatabase = `../../ekosim/myDB/${cityName}.db`;
+      let db = new sqlite3.Database(myDatabase, sqlite3.OPEN_READONLY, (err) => {
+        if (err) {
+          console.error(err.message);
+          reject(err);
+          return;
+        }
+      });
+
+      db.get('SELECT * FROM PARAMETERS WHERE PARAMETER = ?', [parameterName], (err, row) => {
+        db.close();
+        
+        if (err) {
+          reject(err);
+        } else {
+          resolve(row);
+        }
+      });
+    });
+  }
+
+  /**
+   * Get all parameters for a city (SQLite version)
+   */
+  async getAllParameters(cityName) {
+    return new Promise((resolve, reject) => {
+      const myDatabase = `../../ekosim/myDB/${cityName}.db`;
+      let db = new sqlite3.Database(myDatabase, sqlite3.OPEN_READONLY, (err) => {
+        if (err) {
+          console.error(err.message);
+          reject(err);
+          return;
+        }
+      });
+
+      const queries = [];
+      
+      db.each('SELECT rowid as key, * FROM PARAMETERS', (err, row) => {
+        if (err) {
+          reject(err);
+        } else {
+          queries.push(row);
+        }
+      }, (err, n) => {
+        db.close();
+        
+        if (err) {
+          reject(err);
+        } else {
+          resolve(queries);
+        }
+      });
+    });
+  }
+
+  /**
    * Close database connections (no-op for SQLite)
    */
   async close() {

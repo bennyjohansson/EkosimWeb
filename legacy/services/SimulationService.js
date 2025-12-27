@@ -111,6 +111,40 @@ class SimulationService {
   }
 
   /**
+   * Get a single parameter for a city
+   */
+  async getParameter(cityName, parameterName) {
+    await this.initialize();
+
+    try {
+      const data = await this.simulationDb.getParameter(cityName, parameterName);
+      console.log(`📋 Retrieved parameter ${parameterName} for ${cityName}`);
+      return data;
+
+    } catch (error) {
+      console.error(`Failed to get parameter ${parameterName} for ${cityName}:`, error.message);
+      throw new Error(`Could not retrieve parameter ${parameterName} for ${cityName}`);
+    }
+  }
+
+  /**
+   * Get all parameters for a city
+   */
+  async getAllParameters(cityName) {
+    await this.initialize();
+
+    try {
+      const data = await this.simulationDb.getAllParameters(cityName);
+      console.log(`📋 Retrieved ${data.length} parameters for ${cityName}`);
+      return data;
+
+    } catch (error) {
+      console.error(`Failed to get parameters for ${cityName}:`, error.message);
+      throw new Error(`Could not retrieve parameters for ${cityName}`);
+    }
+  }
+
+  /**
    * Get company data for a specific company
    */
   async getCompanyData(cityName, companyName, lastTime = 0) {
