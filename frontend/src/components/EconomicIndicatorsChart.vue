@@ -568,7 +568,7 @@ async function loadData() {
       lastTimestamp.value
     )
     // Simulation restart detection
-    if (response.maxTimestamp < lastTimestamp.value) {
+    if (typeof response.maxTimestamp === 'number' && response.maxTimestamp < lastTimestamp.value) {
       console.warn('[EconomicIndicatorsChart] Detected simulation restart: maxTimestamp', response.maxTimestamp, '< lastTimestamp', lastTimestamp.value, '. Resetting lastTimestamp to 0 and reloading data.')
       lastTimestamp.value = 0
       dataPoints.value = []
