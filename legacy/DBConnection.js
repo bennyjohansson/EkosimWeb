@@ -1,4 +1,25 @@
 const sqlite3 = require('sqlite3').verbose();
+const { Pool } = require('pg');
+
+// PostgreSQL connection pool
+const pgPool = new Pool({
+    host: process.env.POSTGRES_HOST || 'localhost',
+    port: process.env.POSTGRES_PORT || 5432,
+    database: process.env.POSTGRES_DB || 'ekosim',
+    user: process.env.POSTGRES_USER || 'ekosim',
+    password: process.env.POSTGRES_PASSWORD || 'secure_dev_password_2025!',
+    max: 10,
+    idleTimeoutMillis: 30000,
+});
+
+// Test connection on startup
+pgPool.query('SELECT NOW()', (err, res) => {
+    if (err) {
+        console.error('❌ PostgreSQL connection error:', err.message);
+    } else {
+        console.log('✅ PostgreSQL connected successfully at:', res.rows[0].now);
+    }
+});
 
 
 
@@ -229,11 +250,31 @@ getCompanyTable = function (myDatabase, table, company) { //database, table
 var insertFunction = function (myDatabase, parameter, value) {
     //'./myDB/Bennyland.db'
     console.log(myDatabase);
-    // if(myDatabase == './myDB/Bennyland.db') {
+    
+    // Extract city name from database path (e.g., '../../ekosim/myDB/Bennyland.db' -> 'Bennyland')
+    let cityName = '';
+    const pathParts = myDatabase.split('/');
+    const dbFile = pathParts[pathParts.length - 1];
+    if (dbFile.endsWith('.db')) {
+        cityName = dbFile.replace('.db', '');
+    }
+    
+    // Update PostgreSQL first
+    if (cityName) {
+        pgPool.query(
+            `INSERT INTO parameters (city_name, parameter, value) 
+             VALUES ($1, $2, $3) 
+             ON CONFLICT (city_name, parameter) 
+             DO UPDATE SET value = EXCLUDED.value, updated_at = CURRENT_TIMESTAMP`,
+            [cityName, parameter, parseFloat(value)]
+        ).then(() => {
+            console.log(`PostgreSQL: Parameter ${parameter} updated to ${value} for ${cityName}`);
+        }).catch(err => {
+            console.error('PostgreSQL parameter update error:', err.message);
+        });
+    }
 
-    //     console.log('Eureka - the string is the same');
-    //}
-
+    // Update SQLite for backward compatibility
     let db = new sqlite3.Database(myDatabase, sqlite3.OPEN_READWRITE, (err) => {
         if (err) {
             console.error(err.message);
@@ -317,10 +358,32 @@ var insertCompanyParameter = function (myDatabase, company, parameter, value) {
 
 }
 
+// PostgreSQL parameter update function
+var insertParameterPG = async function (cityName, parameter, value) {
+    const client = await pgPool.connect();
+    try {
+        const sql = `
+            INSERT INTO parameters (city_name, parameter, value)
+            VALUES ($1, $2, $3)
+            ON CONFLICT (city_name, parameter)
+            DO UPDATE SET value = EXCLUDED.value, updated_at = CURRENT_TIMESTAMP
+        `;
+        await client.query(sql, [cityName, parameter, value]);
+        console.log(`[PostgreSQL] Updated parameter ${parameter} = ${value} for ${cityName}`);
+        return 0;
+    } catch (err) {
+        console.error(`[PostgreSQL] Failed to update parameter ${parameter}:`, err);
+        return 1;
+    } finally {
+        client.release();
+    }
+};
+
 
 module.exports = {
     //testJSONobj: testJSONobj,
     //myTestSQL: myTestSQL,
     insertFunction: insertFunction,
-    insertCompanyParameter: insertCompanyParameter
+    insertCompanyParameter: insertCompanyParameter,
+    insertParameterPG: insertParameterPG
 };

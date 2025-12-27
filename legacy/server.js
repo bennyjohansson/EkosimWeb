@@ -102,7 +102,7 @@ app.put('/ekosim/put/:myCountry',
     authMiddleware ? authMiddleware.verifyToken() : (req, res, next) => next(),
     authMiddleware ? authMiddleware.requireCountryAccess() : (req, res, next) => next(),
     authMiddleware ? authMiddleware.requireWriteAccess() : (req, res, next) => next(),
-    function (req, res) {
+    async function (req, res) {
 
         var ParameterID = req.body.PARAMETER;
         var value = req.body.VALUE;
@@ -124,8 +124,11 @@ app.put('/ekosim/put/:myCountry',
 
         }
 
-        DBFunctions.insertFunction(myDatabase, ParameterID, value)
-        res.send('Parameter ' + ParameterID + ' probably updated to value ' + value);
+        // Update both SQLite (for web charts) and PostgreSQL (for simulation)
+        DBFunctions.insertFunction(myDatabase, ParameterID, value);
+        await DBFunctions.insertParameterPG(myCountry, ParameterID, value);
+        
+        res.send('Parameter ' + ParameterID + ' updated to value ' + value + ' in both SQLite and PostgreSQL');
 
     });
 
