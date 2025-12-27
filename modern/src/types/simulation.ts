@@ -87,6 +87,7 @@ export interface GameSession {
 export interface ApiResponse<T = any> {
   message: 'success' | 'error'
   data: T
+  maxTimestamp?: number  // Maximum timestamp in database for restart detection
   error?: string
 }
 

@@ -1,7 +1,7 @@
 <template>
   <div class="company-utilization-chart">
     <div class="chart-header">
-      <h3>📈 Company Utilization Analysis</h3>
+      <h3>📊 Company Utilization</h3>
       <div class="chart-controls">
         <button @click="startAutoUpdate" :disabled="isAutoUpdating" class="btn btn-small">
           {{ isAutoUpdating ? 'Auto-updating...' : 'Start Auto-Update' }}
@@ -32,15 +32,7 @@
         </div>
         <div class="info-item">
           <span class="label">Current Utilization:</span>
-          <span class="value">{{ currentUtilization }}</span>
-        </div>
-        <div class="info-item">
-          <span class="label">Average Utilization:</span>
-          <span class="value">{{ averageUtilization }}</span>
-        </div>
-        <div class="info-item">
-          <span class="label">Max Utilization:</span>
-          <span class="value">{{ maxUtilization }}</span>
+          <span class="value utilization-highlight">{{ currentUtilization }}</span>
         </div>
       </div>
     </div>
@@ -49,22 +41,22 @@
       <strong>Error:</strong> {{ error }}
     </div>
 
-    <!-- Debug: Show utilization calculation -->
+    <!-- Debug: Show raw data structure -->
     <div v-if="dataPoints.length > 0" class="debug-section">
       <details>
-        <summary>🔍 Debug: Utilization Calculation (click to expand)</summary>
+        <summary>🔍 Debug: Raw Data Structure (click to expand)</summary>
         <div class="debug-content">
-          <h4>Latest Calculation:</h4>
-          <pre>{{ utilizationDebugInfo }}</pre>
+          <h4>Latest Data Point:</h4>
+          <pre>{{ JSON.stringify(dataPoints[dataPoints.length - 1], null, 2) }}</pre>
           
-          <h4>Recent Utilization Values:</h4>
-          <div class="utilization-list">
+          <h4>Available Fields:</h4>
+          <div class="field-list">
             <span 
-              v-for="(util, index) in recentUtilizations" 
-              :key="index"
-              class="utilization-value"
+              v-for="field in Object.keys(dataPoints[dataPoints.length - 1] || {})" 
+              :key="field"
+              class="field-tag"
             >
-              {{ util }}%
+              {{ field }}
             </span>
           </div>
         </div>
@@ -85,10 +77,9 @@ import {
   Title,
   Tooltip,
   Legend,
-  Filler,
   type ChartConfiguration
 } from 'chart.js'
-import { useSimulationStore } from '@/stores/simulation'
+import { simulationAPI, parseAPIError } from '@/services/simulationAPI'
 import type { CountryCode, CompanyName, CompanyTimeSeriesData } from '@/types/simulation'
 
 // Register Chart.js components
@@ -100,8 +91,7 @@ Chart.register(
   PointElement,
   Title,
   Tooltip,
-  Legend,
-  Filler
+  Legend
 )
 
 // Props
@@ -115,9 +105,6 @@ const props = withDefaults(defineProps<Props>(), {
   selectedCompany: ''
 })
 
-// Store
-const store = useSimulationStore()
-
 // Template refs
 const chartCanvas = ref<HTMLCanvasElement>()
 
@@ -126,6 +113,8 @@ const dataPoints = ref<CompanyTimeSeriesData[]>([])
 const isLoading = ref(false)
 const isAutoUpdating = ref(false)
 const error = ref<string>('')
+const lastTimestamp = ref(0)
+const isInitialLoad = ref(true)
 let chart: Chart | null = null
 let updateInterval: ReturnType<typeof setInterval> | null = null
 
@@ -136,54 +125,14 @@ const latestTimestamp = computed(() => {
   return `Time: ${latest.TIME_STAMP}`
 })
 
-const utilizationData = computed(() => {
-  return dataPoints.value.map(d => {
-    const capacity = d.CAPACITY || 0
-    const production = d.PRODUCTION || 0
-    
-    if (capacity === 0) return 0
-    return (production / capacity) * 100 // Convert to percentage
-  })
-})
-
 const currentUtilization = computed(() => {
-  if (utilizationData.value.length === 0) return 'N/A'
-  const latest = utilizationData.value[utilizationData.value.length - 1]
-  return `${latest.toFixed(1)}%`
-})
-
-const averageUtilization = computed(() => {
-  if (utilizationData.value.length === 0) return 'N/A'
-  const sum = utilizationData.value.reduce((acc, val) => acc + val, 0)
-  const avg = sum / utilizationData.value.length
-  return `${avg.toFixed(1)}%`
-})
-
-const maxUtilization = computed(() => {
-  if (utilizationData.value.length === 0) return 'N/A'
-  const max = Math.max(...utilizationData.value)
-  return `${max.toFixed(1)}%`
-})
-
-const utilizationDebugInfo = computed(() => {
-  if (dataPoints.value.length === 0) return 'No data'
-  
+  if (dataPoints.value.length === 0) return 'N/A'
   const latest = dataPoints.value[dataPoints.value.length - 1]
   const capacity = latest.CAPACITY || 0
   const production = latest.PRODUCTION || 0
-  const utilization = capacity === 0 ? 0 : (production / capacity) * 100
   
-  return {
-    timestamp: latest.TIME_STAMP,
-    production: production,
-    capacity: capacity,
-    calculation: `${production} / ${capacity} = ${utilization.toFixed(3)}%`,
-    utilization: `${utilization.toFixed(1)}%`
-  }
-})
-
-const recentUtilizations = computed(() => {
-  return utilizationData.value.slice(-10).map(u => u.toFixed(1))
+  if (capacity === 0) return '0.0%'
+  return `${((production / capacity) * 100).toFixed(1)}%`
 })
 
 // Chart configuration
@@ -191,29 +140,31 @@ function createChartConfig(): ChartConfiguration {
   const hasData = dataPoints.value.length > 0
   const labels = hasData ? dataPoints.value.map(d => d.TIME_STAMP.toString()) : ['0']
   
-  const datasets = []
-  
-  if (hasData) {
-    datasets.push({
-      label: 'Utilization %',
-      data: dataPoints.value.map((d, index) => ({ 
-        x: d.TIME_STAMP, 
-        y: utilizationData.value[index] 
-      })),
-      borderColor: 'rgb(59, 130, 246)',
-      backgroundColor: 'rgba(59, 130, 246, 0.2)',
-      tension: 0.4,
-      fill: true, // Fill area under curve for utilization
-      pointRadius: 1,
-      borderWidth: 2
-    })
-  }
+  // Calculate utilization percentage for each data point
+  const utilizationData = hasData 
+    ? dataPoints.value.map(d => {
+        const capacity = d.CAPACITY || 0
+        const production = d.PRODUCTION || 0
+        const utilization = capacity > 0 ? (production / capacity) * 100 : 0
+        return { x: d.TIME_STAMP, y: utilization }
+      })
+    : [{ x: 0, y: 0 }]
 
   return {
     type: 'line',
     data: {
       labels,
-      datasets
+      datasets: [
+        {
+          label: 'Utilization %',
+          data: utilizationData,
+          borderColor: 'rgb(139, 92, 246)',
+          backgroundColor: 'rgba(139, 92, 246, 0.2)',
+          tension: 0.4,
+          fill: true,
+          pointRadius: 0
+        }
+      ]
     },
     options: {
       responsive: true,
@@ -240,8 +191,14 @@ function createChartConfig(): ChartConfiguration {
         tooltip: {
           callbacks: {
             label: function(context) {
-              const value = context.parsed.y
-              return `Utilization: ${value.toFixed(1)}%`
+              let label = context.dataset.label || '';
+              if (label) {
+                label += ': ';
+              }
+              if (context.parsed.y !== null) {
+                label += context.parsed.y.toFixed(1) + '%';
+              }
+              return label;
             }
           }
         }
@@ -260,10 +217,15 @@ function createChartConfig(): ChartConfiguration {
           position: 'left' as const,
           title: {
             display: true,
-            text: 'Utilization (%)'
+            text: 'Utilization %'
           },
-          beginAtZero: true,
-          max: 100
+          min: 0,
+          max: 100,
+          ticks: {
+            callback: function(value) {
+              return value + '%';
+            }
+          }
         }
       }
     }
@@ -275,7 +237,7 @@ async function initChart() {
   await nextTick()
   
   if (!chartCanvas.value) {
-    console.error('Company Utilization Chart canvas not available')
+    console.error('Company Utilization chart canvas not available')
     error.value = 'Chart canvas element not found'
     return
   }
@@ -306,40 +268,75 @@ async function initChart() {
     
   } catch (err) {
     console.error('Error during company utilization chart initialization:', err)
-    error.value = `Company Utilization Chart initialization failed: ${err instanceof Error ? err.message : String(err)}`
+    error.value = `Company utilization chart initialization failed: ${err instanceof Error ? err.message : String(err)}`
   }
 }
 
-// Load data 
+// Load data from API
 async function loadData() {
   if (isLoading.value || !props.selectedCompany) return
-  
+  console.log('[CompanyUtilizationChart] loadData called. selectedCompany:', props.selectedCompany, 'lastTimestamp:', lastTimestamp.value)
   isLoading.value = true
   error.value = ''
-  
   try {
-    // Use the store's company time series data
-    await store.loadCompanyTimeSeriesData()
-    
-    // Get data from store
-    dataPoints.value = [...store.companyTimeSeriesData]
-    
-    console.log('Company utilization data loaded:', {
-      count: dataPoints.value.length,
-      company: props.selectedCompany,
-      currentUtilization: currentUtilization.value
-    })
-    
-    // Initialize chart if it doesn't exist, otherwise update it
-    if (!chart) {
-      await initChart()
+    const response = await simulationAPI.getCompanyUpdates(
+      props.selectedCountry,
+      props.selectedCompany,
+      lastTimestamp.value
+    )
+    console.log('[CompanyUtilizationChart] API response:', response)
+    if (response.message === 'success') {
+      // Check for simulation restart: backend reset
+      if (typeof response.maxTimestamp !== 'undefined' && response.maxTimestamp < lastTimestamp.value) {
+        console.warn('[CompanyUtilizationChart] Detected simulation restart: maxTimestamp', response.maxTimestamp, '< lastTimestamp', lastTimestamp.value, '. Resetting lastTimestamp to 0 and reloading data.')
+        lastTimestamp.value = 0
+        dataPoints.value = []
+        isInitialLoad.value = true
+        // Reload all data from beginning
+        await loadData()
+        return
+      }
+      if (response.data.length > 0) {
+        console.log('[CompanyUtilizationChart] Data loaded:', {
+          count: response.data.length,
+          firstPoint: response.data[0],
+          lastPoint: response.data[response.data.length - 1],
+          isInitial: isInitialLoad.value,
+          maxTimestamp: response.maxTimestamp
+        })
+        // On initial load, filter to show only last 100 cycles to avoid displaying full history
+        if (isInitialLoad.value && response.data.length > 100) {
+          const recentData = response.data.slice(-100)
+          dataPoints.value = recentData
+          console.log(`[CompanyUtilizationChart] Filtered initial data from ${response.data.length} to ${recentData.length} records (last 100 cycles)`)
+          isInitialLoad.value = false
+        } else {
+          // Append new data points for subsequent updates
+          dataPoints.value.push(...response.data)
+          if (isInitialLoad.value) {
+            isInitialLoad.value = false
+          }
+        }
+        // Update last timestamp
+        const maxTime = Math.max(...response.data.map(d => d.TIME_STAMP))
+        lastTimestamp.value = maxTime
+        console.log('[CompanyUtilizationChart] Updated lastTimestamp to', lastTimestamp.value)
+        // Initialize chart if it doesn't exist, otherwise update it
+        if (!chart) {
+          await initChart()
+        } else {
+          updateChart()
+        }
+      } else {
+        console.log('[CompanyUtilizationChart] No new data returned from API. maxTimestamp:', response.maxTimestamp, 'lastTimestamp:', lastTimestamp.value)
+      }
     } else {
-      updateChart()
+      console.error('[CompanyUtilizationChart] API error:', response.error)
+      throw new Error(response.error || 'Failed to load company utilization data')
     }
-    
   } catch (err) {
-    console.error('Failed to load company utilization data:', err)
-    error.value = `Failed to load company data: ${err instanceof Error ? err.message : String(err)}`
+    console.error('[CompanyUtilizationChart] Exception in loadData:', err)
+    error.value = parseAPIError(err)
   } finally {
     isLoading.value = false
   }
@@ -361,18 +358,19 @@ function updateChart() {
     console.log('Company Utilization Chart updated successfully')
   } catch (err) {
     console.error('Error updating company utilization chart:', err)
-    error.value = `Company Utilization Chart update failed: ${err instanceof Error ? err.message : String(err)}`
+    error.value = `Company utilization chart update failed: ${err instanceof Error ? err.message : String(err)}`
   }
 }
 
 // Start auto-updating
 function startAutoUpdate() {
   if (isAutoUpdating.value) return
-  
+  console.log('[CompanyUtilizationChart] startAutoUpdate called. Polling every 3s.')
   isAutoUpdating.value = true
   updateInterval = setInterval(() => {
+    console.log('[CompanyUtilizationChart] Polling... lastTimestamp:', lastTimestamp.value)
     loadData()
-  }, 2000) // Update every 2 seconds (matching legacy)
+  }, 3000)
 }
 
 // Stop auto-updating
@@ -386,12 +384,13 @@ function stopAutoUpdate() {
 
 // Initialize on mount
 onMounted(async () => {
-  console.log('Company Utilization Chart component mounted')
-  
-  if (props.selectedCompany) {
+  console.log('Company Utilization Chart component mounted, loading data...')
+  if (props.selectedCompany && props.selectedCompany !== '') {
     await loadData()
-    // Start auto-update by default if we have a company
+    // Start auto-update by default
     startAutoUpdate()
+  } else {
+    console.warn('Company Utilization Chart: No company selected on mount, skipping initial data load')
   }
 })
 
@@ -406,29 +405,21 @@ onUnmounted(() => {
 // Watch for company/country changes
 watch(() => [props.selectedCountry, props.selectedCompany], async (newVal, oldVal) => {
   if (newVal[0] !== oldVal[0] || newVal[1] !== oldVal[1]) {
-    // Stop auto-update first
+    // Stop auto-update
     stopAutoUpdate()
-    // Reset data when company/country changes
+    // Reset state
     dataPoints.value = []
-    // Clear store data to prevent duplication
-    store.companyTimeSeriesData = []
+    lastTimestamp.value = 0
+    isInitialLoad.value = true
     
-    if (props.selectedCompany) {
+    if (props.selectedCompany && props.selectedCompany !== '') {
       await loadData()
       startAutoUpdate()
+    } else {
+      console.warn('Company Utilization Chart: selectedCompany is empty, skipping data load')
     }
   }
 })
-
-// Watch store data for real-time updates
-watch(() => store.companyTimeSeriesData, (newData) => {
-  if (newData.length > 0 && newData.length !== dataPoints.value.length) {
-    dataPoints.value = [...newData]
-    if (chart) {
-      updateChart()
-    }
-  }
-}, { deep: true })
 </script>
 
 <style scoped>
@@ -483,7 +474,7 @@ watch(() => store.companyTimeSeriesData, (newData) => {
 .chart-container {
   position: relative;
   width: 100%;
-  height: 300px;
+  height: 400px;
   margin: 1rem 0;
 }
 
@@ -513,7 +504,7 @@ watch(() => store.companyTimeSeriesData, (newData) => {
   padding: 0.5rem;
   background: white;
   border-radius: 4px;
-  border-left: 3px solid #3b82f6;
+  border-left: 3px solid #8b5cf6;
 }
 
 .label {
@@ -527,6 +518,11 @@ watch(() => store.companyTimeSeriesData, (newData) => {
   color: #2d3748;
   font-weight: 600;
   font-size: 0.9rem;
+}
+
+.utilization-highlight {
+  color: #8b5cf6;
+  font-size: 1rem;
 }
 
 .error-message {
@@ -572,14 +568,14 @@ watch(() => store.companyTimeSeriesData, (newData) => {
   margin: 0.5rem 0;
 }
 
-.utilization-list {
+.field-list {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
 }
 
-.utilization-value {
-  background: #3b82f6;
+.field-tag {
+  background: #8b5cf6;
   color: white;
   padding: 0.25rem 0.5rem;
   border-radius: 12px;
@@ -600,10 +596,6 @@ watch(() => store.companyTimeSeriesData, (newData) => {
   
   .info-grid {
     grid-template-columns: 1fr;
-  }
-  
-  .chart-container {
-    height: 250px;
   }
 }
 </style>

@@ -186,8 +186,17 @@ class PostgreSQLSimulationDatabase {
 
       const result = await client.query(query, params);
 
-      console.log(`📊 Retrieved ${result.rows.length} time_data records for ${cityName} since time ${lastTime}`);
-      return result.rows;
+      // Get the maximum timestamp in the database for restart detection
+      const maxQuery = `SELECT COALESCE(MAX(time), 0) as max_time FROM time_data WHERE city_name = $1`;
+      const maxResult = await client.query(maxQuery, [cityName]);
+      const maxTimestamp = parseInt(maxResult.rows[0].max_time) || 0;
+
+      console.log(`📊 Retrieved ${result.rows.length} time_data records for ${cityName} since time ${lastTime}, maxTimestamp: ${maxTimestamp}`);
+      
+      return {
+        data: result.rows,
+        maxTimestamp: maxTimestamp
+      };
 
     } finally {
       client.release();
@@ -252,8 +261,17 @@ class PostgreSQLSimulationDatabase {
 
       const result = await client.query(query, params);
 
-      console.log(`💰 Retrieved ${ result.rows.length } money_data records for ${ cityName } since time ${ lastTime } `);
-      return result.rows;
+      // Get the maximum timestamp in the database for restart detection
+      const maxQuery = `SELECT COALESCE(MAX(time), 0) as max_time FROM money_data WHERE city_name = $1`;
+      const maxResult = await client.query(maxQuery, [cityName]);
+      const maxTimestamp = parseInt(maxResult.rows[0].max_time) || 0;
+
+      console.log(`💰 Retrieved ${ result.rows.length } money_data records for ${ cityName } since time ${ lastTime }, maxTimestamp: ${maxTimestamp}`);
+      
+      return {
+        data: result.rows,
+        maxTimestamp: maxTimestamp
+      };
 
     } finally {
       client.release();
@@ -527,8 +545,17 @@ class PostgreSQLSimulationDatabase {
 
       const result = await client.query(query, params);
 
-      console.log(`🏢 Retrieved ${result.rows.length} company updates for ${companyName} in ${cityName} since time ${lastTime}`);
-      return result.rows;
+      // Get the maximum timestamp in the database for restart detection
+      const maxQuery = `SELECT COALESCE(MAX(time_stamp), 0) as max_time FROM company_data WHERE city_name = $1 AND company_name = $2`;
+      const maxResult = await client.query(maxQuery, [cityName, companyName]);
+      const maxTimestamp = parseInt(maxResult.rows[0].max_time) || 0;
+
+      console.log(`🏢 Retrieved ${result.rows.length} company updates for ${companyName} in ${cityName} since time ${lastTime}, maxTimestamp: ${maxTimestamp}`);
+      
+      return {
+        data: result.rows,
+        maxTimestamp: maxTimestamp
+      };
 
     } finally {
       client.release();

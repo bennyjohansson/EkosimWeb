@@ -414,30 +414,40 @@ async function initChart() {
 // Load data from API
 async function loadData() {
   if (isLoading.value) return
-  
+  console.log('[CapitalChart] loadData called. selectedCountry:', props.selectedCountry, 'lastTimestamp:', lastTimestamp.value)
   isLoading.value = true
   error.value = ''
-  
   try {
     const response = await simulationAPI.getMoneyDataUpdates(
       props.selectedCountry,
       lastTimestamp.value
     )
-    
+    console.log('[CapitalChart] API response:', response)
     if (response.message === 'success') {
+      // Check for simulation restart: backend reset
+      if (typeof response.maxTimestamp !== 'undefined' && response.maxTimestamp < lastTimestamp.value) {
+        console.warn('[CapitalChart] Detected simulation restart: maxTimestamp', response.maxTimestamp, '< lastTimestamp', lastTimestamp.value, '. Resetting lastTimestamp to 0 and reloading data.')
+        lastTimestamp.value = 0
+        dataPoints.value = []
+        isInitialLoad.value = true
+        // Reload all data from beginning
+        await loadData()
+        return
+      }
       if (response.data.length > 0) {
-        console.log('Capital data loaded:', {
+        console.log('[CapitalChart] Data loaded:', {
           count: response.data.length,
           firstPoint: response.data[0],
+          lastPoint: response.data[response.data.length - 1],
           hasCapital: response.data[0].TOTAL_CAPITAL !== undefined,
-          isInitial: isInitialLoad.value
+          isInitial: isInitialLoad.value,
+          maxTimestamp: response.maxTimestamp
         })
-        
         // On initial load, filter to show only last 100 cycles to avoid displaying full history
         if (isInitialLoad.value && response.data.length > 100) {
           const recentData = response.data.slice(-100)
           dataPoints.value = recentData
-          console.log(`Filtered initial capital data from ${response.data.length} to ${recentData.length} records (last 100 cycles)`)
+          console.log(`[CapitalChart] Filtered initial capital data from ${response.data.length} to ${recentData.length} records (last 100 cycles)`)
           isInitialLoad.value = false
         } else {
           // Append new data points for subsequent updates
@@ -446,22 +456,25 @@ async function loadData() {
             isInitialLoad.value = false
           }
         }
-        
         // Update last timestamp
         const maxTime = Math.max(...response.data.map(d => d.TIME))
         lastTimestamp.value = maxTime
-        
+        console.log('[CapitalChart] Updated lastTimestamp to', lastTimestamp.value)
         // Initialize chart if it doesn't exist, otherwise update it
         if (!chart) {
           await initChart()
         } else {
           updateChart()
         }
+      } else {
+        console.log('[CapitalChart] No new data returned from API. maxTimestamp:', response.maxTimestamp, 'lastTimestamp:', lastTimestamp.value)
       }
     } else {
+      console.error('[CapitalChart] API error:', response.error)
       throw new Error(response.error || 'Failed to load capital data')
     }
   } catch (err) {
+    console.error('[CapitalChart] Exception in loadData:', err)
     error.value = parseAPIError(err)
   } finally {
     isLoading.value = false
@@ -491,9 +504,10 @@ function updateChart() {
 // Start auto-updating
 function startAutoUpdate() {
   if (isAutoUpdating.value) return
-  
+  console.log('[CapitalChart] startAutoUpdate called. Polling every 3s.')
   isAutoUpdating.value = true
   updateInterval = setInterval(() => {
+    console.log('[CapitalChart] Polling... lastTimestamp:', lastTimestamp.value)
     loadData()
   }, 3000)
 }
@@ -510,9 +524,13 @@ function stopAutoUpdate() {
 // Initialize on mount
 onMounted(async () => {
   console.log('Capital Chart component mounted, loading data...')
-  await loadData()
-  // Start auto-update by default
-  startAutoUpdate()
+  if (props.selectedCountry && props.selectedCountry !== '') {
+    await loadData()
+    // Start auto-update by default
+    startAutoUpdate()
+  } else {
+    console.warn('Capital Chart: No country selected on mount, skipping initial data load')
+  }
 })
 
 // Cleanup on unmount
@@ -524,14 +542,19 @@ onUnmounted(() => {
 })
 
 // Watch for country changes
-watch(() => props.selectedCountry, async () => {
-  dataPoints.value = []
-  lastTimestamp.value = 0
-  
-  if (chart) {
-    updateChart()
+// Watch for country changes
+watch(() => props.selectedCountry, async (newCountry, oldCountry) => {
+  if (newCountry && newCountry !== '' && newCountry !== oldCountry) {
+    dataPoints.value = []
+    lastTimestamp.value = 0
+    if (chart) {
+      updateChart()
+    }
+    await loadData()
+    startAutoUpdate()
+  } else if (!newCountry || newCountry === '') {
+    console.warn('Capital Chart: selectedCountry is empty, skipping data load')
   }
-  await loadData()
 })
 </script>
 

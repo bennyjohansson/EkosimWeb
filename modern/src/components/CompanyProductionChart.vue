@@ -400,15 +400,10 @@ function createChartConfig(): ChartConfiguration {
       },
       scales: {
         x: {
-          type: 'linear' as const,
           display: true,
           title: {
             display: true,
             text: 'Time'
-          },
-          min: 0,
-          ticks: {
-            stepSize: 10
           }
         },
         y: {
@@ -568,23 +563,25 @@ onUnmounted(() => {
 })
 
 // Watch for company/country changes
-watch(() => [props.selectedCountry, props.selectedCompany], async () => {
-  // Reset data when company/country changes
-  dataPoints.value = []
-  
-  // Update chart and reload data
-  if (chart) {
-    updateChart()
-  }
-  
-  if (props.selectedCompany) {
-    await loadData()
+watch(() => [props.selectedCountry, props.selectedCompany], async (newVal, oldVal) => {
+  if (newVal[0] !== oldVal[0] || newVal[1] !== oldVal[1]) {
+    // Stop auto-update first
+    stopAutoUpdate()
+    // Reset data when company/country changes
+    dataPoints.value = []
+    // Clear store data to prevent duplication
+    store.companyTimeSeriesData = []
+    
+    if (props.selectedCompany) {
+      await loadData()
+      startAutoUpdate()
+    }
   }
 })
 
 // Watch store data for real-time updates
 watch(() => store.companyTimeSeriesData, (newData) => {
-  if (newData.length > dataPoints.value.length) {
+  if (newData.length > 0 && newData.length !== dataPoints.value.length) {
     dataPoints.value = [...newData]
     if (chart) {
       updateChart()

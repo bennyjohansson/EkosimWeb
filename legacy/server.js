@@ -344,14 +344,15 @@ app.get('/ekosim/moneytable/update/:myCountry', async (req, res, next) => {
         }
 
         // Use SimulationService to get money data from PostgreSQL
-        const data = await simulationService.getMoneyData(cityName, lastTime);
+        const result = await simulationService.getMoneyData(cityName, lastTime);
 
-        console.log(`💰 Retrieved money data for ${cityName}: ${data.length} records since time ${lastTime}`);
-        console.log(`✅ Money data sent for ${cityName}: ${data.length} records`);
+        console.log(`💰 Retrieved money data for ${cityName}: ${result.data.length} records since time ${lastTime}, maxTimestamp: ${result.maxTimestamp}`);
+        console.log(`✅ Money data sent for ${cityName}: ${result.data.length} records`);
 
         return res.json({
             "message": "success",
-            "data": data
+            "data": result.data,
+            "maxTimestamp": result.maxTimestamp
         });
 
     } catch (error) {
@@ -381,14 +382,15 @@ app.get('/ekosim/timetable/update/:myCountry', async (req, res, next) => {
             });
         }
 
-        const timeData = await simulationService.getTimeData(cityName, lastTime);
+        const result = await simulationService.getTimeData(cityName, lastTime);
 
         res.json({
             "message": "success",
-            "data": timeData
+            "data": result.data,
+            "maxTimestamp": result.maxTimestamp
         });
 
-        console.log(`✅ Time data sent for ${cityName}: ${timeData.length} records`);
+        console.log(`✅ Time data sent for ${cityName}: ${result.data.length} records, maxTimestamp: ${result.maxTimestamp}`);
 
     } catch (error) {
         console.error('❌ Failed to get time data:', error.message);
@@ -427,14 +429,15 @@ app.get('/ekosim/companytable/update/:myCountry', async (req, res, next) => {
         }
 
         console.log(`Fetching company updates for ${companyName} in ${cityName} since time ${lastTime}`);
-        const companyData = await simulationService.getCompanyUpdates(cityName, companyName, lastTime);
+        const result = await simulationService.getCompanyUpdates(cityName, companyName, lastTime);
 
         res.json({
             "message": "success",
-            "data": companyData
+            "data": result.data,
+            "maxTimestamp": result.maxTimestamp
         });
 
-        console.log(`✅ Company data sent for ${companyName}: ${companyData.length} records`);
+        console.log(`✅ Company data sent for ${companyName}: ${result.data.length} records, maxTimestamp: ${result.maxTimestamp}`);
 
     } catch (error) {
         console.error('❌ Failed to get company table data:', error.message);

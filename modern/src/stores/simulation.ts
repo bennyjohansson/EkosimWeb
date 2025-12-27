@@ -239,6 +239,7 @@ export const useSimulationStore = defineStore('simulation', () => {
    * Load latest money data updates
    */
   async function loadMoneyDataUpdates() {
+    console.log('🔵 loadMoneyDataUpdates called, lastTimestamp:', simulationState.value.lastMoneyTimestamp)
     try {
       // Don't fetch if no country is selected
       if (!currentCountry.value || currentCountry.value === '') {
@@ -250,29 +251,39 @@ export const useSimulationStore = defineStore('simulation', () => {
         currentCountry.value,
         simulationState.value.lastMoneyTimestamp
       )
+      console.log('🟢 API response received:', response)
 
-      if (response.message === 'success' && response.data.length > 0) {
-        // Check if simulation has restarted (new data has lower timestamps than existing)
-        const newMinTimestamp = Math.min(...response.data.map(d => d.TIME))
-        const existingMaxTimestamp = moneyData.value.length > 0 
-          ? Math.max(...moneyData.value.map(d => d.TIME))
-          : -1
+      if (response.message === 'success') {
+        // Check if simulation has restarted by comparing maxTimestamp in DB with our last known timestamp
+        const maxTimestamp = response.maxTimestamp || 0
         
-        // If new data starts before existing data ends, simulation likely restarted
-        if (existingMaxTimestamp > 0 && newMinTimestamp <= existingMaxTimestamp) {
-          console.log('Simulation restart detected for money data, clearing data. New min:', newMinTimestamp, 'Existing max:', existingMaxTimestamp)
+        console.log('💰 Money data response:', {
+          dataLength: response.data.length,
+          maxTimestamp: maxTimestamp,
+          lastMoneyTimestamp: simulationState.value.lastMoneyTimestamp,
+          shouldRestart: simulationState.value.lastMoneyTimestamp > 0 && maxTimestamp < simulationState.value.lastMoneyTimestamp
+        })
+        
+        // If database max is less than what we've seen, simulation restarted
+        if (simulationState.value.lastMoneyTimestamp > 0 && maxTimestamp < simulationState.value.lastMoneyTimestamp) {
+          console.log('🔄 Simulation restart detected for money data! DB max:', maxTimestamp, 'Our last:', simulationState.value.lastMoneyTimestamp)
           moneyData.value = []
           simulationState.value.lastMoneyTimestamp = 0
+          // Reload from beginning
+          await loadMoneyDataUpdates()
+          return
         }
         
-        // Append new data points
-        moneyData.value.push(...response.data)
-        
-        // Update timestamp for next request
-        const latestTimestamp = Math.max(
-          ...response.data.map(d => d.TIME)
-        )
-        simulationState.value.lastMoneyTimestamp = latestTimestamp
+        // Append new data points if any
+        if (response.data.length > 0) {
+          moneyData.value.push(...response.data)
+          
+          // Update timestamp for next request
+          const latestTimestamp = Math.max(
+            ...response.data.map(d => d.TIME)
+          )
+          simulationState.value.lastMoneyTimestamp = latestTimestamp
+        }
       }
     } catch (error) {
       console.warn('Failed to load money data updates:', parseAPIError(error))
@@ -295,28 +306,37 @@ export const useSimulationStore = defineStore('simulation', () => {
         simulationState.value.lastTimeTimestamp
       )
 
-      if (response.message === 'success' && response.data.length > 0) {
-        // Check if simulation has restarted (new data has lower timestamps than existing)
-        const newMinTimestamp = Math.min(...response.data.map(d => d.TIME))
-        const existingMaxTimestamp = timeData.value.length > 0 
-          ? Math.max(...timeData.value.map(d => d.TIME))
-          : -1
+      if (response.message === 'success') {
+        // Check if simulation has restarted by comparing maxTimestamp in DB with our last known timestamp
+        const maxTimestamp = response.maxTimestamp || 0
         
-        // If new data starts before existing data ends, simulation likely restarted
-        if (existingMaxTimestamp > 0 && newMinTimestamp <= existingMaxTimestamp) {
-          console.log('Simulation restart detected for time data, clearing data. New min:', newMinTimestamp, 'Existing max:', existingMaxTimestamp)
+        console.log('📊 Time data response:', {
+          dataLength: response.data.length,
+          maxTimestamp: maxTimestamp,
+          lastTimeTimestamp: simulationState.value.lastTimeTimestamp,
+          shouldRestart: simulationState.value.lastTimeTimestamp > 0 && maxTimestamp < simulationState.value.lastTimeTimestamp
+        })
+        
+        // If database max is less than what we've seen, simulation restarted
+        if (simulationState.value.lastTimeTimestamp > 0 && maxTimestamp < simulationState.value.lastTimeTimestamp) {
+          console.log('🔄 Simulation restart detected for time data! DB max:', maxTimestamp, 'Our last:', simulationState.value.lastTimeTimestamp)
           timeData.value = []
           simulationState.value.lastTimeTimestamp = 0
+          // Reload from beginning
+          await loadTimeDataUpdates()
+          return
         }
         
-        // Append new data points
-        timeData.value.push(...response.data)
-        
-        // Update timestamp for next request
-        const latestTimestamp = Math.max(
-          ...response.data.map(d => d.TIME)
-        )
-        simulationState.value.lastTimeTimestamp = latestTimestamp
+        // Append new data points if any
+        if (response.data.length > 0) {
+          timeData.value.push(...response.data)
+          
+          // Update timestamp for next request
+          const latestTimestamp = Math.max(
+            ...response.data.map(d => d.TIME)
+          )
+          simulationState.value.lastTimeTimestamp = latestTimestamp
+        }
       }
     } catch (error) {
       console.warn('Failed to load time data updates:', parseAPIError(error))
@@ -476,30 +496,32 @@ export const useSimulationStore = defineStore('simulation', () => {
         lastCompanyTimeSeriesTimestamp.value
       )
 
-      if (response.message === 'success' && response.data.length > 0) {
-        // Check if simulation has restarted (new data has lower timestamps than existing)
-        const newMinTimestamp = Math.min(...response.data.map(d => d.TIME_STAMP))
-        const existingMaxTimestamp = companyTimeSeriesData.value.length > 0 
-          ? Math.max(...companyTimeSeriesData.value.map(d => d.TIME_STAMP))
-          : -1
+      if (response.message === 'success') {
+        // Check if simulation has restarted by comparing maxTimestamp in DB with our last known timestamp
+        const maxTimestamp = response.maxTimestamp || 0
         
-        // If new data starts before existing data ends, simulation likely restarted
-        if (existingMaxTimestamp > 0 && newMinTimestamp <= existingMaxTimestamp) {
-          console.log('Simulation restart detected for company data, clearing data. New min:', newMinTimestamp, 'Existing max:', existingMaxTimestamp)
+        // If database max is less than what we've seen, simulation restarted
+        if (lastCompanyTimeSeriesTimestamp.value > 0 && maxTimestamp < lastCompanyTimeSeriesTimestamp.value) {
+          console.log('🔄 Simulation restart detected for company data! DB max:', maxTimestamp, 'Our last:', lastCompanyTimeSeriesTimestamp.value)
           companyTimeSeriesData.value = []
           lastCompanyTimeSeriesTimestamp.value = 0
+          // Reload from beginning
+          await loadCompanyTimeSeriesData()
+          return
         }
         
-        // Append new data points
-        companyTimeSeriesData.value.push(...response.data)
-        
-        // Update timestamp for next request
-        const latestTimestamp = Math.max(
-          ...response.data.map(d => d.TIME_STAMP)
-        )
-        lastCompanyTimeSeriesTimestamp.value = latestTimestamp
-        
-        console.log('Company time series data loaded:', response.data.length, 'points')
+        // Append new data points if any
+        if (response.data.length > 0) {
+          companyTimeSeriesData.value.push(...response.data)
+          
+          // Update timestamp for next request
+          const latestTimestamp = Math.max(
+            ...response.data.map(d => d.TIME_STAMP)
+          )
+          lastCompanyTimeSeriesTimestamp.value = latestTimestamp
+          
+          console.log('Company time series data loaded:', response.data.length, 'points')
+        }
       }
     } catch (error) {
       console.warn('Failed to load company time series data:', parseAPIError(error))

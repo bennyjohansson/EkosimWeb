@@ -6,25 +6,49 @@
       <p class="view-subtitle">Monitor and control company parameters, production metrics, and utilization</p>
     </div>
     
-    <!-- Country Selection -->
-    <div class="country-selector">
-      <label for="company-country-select">Country: </label>
-      <select 
-        id="company-country-select"
-        :value="store.simulationState.selectedCountry"
-        @change="handleCountryChange"
-        class="country-select"
-        :disabled="store.isLoading"
-      >
-        <option value="" disabled>Select a country...</option>
-        <option 
-          v-for="country in store.availableCountries" 
-          :key="country" 
-          :value="country"
+    <!-- Selection Controls -->
+    <div class="selection-controls">
+      <!-- Country Selection -->
+      <div class="selector-item">
+        <label for="company-country-select">Country: </label>
+        <select 
+          id="company-country-select"
+          :value="store.simulationState.selectedCountry"
+          @change="handleCountryChange"
+          class="select-input"
+          :disabled="store.isLoading"
         >
-          {{ country }}
-        </option>
-      </select>
+          <option value="" disabled>Select a country...</option>
+          <option 
+            v-for="country in store.availableCountries" 
+            :key="country" 
+            :value="country"
+          >
+            {{ country }}
+          </option>
+        </select>
+      </div>
+      
+      <!-- Company Selection -->
+      <div class="selector-item" v-if="selectedCountry">
+        <label for="company-select">Company: </label>
+        <select 
+          id="company-select"
+          :value="store.selectedCompany"
+          @change="handleCompanyChange"
+          class="select-input"
+          :disabled="store.isLoading"
+        >
+          <option value="" disabled>Select a company...</option>
+          <option 
+            v-for="company in store.availableCompanies" 
+            :key="company" 
+            :value="company"
+          >
+            {{ company }}
+          </option>
+        </select>
+      </div>
     </div>
     
     <!-- Main Content Area -->
@@ -136,8 +160,8 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useSimulationStore } from '@/stores/simulation'
-import CompanyProductionChart from '@/components/CompanyProductionChart.vue'
-import CompanyUtilizationChart from '@/components/CompanyUtilizationChart.vue'
+import CompanyProductionChart from '@/components/CompanyProductionChart_NEW.vue'
+import CompanyUtilizationChart from '@/components/CompanyUtilizationChart_NEW.vue'
 import CompanyParameterCard from '@/components/CompanyParameterCard.vue'
 import type { CountryCode } from '@/types/simulation'
 
@@ -193,6 +217,17 @@ const handleCountryChange = async (event: Event) => {
   if (newCountry && newCountry !== store.simulationState.selectedCountry) {
     await store.setCountry(newCountry)
     await initializeView()
+  }
+}
+
+// Handle company selection change
+const handleCompanyChange = async (event: Event) => {
+  const target = event.target as HTMLSelectElement
+  const newCompany = target.value
+  
+  if (newCompany && newCompany !== store.selectedCompany) {
+    await store.setSelectedCompany(newCompany)
+    await store.loadCompanyData()
   }
 }
 
@@ -284,7 +319,7 @@ onMounted(async () => {
   font-weight: 400;
 }
 
-.country-selector {
+.selection-controls {
   margin-bottom: 2rem;
   padding: 1.5rem;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -292,17 +327,25 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 1rem;
+  gap: 2rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  flex-wrap: wrap;
 }
 
-.country-selector label {
+.selector-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.selector-item label {
   font-weight: 600;
   color: white;
   font-size: 1.1rem;
+  white-space: nowrap;
 }
 
-.country-select {
+.select-input {
   padding: 0.75rem 1rem;
   border: none;
   border-radius: 8px;
@@ -314,12 +357,12 @@ onMounted(async () => {
   transition: all 0.3s ease;
 }
 
-.country-select:focus {
+.select-input:focus {
   outline: none;
   box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
 }
 
-.country-select:disabled {
+.select-input:disabled {
   background: #f0f0f0;
   cursor: not-allowed;
 }
@@ -578,13 +621,20 @@ onMounted(async () => {
     grid-template-columns: 1fr;
   }
   
-  .country-selector {
+  .selection-controls {
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 1rem;
     padding: 1rem;
   }
   
-  .country-select {
+  .selector-item {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+    width: 100%;
+  }
+  
+  .select-input {
     min-width: 100%;
   }
   

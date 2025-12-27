@@ -567,7 +567,15 @@ async function loadData() {
       props.selectedCountry,
       lastTimestamp.value
     )
-    
+    // Simulation restart detection
+    if (response.maxTimestamp < lastTimestamp.value) {
+      console.warn('[EconomicIndicatorsChart] Detected simulation restart: maxTimestamp', response.maxTimestamp, '< lastTimestamp', lastTimestamp.value, '. Resetting lastTimestamp to 0 and reloading data.')
+      lastTimestamp.value = 0
+      dataPoints.value = []
+      isInitialLoad.value = true
+      await loadData()
+      return
+    }
     if (response.message === 'success') {
       if (response.data.length > 0) {
         console.log('Economic indicators data loaded:', {
@@ -575,7 +583,6 @@ async function loadData() {
           firstPoint: response.data[0],
           hasInterestRate: response.data[0].INTEREST_RATE !== undefined
         })
-        
         // On initial load with all historical data, only keep recent data (last 100 cycles)
         if (isInitialLoad.value && response.data.length > 100) {
           const recentData = response.data.slice(-100)
@@ -585,13 +592,10 @@ async function loadData() {
           // Append new data points for incremental updates
           dataPoints.value.push(...response.data)
         }
-        
         isInitialLoad.value = false
-        
         // Update last timestamp
         const maxTime = Math.max(...response.data.map(d => d.TIME))
         lastTimestamp.value = maxTime
-        
         // Initialize chart if it doesn't exist, otherwise update it
         if (!chart) {
           await initChart()
@@ -651,9 +655,13 @@ function stopAutoUpdate() {
 // Initialize on mount
 onMounted(async () => {
   console.log('Economic Indicators Chart component mounted, loading data...')
-  await loadData()
-  // Start auto-update by default
-  startAutoUpdate()
+  if (props.selectedCountry && props.selectedCountry !== '') {
+    await loadData()
+    // Start auto-update by default
+    startAutoUpdate()
+  } else {
+    console.warn('Economic Indicators Chart: No country selected on mount, skipping initial data load')
+  }
 })
 
 // Cleanup on unmount
@@ -665,14 +673,19 @@ onUnmounted(() => {
 })
 
 // Watch for country changes
-watch(() => props.selectedCountry, async () => {
-  dataPoints.value = []
-  lastTimestamp.value = 0
-  
-  if (chart) {
-    updateChart()
+// Watch for country changes
+watch(() => props.selectedCountry, async (newCountry, oldCountry) => {
+  if (newCountry && newCountry !== '' && newCountry !== oldCountry) {
+    dataPoints.value = []
+    lastTimestamp.value = 0
+    if (chart) {
+      updateChart()
+    }
+    await loadData()
+    startAutoUpdate()
+  } else if (!newCountry || newCountry === '') {
+    console.warn('Economic Indicators Chart: selectedCountry is empty, skipping data load')
   }
-  await loadData()
 })
 </script>
 
