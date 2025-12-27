@@ -54,10 +54,10 @@ app.use(bodyParser.urlencoded({ extended: false }));
 // Development: This is skipped (Vite handles frontend)
 const isProduction = process.env.NODE_ENV === 'production';
 if (isProduction) {
-    console.log('🚀 Production mode: Serving Vue app from /modern/dist');
+    console.log('🚀 Production mode: Serving Vue app from /frontend/dist');
 
     // Serve static assets from Vue build
-    app.use(express.static(path.join(__dirname, '../modern/dist')));
+    app.use(express.static(path.join(__dirname, '../frontend/dist')));
 
     // For any non-API routes, serve the Vue app (SPA routing)
     app.get('*', (req, res, next) => {
@@ -70,7 +70,7 @@ if (isProduction) {
         }
 
         // Serve Vue app for all other routes
-        res.sendFile(path.join(__dirname, '../modern/dist/index.html'));
+        res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
     });
 } else {
     console.log('🔧 Development mode: Vue app served by Vite proxy');
