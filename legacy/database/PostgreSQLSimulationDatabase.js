@@ -441,6 +441,7 @@ class PostgreSQLSimulationDatabase {
           FROM company_data
           WHERE city_name = $1 AND company_name = $2
           ORDER BY time_stamp DESC
+          LIMIT 1
         `;
         params = [cityName, companyName];
       } else {
@@ -528,6 +529,31 @@ class PostgreSQLSimulationDatabase {
 
       console.log(`🏢 Retrieved ${result.rows.length} company updates for ${companyName} in ${cityName} since time ${lastTime}`);
       return result.rows;
+
+    } finally {
+      client.release();
+    }
+  }
+
+  /**
+   * Get list of available countries from world_table
+   */
+  async getAvailableCountries() {
+    const client = await this.pool.connect();
+
+    try {
+      const query = `
+        SELECT DISTINCT city_name
+        FROM world_table
+        WHERE city_name IS NOT NULL
+        ORDER BY city_name
+      `;
+
+      const result = await client.query(query);
+      const countries = result.rows.map(row => row.city_name);
+
+      console.log(`🌍 Retrieved ${countries.length} available countries from world_table`);
+      return countries;
 
     } finally {
       client.release();

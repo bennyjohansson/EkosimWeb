@@ -531,52 +531,24 @@ app.get("/", (req, res, next) => {
 
 
 // Get all available countries/cities by scanning database files
-app.get('/ekosim/getAvailableCountries', (req, res) => {
-    const fs = require('fs');
-    const path = require('path');
+app.get('/ekosim/getAvailableCountries', async (req, res) => {
+    console.log("🌍 AVAILABLE COUNTRIES REQUEST - Using SimulationService");
 
     try {
-        const dbPath = '../../ekosim/myDB/';  // Match other endpoints
-        const dbDir = path.resolve(__dirname, dbPath);
-
-        // Check if directory exists
-        if (!fs.existsSync(dbDir)) {
-            console.error('Database directory not found:', dbDir);
-            return res.status(500).json({
-                message: "error",
-                error: "Database directory not found"
-            });
-        }
-
-        // Read all files in the directory first
-        const files = fs.readdirSync(dbDir);
-
-        // Filter to get only valid country database files
-        const dbFiles = files.filter(file =>
-            file.endsWith('.db') &&
-            !file.startsWith('.') &&
-            !file.includes('users.db') && // Exclude user authentication database
-            !file.toLowerCase().includes('world') && // Exclude world class instances (e.g., Bennyworld)
-            !file.toLowerCase().startsWith('global') && // Exclude global databases
-            file.length > 3 && // Ensure it's not just ".db"
-            fs.statSync(path.join(dbDir, file)).size > 0 // Exclude empty files
-        );
-
-        // Extract country names (remove .db extension)
-        const countries = dbFiles.map(file => file.replace('.db', ''));
-
-        console.log('Available countries found:', countries);
+        const countries = await simulationService.getAvailableCountries();
 
         res.json({
             message: "success",
             data: countries
         });
 
+        console.log(`✅ Available countries sent: ${countries.length} countries`);
+
     } catch (error) {
-        console.error('Error reading database directory:', error);
+        console.error('❌ Failed to get available countries:', error.message);
         res.status(500).json({
             message: "error",
-            error: error.message
+            error: `Failed to retrieve available countries: ${error.message}`
         });
     }
 });

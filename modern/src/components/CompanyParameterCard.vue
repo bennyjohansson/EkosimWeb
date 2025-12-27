@@ -271,7 +271,7 @@ const getCurrentValue = (paramKey: CompanyParameterType): string => {
     percentage = value * 100
   } else {
     const numValue = parseFloat(String(value))
-    percentage = numValue * 100
+    percentage = isNaN(numValue) ? 0 : numValue * 100
   }
   
   return percentage.toFixed(1)
@@ -279,18 +279,20 @@ const getCurrentValue = (paramKey: CompanyParameterType): string => {
 
 const hasChanged = (paramKey: CompanyParameterType): boolean => {
   const inputValue = parameterValues[paramKey as string]
-  if (inputValue === null) return false
+  if (inputValue === null || inputValue === undefined) return false
   
   const currentValue = parseFloat(getCurrentValue(paramKey))
-  return inputValue !== currentValue
+  return Math.abs(inputValue - currentValue) > 0.01 // Allow tiny floating point differences
 }
 
 // Watch for country changes
-watch(() => props.selectedCountry, async (newCountry) => {
-  if (newCountry) {
-    await store.loadAvailableCompanies()
+watch(() => props.selectedCountry, async (newCountry, oldCountry) => {
+  if (newCountry && newCountry !== oldCountry) {
     clearMessage()
-    resetParameterValues()
+    // Reset to null while loading new data
+    selectedCompany.value = ''
+    await store.loadAvailableCompanies()
+    // Don't call resetParameterValues here - let the data watchers handle it after data loads
   }
 })
 
@@ -386,13 +388,24 @@ const resetParameterValues = () => {
     return
   }
   
-  console.log('Setting parameter values from company data')
+  console.log('Setting parameter values from company data:', {
+    WAGE_CONST: currentCompanyData.value.WAGE_CONST,
+    PBR: currentCompanyData.value.PBR,
+    WAGE_CH: currentCompanyData.value.WAGE_CH,
+    CAP_VS_EFF_SPLIT: currentCompanyData.value.CAP_VS_EFF_SPLIT
+  })
   
   // Reset all parameter values to current company data
-  parameterValues.WAGE_CONST = parseFloat(getCurrentValue('WAGE_CONST'))
-  parameterValues.PBR = parseFloat(getCurrentValue('PBR'))
-  parameterValues.WAGE_CH = parseFloat(getCurrentValue('WAGE_CH'))
-  parameterValues.CAP_VS_EFF_SPLIT = parseFloat(getCurrentValue('CAP_VS_EFF_SPLIT'))
+  // Parse the current values to ensure they're properly formatted
+  const wageConst = parseFloat(getCurrentValue('WAGE_CONST'))
+  const pbr = parseFloat(getCurrentValue('PBR'))
+  const wageCh = parseFloat(getCurrentValue('WAGE_CH'))
+  const capVsEff = parseFloat(getCurrentValue('CAP_VS_EFF_SPLIT'))
+  
+  parameterValues.WAGE_CONST = isNaN(wageConst) ? 0 : wageConst
+  parameterValues.PBR = isNaN(pbr) ? 0 : pbr
+  parameterValues.WAGE_CH = isNaN(wageCh) ? 0 : wageCh
+  parameterValues.CAP_VS_EFF_SPLIT = isNaN(capVsEff) ? 0 : capVsEff
   
   console.log('Parameter values set:', {
     WAGE_CONST: parameterValues.WAGE_CONST,

@@ -196,6 +196,23 @@ class SimulationService {
   }
 
   /**
+   * Get list of available countries
+   */
+  async getAvailableCountries() {
+    await this.initialize();
+
+    try {
+      const countries = await this.simulationDb.getAvailableCountries();
+      console.log(`🌍 Retrieved ${countries.length} available countries`);
+      return countries;
+
+    } catch (error) {
+      console.error('Failed to get available countries:', error.message);
+      throw new Error('Could not retrieve available countries');
+    }
+  }
+
+  /**
    * Test database connection
    */
   async testConnection() {
