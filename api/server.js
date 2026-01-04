@@ -556,6 +556,41 @@ app.get('/ekosim/getAvailableCountries', async (req, res) => {
     }
 });
 
+// Get list of companies for a specific country
+app.get('/api/simulation/companies/:cityName', async (req, res) => {
+    console.log("🏢 COMPANY LIST REQUEST - Using SimulationService");
+
+    try {
+        const cityName = req.params.cityName;
+
+        // Validate country
+        if (!isValidCountry(cityName)) {
+            console.error(`Invalid country rejected: ${cityName}`);
+            return res.json({
+                message: "error",
+                data: [],
+                error: `Invalid country: ${cityName}`
+            });
+        }
+
+        const companies = await simulationService.getCompanyList(cityName);
+
+        res.json({
+            message: "success",
+            data: companies
+        });
+
+        console.log(`✅ Company list sent for ${cityName}: ${companies.length} companies`);
+
+    } catch (error) {
+        console.error('❌ Failed to get company list:', error.message);
+        res.status(500).json({
+            message: "error",
+            error: `Failed to retrieve company list: ${error.message}`
+        });
+    }
+});
+
 // Mount authentication routes
 try {
     const authRoutes = new AuthRoutes(authConfig);

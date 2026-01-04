@@ -588,6 +588,32 @@ class PostgreSQLSimulationDatabase {
   }
 
   /**
+   * Get list of available companies for a city/country
+   * @param {string} cityName - The city/country name
+   */
+  async getCompanyList(cityName) {
+    const client = await this.pool.connect();
+
+    try {
+      const query = `
+        SELECT DISTINCT company_name
+        FROM company_data
+        WHERE city_name = $1
+        ORDER BY company_name
+      `;
+
+      const result = await client.query(query, [cityName]);
+      const companies = result.rows.map(row => row.company_name);
+
+      console.log(`🏢 Retrieved ${companies.length} companies for ${cityName} from company_data`);
+      return companies;
+
+    } finally {
+      client.release();
+    }
+  }
+
+  /**
    * Close database connections
    */
   async close() {

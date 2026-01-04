@@ -213,6 +213,24 @@ class SimulationService {
   }
 
   /**
+   * Get list of companies for a city/country
+   * @param {string} cityName - The city/country name
+   */
+  async getCompanyList(cityName) {
+    await this.initialize();
+
+    try {
+      const companies = await this.simulationDb.getCompanyList(cityName);
+      console.log(`🏢 Retrieved ${companies.length} companies for ${cityName}`);
+      return companies;
+
+    } catch (error) {
+      console.error(`Failed to get company list for ${cityName}:`, error.message);
+      throw new Error(`Could not retrieve company list for ${cityName}`);
+    }
+  }
+
+  /**
    * Test database connection
    */
   async testConnection() {

@@ -157,7 +157,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useSimulationStore } from '@/stores/simulation'
 import CompanyProductionChart from '@/components/CompanyProductionChart_NEW.vue'
@@ -282,6 +282,14 @@ onMounted(async () => {
   if (selectedCountry.value) {
     await initializeView()
   }
+  
+  // Start data polling (including company list refresh)
+  store.startDataPolling()
+})
+
+onUnmounted(() => {
+  // Stop polling when leaving the view
+  store.stopDataPolling()
 })
 </script>
 

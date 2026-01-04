@@ -242,24 +242,11 @@ export class SimulationAPIService implements SimulationAPI {
   }
 
   async getCompanyList(country: CountryCode): Promise<ApiResponse<CompanyName[]>> {
-    // For now, return the hardcoded list from legacy analysis
-    // This could be enhanced later to fetch from an API endpoint
-    // Using country parameter for future extensibility
     console.log(`Loading company list for country: ${country}`)
     
-    const companies: CompanyName[] = [
-      'johansson_och_johansson',
-      'limpan_AB', 
-      'bempa_AB',
-      'bempa_CO',
-      'benny_enterprises',
-      'benny_inc'
-    ]
-    
-    return Promise.resolve({
-      message: 'success',
-      data: companies
-    })
+    // Fetch from API endpoint
+    const endpoint = `/api/simulation/companies/${country}`
+    return this.client.get<CompanyName[]>(endpoint)
   }
 
   async updateCompanyParameter(

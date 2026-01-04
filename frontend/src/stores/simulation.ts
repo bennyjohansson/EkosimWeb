@@ -80,6 +80,7 @@ export const useSimulationStore = defineStore('simulation', () => {
   let moneyDataPolling: ReturnType<typeof setInterval> | null = null
   let timeDataPolling: ReturnType<typeof setInterval> | null = null
   let companyDataPolling: ReturnType<typeof setInterval> | null = null
+  let companyListPolling: ReturnType<typeof setInterval> | null = null
 
   // ===== COMPUTED GETTERS =====
 
@@ -422,7 +423,7 @@ export const useSimulationStore = defineStore('simulation', () => {
           selectedCompany.value = response.data[0]
         }
         
-        console.log('Available companies loaded:', response.data)
+        console.log('✅ Available companies loaded:', response.data.length, 'companies:', response.data)
       } else {
         throw new Error(response.error || 'Failed to load company list')
       }
@@ -594,6 +595,16 @@ export const useSimulationStore = defineStore('simulation', () => {
         loadCompanyTimeSeriesData()
       }
     }, interval)
+
+    // Poll available companies list (less frequently - every 5 seconds)
+    companyListPolling = setInterval(() => {
+      if (isAuthenticated.value) {
+        console.log('[CompanyListPolling] Refreshing available companies...')
+        loadAvailableCompanies()
+      }
+    }, 5000)
+    
+    console.log('✅ Company list polling started (every 5 seconds)')
   }
 
   /**
@@ -618,6 +629,11 @@ export const useSimulationStore = defineStore('simulation', () => {
     if (companyDataPolling) {
       clearInterval(companyDataPolling)
       companyDataPolling = null
+    }
+
+    if (companyListPolling) {
+      clearInterval(companyListPolling)
+      companyListPolling = null
     }
   }
 
