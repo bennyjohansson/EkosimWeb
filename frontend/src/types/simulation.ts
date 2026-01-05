@@ -273,6 +273,28 @@ export interface SimulationState {
 
 // ===== API ENDPOINTS INTERFACE =====
 
+// ===== SIMULATION EVENT TYPES =====
+
+export type EventType = 'COMPANY_CREATED' | 'COMPANY_BANKRUPT' | 'BANKING_CRISIS'
+export type EventSeverity = 'INFO' | 'WARNING' | 'CRITICAL'
+
+export interface SimulationEvent {
+  id: number
+  city_name: string
+  event_type: EventType
+  severity: EventSeverity
+  description: string
+  event_data: Record<string, any>
+  simulation_time: number
+  created_at: string
+}
+
+export interface EventFilters {
+  limit?: number
+  severity?: EventSeverity
+  eventType?: EventType
+}
+
 export interface SimulationAPI {
   // Parameter management
   getParameter(country: CountryCode, parameterName: ParameterName): Promise<ApiResponse<EconomicParameter>>
@@ -288,6 +310,9 @@ export interface SimulationAPI {
   // Time series data
   getMoneyDataUpdates(country: CountryCode, lastTimestamp: number): Promise<ApiResponse<MoneyDataPoint[]>>
   getTimeDataUpdates(country: CountryCode, lastTimestamp: number): Promise<ApiResponse<TimeDataPoint[]>>
+  
+  // Simulation events
+  getSimulationEvents(country: CountryCode, filters?: EventFilters): Promise<ApiResponse<SimulationEvent[]>>
   
   // World data
   getWorldTable(): Promise<ApiResponse<WorldTableEntry[]>>

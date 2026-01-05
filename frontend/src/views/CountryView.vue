@@ -23,6 +23,12 @@
       </select>
     </div>
 
+    <!-- Simulation Events Feed -->
+    <EventFeed 
+      v-if="store.simulationState.selectedCountry"
+      :country="store.simulationState.selectedCountry"
+    />
+
     <div class="country-grid">
       <!-- Money Distribution Chart -->
       <div class="chart-section">
@@ -75,6 +81,7 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { useSimulationStore } from '@/stores/simulation'
+import EventFeed from '@/components/EventFeed.vue'
 import CapitalDistributionChart from '@/components/CapitalDistributionChart.vue'
 import GDPChart from '@/components/GDPChart.vue'
 import EconomicIndicatorsChart from '@/components/EconomicIndicatorsChart.vue'

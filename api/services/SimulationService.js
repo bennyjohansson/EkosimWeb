@@ -231,6 +231,26 @@ class SimulationService {
   }
 
   /**
+   * Get simulation events for a city
+   * @param {string} cityName - The city to get events for
+   * @param {object} options - Optional filters (limit, severity, eventType)
+   * @returns {Promise<Array>} Array of event objects
+   */
+  async getSimulationEvents(cityName, options = {}) {
+    await this.initialize();
+
+    try {
+      const events = await this.simulationDb.getSimulationEvents(cityName, options);
+      console.log(`📋 Retrieved ${events.length} events for ${cityName}`);
+      return events;
+
+    } catch (error) {
+      console.error(`Failed to get simulation events for ${cityName}:`, error.message);
+      throw new Error(`Could not retrieve simulation events for ${cityName}`);
+    }
+  }
+
+  /**
    * Test database connection
    */
   async testConnection() {

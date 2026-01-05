@@ -614,6 +614,60 @@ class PostgreSQLSimulationDatabase {
   }
 
   /**
+   * Get simulation events for a city
+   * @param {string} cityName - The city to get events for
+   * @param {object} options - Optional filters (limit, severity, event_type)
+   * @returns {Promise<Array>} Array of event objects
+   */
+  async getSimulationEvents(cityName, options = {}) {
+    const client = await this.pool.connect();
+
+    try {
+      const { limit = 100, severity = null, eventType = null } = options;
+      
+      let query = `
+        SELECT 
+          id,
+          city_name,
+          event_type,
+          severity,
+          description,
+          event_data,
+          simulation_time,
+          created_at
+        FROM simulation_events
+        WHERE city_name = $1
+      `;
+      
+      const params = [cityName];
+      let paramIndex = 2;
+      
+      if (severity) {
+        query += ` AND severity = $${paramIndex}`;
+        params.push(severity);
+        paramIndex++;
+      }
+      
+      if (eventType) {
+        query += ` AND event_type = $${paramIndex}`;
+        params.push(eventType);
+        paramIndex++;
+      }
+      
+      query += ` ORDER BY simulation_time DESC, created_at DESC LIMIT $${paramIndex}`;
+      params.push(limit);
+
+      const result = await client.query(query, params);
+
+      console.log(`📋 Retrieved ${result.rows.length} events for ${cityName} from simulation_events`);
+      return result.rows;
+
+    } finally {
+      client.release();
+    }
+  }
+
+  /**
    * Close database connections
    */
   async close() {

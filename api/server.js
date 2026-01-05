@@ -591,6 +591,48 @@ app.get('/api/simulation/companies/:cityName', async (req, res) => {
     }
 });
 
+// Get simulation events for a city
+app.get('/api/simulation/events/:cityName', async (req, res) => {
+    console.log("📋 SIMULATION EVENTS REQUEST - Using SimulationService");
+
+    try {
+        const cityName = req.params.cityName;
+        const limit = parseInt(req.query.limit) || 100;
+        const severity = req.query.severity || null;
+        const eventType = req.query.eventType || null;
+
+        // Validate country
+        if (!isValidCountry(cityName)) {
+            console.error(`Invalid country rejected: ${cityName}`);
+            return res.json({
+                message: "error",
+                data: [],
+                error: `Invalid country: ${cityName}`
+            });
+        }
+
+        const events = await simulationService.getSimulationEvents(cityName, {
+            limit,
+            severity,
+            eventType
+        });
+
+        res.json({
+            message: "success",
+            data: events
+        });
+
+        console.log(`✅ Events sent for ${cityName}: ${events.length} events`);
+
+    } catch (error) {
+        console.error('❌ Failed to get simulation events:', error.message);
+        res.status(500).json({
+            message: "error",
+            error: `Failed to retrieve simulation events: ${error.message}`
+        });
+    }
+});
+
 // Mount authentication routes
 try {
     const authRoutes = new AuthRoutes(authConfig);

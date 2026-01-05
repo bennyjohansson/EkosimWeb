@@ -249,6 +249,23 @@ export class SimulationAPIService implements SimulationAPI {
     return this.client.get<CompanyName[]>(endpoint)
   }
 
+  async getSimulationEvents(
+    country: CountryCode,
+    filters: { limit?: number; severity?: string; eventType?: string } = {}
+  ): Promise<ApiResponse<any[]>> {
+    console.log(`Loading simulation events for country: ${country}`, filters)
+    
+    const params = new URLSearchParams()
+    if (filters.limit) params.append('limit', filters.limit.toString())
+    if (filters.severity) params.append('severity', filters.severity)
+    if (filters.eventType) params.append('eventType', filters.eventType)
+    
+    const queryString = params.toString()
+    const endpoint = `/api/simulation/events/${country}${queryString ? '?' + queryString : ''}`
+    
+    return this.client.get<any[]>(endpoint)
+  }
+
   async updateCompanyParameter(
     country: CountryCode,
     companyName: CompanyName,
