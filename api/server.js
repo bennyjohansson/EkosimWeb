@@ -7,6 +7,15 @@ require('dotenv').config({ path: '../.env', override: false }); // Parent EkoWeb
 var express = require('express');
 var app = express();
 require('./services/HealthService').registerHealthRoutes(app, require('./config/database'));
+// Health check endpoint for Docker
+app.get('/health', (req, res) => {
+    res.status(200).json({
+        status: 'healthy',
+        timestamp: new Date().toISOString(),
+        port: PORT
+    });
+});
+
 let DBFunctions = require('./DBConnection')
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
@@ -646,14 +655,6 @@ try {
 //8080
 const PORT = process.env.PORT || 8080;
 
-// Health check endpoint for Docker
-app.get('/health', (req, res) => {
-    res.status(200).json({
-        status: 'healthy',
-        timestamp: new Date().toISOString(),
-        port: PORT
-    });
-});
 
 app.listen(PORT, function () {
 
